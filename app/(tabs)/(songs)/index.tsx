@@ -1,9 +1,9 @@
 import { AmbientGlow } from '@/components/ambient-glow';
-import { SongCard } from '@/components/song-card';
+import { SongList } from '@/components/song-list';
 import { mockSongs } from '@/constants/mock-songs';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 // Mirrors Library.tsx. The top bar (title, search, sync) is the real
 // native header — Stack.Title (asChild, so it's a plain styled Text
@@ -35,23 +35,13 @@ export default function LibraryScreen() {
         <Stack.Toolbar.Button icon="arrow.triangle.2.circlepath" onPress={() => {}} />
       </Stack.Toolbar>
 
-      <FlatList
-        data={songs}
-        keyExtractor={(item) => String(item.id)}
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerClassName="gap-4 px-4 pb-8 pt-4"
-        
-        renderItem={({ item }) => <SongCard song={item} onPress={() => router.push(`/song/${item.id}`)} />}
-        ListFooterComponent={
-          <View className="mt-3 items-center">
-            <View className="flex-row items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5">
-              <View className="h-1.5 w-1.5 rounded-full bg-primary" />
-              <Text className="font-sora-semibold text-[10px] tracking-wide text-muted-foreground">
-                {mockSongs.length} CANCIONES EN TOTAL
-              </Text>
-            </View>
-          </View>
-        }
+      <SongList
+        songs={songs}
+        onPressSong={(song) => router.push(`/song/${song.id}`)}
+        onToggleService={() => {}}
+        onTranslate={() => {}}
+        onEdit={() => {}}
+        onDelete={() => {}}
       />
     </View>
   );
