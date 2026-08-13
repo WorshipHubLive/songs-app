@@ -5,9 +5,10 @@ import { useThemeColors } from '@/hooks/use-theme-colors';
 import { shrinkAvatarForTransfer } from '@/lib/avatar';
 import { discoverWorshipHub, type DiscoveredPeer } from '@/lib/discovery';
 import { pairWithWorshipHub, sendSongsToWorshipHub } from '@/lib/worshiphub-client';
+import BottomSheet, { BottomSheetScrollView } from '@expo/ui/community/bottom-sheet';
 import { Check, Laptop, QrCode, RefreshCw, ShieldCheck, Zap } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 
 type Phase = 'searching' | 'found' | 'manual' | 'pairing' | 'sending' | 'done' | 'error';
 
@@ -16,12 +17,16 @@ interface Target {
   baseUrl: string;
 }
 
-// Bottom sheet mirroring SendSongsModal's "connect → pair → send" flow:
-// auto-discover WorshipHub over mDNS as soon as it opens (see
-// lib/discovery.ts — same `_worshiphub._tcp.local.` announcement the
-// desktop app's own discovery browses), falling back to a scanned/typed
-// address, then a real pair-request + import-songs call (see
-// lib/worshiphub-client.ts) — same protocol the web/desktop apps use.
+// Native bottom sheet (@expo/ui/community/bottom-sheet) mirroring
+// SendSongsModal's "connect → pair → send" flow: auto-discover
+// WorshipHub over mDNS as soon as it opens (see lib/discovery.ts — same
+// `_worshiphub._tcp.local.` announcement the desktop app's own discovery
+// browses), falling back to a scanned/typed address, then a real
+// pair-request + import-songs call (see lib/worshiphub-client.ts) — same
+// protocol the web/desktop apps use. The backdrop, drag handle, rounded
+// top corners and pan-down-to-close all come from the platform sheet
+// (real SwiftUI on iOS, Material 3 on Android) instead of being drawn by
+// hand with a Modal + Pressable overlay.
 export function SendToWorshipHubSheet({
   visible,
   songIds,
@@ -107,148 +112,142 @@ export function SendToWorshipHubSheet({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
-      <Pressable className="flex-1 justify-end bg-black/60" onPress={handleClose}>
-        <Pressable className="max-h-[80%] rounded-t-3xl border-t border-border bg-card" onPress={(e) => e.stopPropagation()}>
-          <View className="items-center pb-1 pt-3">
-            <View className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
-          </View>
+    <>
+      <BottomSheet index={visible ? 0 : -1} snapPoints={['80%']} enablePanDownToClose onClose={handleClose}>
+        <View className="gap-0.5 px-5 pb-4">
+          <Text className="font-sora-bold text-lg text-foreground">Enviar a WorshipHub</Text>
+          <Text className="font-sora text-xs text-muted-foreground">
+            {songIds.length} {songIds.length === 1 ? 'canción' : 'canciones'}
+          </Text>
+        </View>
 
-          <View className="gap-0.5 px-5 pb-4">
-            <Text className="font-sora-bold text-lg text-foreground">Enviar a WorshipHub</Text>
-            <Text className="font-sora text-xs text-muted-foreground">
-              {songIds.length} {songIds.length === 1 ? 'canción' : 'canciones'}
-            </Text>
-          </View>
+        <BottomSheetScrollView className="flex-1" contentContainerClassName="gap-4 px-5 pb-8">
+          {phase === 'searching' && (
+            <View className="items-center gap-3 py-10">
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text className="font-sora text-sm text-muted-foreground">Buscando WorshipHub en esta red…</Text>
+            </View>
+          )}
 
-          <ScrollView contentContainerClassName="gap-4 px-5 pb-8">
-            {phase === 'searching' && (
-              <View className="items-center gap-3 py-10">
-                <ActivityIndicator size="large" color={colors.primary} />
-                <Text className="font-sora text-sm text-muted-foreground">Buscando WorshipHub en esta red…</Text>
-              </View>
-            )}
-
-            {phase === 'found' && (
-              <View className="gap-3">
-                <Text className="font-sora text-xs text-muted-foreground">Encontrados en esta red — toca uno para enviar ahí:</Text>
-                {peers.map((peer) => (
-                  <Pressable
-                    key={`${peer.ip}:${peer.port}`}
-                    onPress={() => selectPeer(peer)}
-                    className="flex-row items-center gap-3 rounded-md border border-border px-3 py-2.5"
-                  >
-                    <Laptop size={16} color={colors.mutedForeground} />
-                    <Text className="min-w-0 flex-1 font-sora-semibold text-sm text-foreground" numberOfLines={1}>
-                      {peer.name}
-                    </Text>
-                    <Text className="shrink-0 font-mono text-xs text-muted-foreground">{peer.ip}</Text>
-                  </Pressable>
-                ))}
-                <Pressable onPress={runDiscovery} className="flex-row items-center justify-center gap-1.5 self-center px-2 py-1.5">
-                  <RefreshCw size={12} color={colors.primary} />
-                  <Text className="font-sora-bold text-xs text-primary">Buscar de nuevo</Text>
-                </Pressable>
-                <Pressable onPress={() => setPhase('manual')} className="self-center px-2 py-1">
-                  <Text className="font-sora text-xs text-muted-foreground underline">¿No aparece? Escribe la dirección</Text>
-                </Pressable>
-              </View>
-            )}
-
-            {phase === 'manual' && (
-              <View className="gap-3">
-                <Text className="font-sora text-xs text-muted-foreground">
-                  No encontramos WorshipHub automáticamente — escanea su código QR o escribe su dirección.
-                </Text>
-
+          {phase === 'found' && (
+            <View className="gap-3">
+              <Text className="font-sora text-xs text-muted-foreground">Encontrados en esta red — toca uno para enviar ahí:</Text>
+              {peers.map((peer) => (
                 <Pressable
-                  onPress={() => setScannerVisible(true)}
-                  className="flex-row items-center justify-center gap-1.5 rounded-md bg-secondary py-2.5"
+                  key={`${peer.ip}:${peer.port}`}
+                  onPress={() => selectPeer(peer)}
+                  className="flex-row items-center gap-3 rounded-md border border-border px-3 py-2.5"
                 >
-                  <QrCode size={14} color={colors.secondaryForeground} />
-                  <Text className="font-sora-bold text-xs text-secondary-foreground">Escanear código QR</Text>
+                  <Laptop size={16} color={colors.mutedForeground} />
+                  <Text className="min-w-0 flex-1 font-sora-semibold text-sm text-foreground" numberOfLines={1}>
+                    {peer.name}
+                  </Text>
+                  <Text className="shrink-0 font-mono text-xs text-muted-foreground">{peer.ip}</Text>
                 </Pressable>
+              ))}
+              <Pressable onPress={runDiscovery} className="flex-row items-center justify-center gap-1.5 self-center px-2 py-1.5">
+                <RefreshCw size={12} color={colors.primary} />
+                <Text className="font-sora-bold text-xs text-primary">Buscar de nuevo</Text>
+              </Pressable>
+              <Pressable onPress={() => setPhase('manual')} className="self-center px-2 py-1">
+                <Text className="font-sora text-xs text-muted-foreground underline">¿No aparece? Escribe la dirección</Text>
+              </Pressable>
+            </View>
+          )}
 
-                <View className="flex-row items-center gap-2">
-                  <View className="h-px flex-1 bg-border" />
-                  <Text className="font-sora text-[10px] text-muted-foreground">o</Text>
-                  <View className="h-px flex-1 bg-border" />
-                </View>
+          {phase === 'manual' && (
+            <View className="gap-3">
+              <Text className="font-sora text-xs text-muted-foreground">
+                No encontramos WorshipHub automáticamente — escanea su código QR o escribe su dirección.
+              </Text>
 
-                <View className="flex-row gap-2">
-                  <TextInput
-                    value={address}
-                    onChangeText={setAddress}
-                    placeholder="192.168.1.50:8787"
-                    placeholderTextColorClassName="accent-muted-foreground"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    className="flex-1 rounded-md border border-input bg-background px-3 py-2.5 font-sora text-sm text-foreground"
-                  />
-                  <Pressable
-                    onPress={submitAddress}
-                    disabled={!address.trim()}
-                    className={`flex-row items-center gap-1.5 rounded-md px-4 py-2.5 ${address.trim() ? 'bg-primary' : 'bg-muted'}`}
-                  >
-                    <Zap size={14} color={address.trim() ? colors.primaryForeground : colors.mutedForeground} />
-                    <Text className={`font-sora-bold text-xs ${address.trim() ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
-                      Conectar
-                    </Text>
-                  </Pressable>
-                </View>
+              <Pressable
+                onPress={() => setScannerVisible(true)}
+                className="flex-row items-center justify-center gap-1.5 rounded-md bg-secondary py-2.5"
+              >
+                <QrCode size={14} color={colors.secondaryForeground} />
+                <Text className="font-sora-bold text-xs text-secondary-foreground">Escanear código QR</Text>
+              </Pressable>
 
-                <Pressable onPress={runDiscovery} className="flex-row items-center justify-center gap-1.5 self-center px-2 py-1.5">
-                  <RefreshCw size={12} color={colors.primary} />
-                  <Text className="font-sora-bold text-xs text-primary">Buscar de nuevo</Text>
-                </Pressable>
+              <View className="flex-row items-center gap-2">
+                <View className="h-px flex-1 bg-border" />
+                <Text className="font-sora text-[10px] text-muted-foreground">o</Text>
+                <View className="h-px flex-1 bg-border" />
               </View>
-            )}
 
-            {phase === 'pairing' && (
-              <View className="items-center gap-3 py-10">
-                <ActivityIndicator size="large" color={colors.primary} />
-                <Text className="text-center font-sora text-sm text-muted-foreground">
-                  Esperando aprobación en WorshipHub{target ? ` (${target.label})` : ''}…
-                </Text>
-              </View>
-            )}
-
-            {phase === 'sending' && (
-              <View className="items-center gap-3 py-10">
-                <ActivityIndicator size="large" color={colors.primary} />
-                <Text className="font-sora text-sm text-muted-foreground">Enviando…</Text>
-              </View>
-            )}
-
-            {phase === 'done' && (
-              <View className="items-center gap-3 py-8">
-                <View className="h-12 w-12 items-center justify-center rounded-full bg-primary/15">
-                  <Check size={24} color={colors.primary} strokeWidth={2.5} />
-                </View>
-                <Text className="text-center font-sora-semibold text-sm text-foreground">
-                  {sentCount} {sentCount === 1 ? 'canción enviada' : 'canciones enviadas'} a WorshipHub
-                </Text>
-                <Pressable onPress={handleClose} className="mt-2 rounded-full bg-muted px-5 py-2">
-                  <Text className="font-sora-bold text-xs text-foreground">Cerrar</Text>
-                </Pressable>
-              </View>
-            )}
-
-            {phase === 'error' && (
-              <View className="items-center gap-3 py-8">
-                <ShieldCheck size={28} color={colors.destructive} />
-                <Text className="text-center font-sora text-sm text-destructive">{errorMessage}</Text>
+              <View className="flex-row gap-2">
+                <TextInput
+                  value={address}
+                  onChangeText={setAddress}
+                  placeholder="192.168.1.50:8787"
+                  placeholderTextColorClassName="accent-muted-foreground"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  className="flex-1 rounded-md border border-input bg-background px-3 py-2.5 font-sora text-sm text-foreground"
+                />
                 <Pressable
-                  onPress={() => (target ? void pairAndSend(target) : setPhase('manual'))}
-                  className="mt-2 rounded-full bg-primary px-5 py-2"
+                  onPress={submitAddress}
+                  disabled={!address.trim()}
+                  className={`flex-row items-center gap-1.5 rounded-md px-4 py-2.5 ${address.trim() ? 'bg-primary' : 'bg-muted'}`}
                 >
-                  <Text className="font-sora-bold text-xs text-primary-foreground">Reintentar</Text>
+                  <Zap size={14} color={address.trim() ? colors.primaryForeground : colors.mutedForeground} />
+                  <Text className={`font-sora-bold text-xs ${address.trim() ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                    Conectar
+                  </Text>
                 </Pressable>
               </View>
-            )}
-          </ScrollView>
-        </Pressable>
-      </Pressable>
+
+              <Pressable onPress={runDiscovery} className="flex-row items-center justify-center gap-1.5 self-center px-2 py-1.5">
+                <RefreshCw size={12} color={colors.primary} />
+                <Text className="font-sora-bold text-xs text-primary">Buscar de nuevo</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {phase === 'pairing' && (
+            <View className="items-center gap-3 py-10">
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text className="text-center font-sora text-sm text-muted-foreground">
+                Esperando aprobación en WorshipHub{target ? ` (${target.label})` : ''}…
+              </Text>
+            </View>
+          )}
+
+          {phase === 'sending' && (
+            <View className="items-center gap-3 py-10">
+              <ActivityIndicator size="large" color={colors.primary} />
+              <Text className="font-sora text-sm text-muted-foreground">Enviando…</Text>
+            </View>
+          )}
+
+          {phase === 'done' && (
+            <View className="items-center gap-3 py-8">
+              <View className="h-12 w-12 items-center justify-center rounded-full bg-primary/15">
+                <Check size={24} color={colors.primary} strokeWidth={2.5} />
+              </View>
+              <Text className="text-center font-sora-semibold text-sm text-foreground">
+                {sentCount} {sentCount === 1 ? 'canción enviada' : 'canciones enviadas'} a WorshipHub
+              </Text>
+              <Pressable onPress={handleClose} className="mt-2 rounded-full bg-muted px-5 py-2">
+                <Text className="font-sora-bold text-xs text-foreground">Cerrar</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {phase === 'error' && (
+            <View className="items-center gap-3 py-8">
+              <ShieldCheck size={28} color={colors.destructive} />
+              <Text className="text-center font-sora text-sm text-destructive">{errorMessage}</Text>
+              <Pressable
+                onPress={() => (target ? void pairAndSend(target) : setPhase('manual'))}
+                className="mt-2 rounded-full bg-primary px-5 py-2"
+              >
+                <Text className="font-sora-bold text-xs text-primary-foreground">Reintentar</Text>
+              </Pressable>
+            </View>
+          )}
+        </BottomSheetScrollView>
+      </BottomSheet>
 
       <QrScannerModal
         visible={scannerVisible}
@@ -256,7 +255,7 @@ export function SendToWorshipHubSheet({
         onClose={() => setScannerVisible(false)}
         hint="Apunta al código QR que muestra WorshipHub."
       />
-    </Modal>
+    </>
   );
 }
 

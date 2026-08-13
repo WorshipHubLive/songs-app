@@ -1,8 +1,9 @@
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import type { OnlineSearchResult } from '@/lib/online-search';
+import BottomSheet, { BottomSheetFlatList } from '@expo/ui/community/bottom-sheet';
 import { Loader2, Search, X } from 'lucide-react-native';
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, FlatList, Modal, Pressable, Text, View } from 'react-native';
+import { Animated, Easing, Pressable, Text, View } from 'react-native';
 
 function Spinner({ color }: { color: string }) {
   const spin = useRef(new Animated.Value(0)).current;
@@ -50,6 +51,12 @@ function ResultRow({ result, onSelect }: { result: OnlineSearchResult; onSelect:
   );
 }
 
+// Native bottom sheet (@expo/ui/community/bottom-sheet — real SwiftUI
+// sheet on iOS, Material 3 ModalBottomSheet on Android) instead of a
+// hand-rolled Modal + Pressable-overlay + rounded-corner card: the
+// backdrop, drag handle, rounded top corners and pan-down-to-close all
+// come from the platform for free, so none of that is drawn manually
+// here anymore.
 export function SongSearchResultsModal({
   visible,
   loading,
@@ -75,71 +82,64 @@ export function SongSearchResultsModal({
   const nextStageLabel = nextStage === 2 ? 'Buscar más en iTunes / lyrics.ovh' : 'Buscar más fuentes';
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <Pressable className="flex-1 justify-end bg-black/60" onPress={onClose}>
-        <Pressable className="max-h-[85%] rounded-t-3xl border-t border-border bg-card" onPress={(e) => e.stopPropagation()}>
-          <View className="items-center pb-1 pt-3">
-            <View className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
-          </View>
-
-          <View className="flex-row items-center justify-between border-b border-border px-5 py-3">
-            <Text className="font-sora-bold text-lg text-foreground">Resultados ({results.length})</Text>
-            <Pressable onPress={onClose} className="h-8 w-8 items-center justify-center rounded-full bg-muted">
-              <X size={16} color={colors.mutedForeground} strokeWidth={2} />
-            </Pressable>
-          </View>
-
-          {loading ? (
-            <View className="items-center gap-2 px-5 py-10">
-              <Spinner color={colors.primary} />
-              <Text className="font-sora text-xs text-muted-foreground">Buscando la letra…</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={results}
-              keyExtractor={(item, index) => `${item.title}::${item.artist}::${item.source}::${index}`}
-              contentContainerClassName="gap-3.5 p-5"
-              ListEmptyComponent={
-                <View className="items-center rounded-2xl border border-dashed border-border p-6">
-                  <Text className="text-center font-sora-semibold text-sm text-foreground">
-                    No se encontraron letras en esta fuente.
-                  </Text>
-                  <Text className="mt-1 text-center font-sora text-xs text-muted-foreground">
-                    Toca el botón de abajo para buscar en la siguiente fuente.
-                  </Text>
-                </View>
-              }
-              renderItem={({ item }) => <ResultRow result={item} onSelect={() => onSelect(item)} />}
-            />
-          )}
-
-          <View className="border-t border-border p-4" style={{ paddingBottom: 24 }}>
-            {nextStage !== null ? (
-              <Pressable
-                onPress={onSearchMore}
-                disabled={searchingMore}
-                className="flex-row items-center justify-center gap-2 rounded-xl bg-muted py-3"
-              >
-                {searchingMore ? (
-                  <>
-                    <Spinner color={colors.primary} />
-                    <Text className="font-sora-bold text-xs text-foreground">Buscando en la siguiente fuente…</Text>
-                  </>
-                ) : (
-                  <>
-                    <Search size={16} color={colors.primary} strokeWidth={2} />
-                    <Text className="font-sora-bold text-xs text-foreground">{nextStageLabel}</Text>
-                  </>
-                )}
-              </Pressable>
-            ) : (
-              <Text className="text-center font-sora text-xs italic text-muted-foreground">
-                Se han consultado todas las fuentes disponibles.
-              </Text>
-            )}
-          </View>
+    <BottomSheet index={visible ? 0 : -1} snapPoints={['85%']} enablePanDownToClose onClose={onClose}>
+      <View className="flex-row items-center justify-between border-b border-border px-5 pb-3">
+        <Text className="font-sora-bold text-lg text-foreground">Resultados ({results.length})</Text>
+        <Pressable onPress={onClose} className="h-8 w-8 items-center justify-center rounded-full bg-muted">
+          <X size={16} color={colors.mutedForeground} strokeWidth={2} />
         </Pressable>
-      </Pressable>
-    </Modal>
+      </View>
+
+      {loading ? (
+        <View className="items-center gap-2 px-5 py-10">
+          <Spinner color={colors.primary} />
+          <Text className="font-sora text-xs text-muted-foreground">Buscando la letra…</Text>
+        </View>
+      ) : (
+        <BottomSheetFlatList
+          className="flex-1"
+          data={results}
+          keyExtractor={(item, index) => `${item.title}::${item.artist}::${item.source}::${index}`}
+          contentContainerClassName="gap-3.5 p-5"
+          ListEmptyComponent={
+            <View className="items-center rounded-2xl border border-dashed border-border p-6">
+              <Text className="text-center font-sora-semibold text-sm text-foreground">
+                No se encontraron letras en esta fuente.
+              </Text>
+              <Text className="mt-1 text-center font-sora text-xs text-muted-foreground">
+                Toca el botón de abajo para buscar en la siguiente fuente.
+              </Text>
+            </View>
+          }
+          renderItem={({ item }) => <ResultRow result={item} onSelect={() => onSelect(item)} />}
+        />
+      )}
+
+      <View className="border-t border-border p-4 pb-6">
+        {nextStage !== null ? (
+          <Pressable
+            onPress={onSearchMore}
+            disabled={searchingMore}
+            className="flex-row items-center justify-center gap-2 rounded-xl bg-muted py-3"
+          >
+            {searchingMore ? (
+              <>
+                <Spinner color={colors.primary} />
+                <Text className="font-sora-bold text-xs text-foreground">Buscando en la siguiente fuente…</Text>
+              </>
+            ) : (
+              <>
+                <Search size={16} color={colors.primary} strokeWidth={2} />
+                <Text className="font-sora-bold text-xs text-foreground">{nextStageLabel}</Text>
+              </>
+            )}
+          </Pressable>
+        ) : (
+          <Text className="text-center font-sora text-xs italic text-muted-foreground">
+            Se han consultado todas las fuentes disponibles.
+          </Text>
+        )}
+      </View>
+    </BottomSheet>
   );
 }
