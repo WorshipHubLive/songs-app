@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { AmbientGlow } from '@/components/AmbientGlow';
-import { BackHeader } from '@/components/BackHeader';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { fonts, radius, spacing } from '@/constants/theme';
 
@@ -24,14 +23,16 @@ const LANGUAGES = [
 
 export default function LanguageScreen() {
   const { theme } = useAppTheme();
-  const router = useRouter();
   const [selected, setSelected] = useState('es');
 
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <AmbientGlow />
-      <BackHeader title="Idioma" onBack={() => router.back()} />
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm }}>
+      <Stack.Title>Idioma</Stack.Title>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm }}
+      >
         {LANGUAGES.map((lang) => {
           const active = selected === lang.code;
           return (

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Stack, useRouter } from 'expo-router';
 import {
   User,
   Palette,
@@ -23,22 +22,20 @@ import { fonts, spacing } from '@/constants/theme';
 // bento grid of glass-card sections (Visuals / Connectivity / Preferences).
 export default function SettingsHubScreen() {
   const { theme } = useAppTheme();
-  const insets = useSafeAreaInsets();
   const router = useRouter();
 
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <AmbientGlow />
+      <Stack.Title large>Settings</Stack.Title>
       <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{
           padding: spacing.lg,
-          paddingTop: insets.top + 20,
-          paddingBottom: insets.bottom + 32,
+          paddingBottom: spacing.xl,
           gap: spacing.lg,
         }}
       >
-        <Text style={[styles.h1, { color: theme.foreground }]}>Settings</Text>
-
         <GlassCard>
           <View style={styles.promoRow}>
             <Smartphone size={22} color={theme.primary} />
@@ -98,7 +95,6 @@ export default function SettingsHubScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  h1: { fontSize: 26, fontFamily: fonts.heading, letterSpacing: -0.5 },
   promoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   promoTitle: { fontSize: 13, fontFamily: fonts.headingSemibold },
   promoDesc: { fontSize: 11, fontFamily: fonts.body, marginTop: 2 },

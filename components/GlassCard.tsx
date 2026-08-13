@@ -4,11 +4,18 @@ import { BlurView } from 'expo-blur';
 import { useAppTheme } from '@/hooks/useAppTheme';
 import { radius } from '@/constants/theme';
 
-// Mirrors the web app's `.glass-card`: dark mode is a translucent blurred
-// gradient panel (`linear-gradient(145deg, rgba(39,42,50,.4), rgba(25,27,35,.2))`,
-// blur(24px), faint white border); light mode is just a solid white card
-// with a soft border (the web CSS overrides glass-card to solid white in
-// light mode too — glassmorphism is a dark-theme effect there).
+// Mirrors the web app's `.glass-card` (a CSS backdrop-blur panel) via
+// expo-blur, not expo-glass-effect: real Liquid Glass (GlassView) is a
+// *system control material* meant for floating chrome — Apple's own HIG
+// reserves it for toolbars/tab bars/buttons, not stacked content cards.
+// Wrapping every SongCard in GlassView applies system vibrancy to its
+// children, which washed our brand colors out to gray against this dark
+// background — visually broken and off-brand. Liquid Glass lives where
+// it actually belongs in this app: the native tab bar (NativeTabs) and
+// toolbars (Stack.Toolbar/Stack.SearchBar), both real system materials,
+// not simulated here. Light mode is just a solid card (the web CSS
+// overrides glass-card to solid white in light mode too — glassmorphism
+// is a dark-theme effect there).
 export function GlassCard({
   children,
   style,
@@ -21,29 +28,23 @@ export function GlassCard({
 }) {
   const { isDark, theme } = useAppTheme();
 
-  const content = (
-    <View
-      style={[
-        styles.inner,
-        {
-          borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)',
-          borderLeftColor: accentColor,
-          borderLeftWidth: accentColor ? 3 : StyleSheet.hairlineWidth,
-          backgroundColor: isDark ? 'transparent' : theme.card,
-        },
-        style,
-      ]}
-    >
-      {children}
-    </View>
-  );
+  const innerStyle = [
+    styles.inner,
+    {
+      borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)',
+      borderLeftColor: accentColor,
+      borderLeftWidth: accentColor ? 3 : StyleSheet.hairlineWidth,
+      backgroundColor: isDark ? 'transparent' : theme.card,
+    },
+    style,
+  ];
 
   if (!isDark) {
-    return content;
+    return <View style={innerStyle}>{children}</View>;
   }
 
   return (
-    <BlurView intensity={40} tint="dark" style={[styles.blurWrap, style]}>
+    <BlurView intensity={40} tint="dark" style={[styles.glassWrap, style]}>
       <View
         style={[
           styles.inner,
@@ -62,7 +63,7 @@ export function GlassCard({
 }
 
 const styles = StyleSheet.create({
-  blurWrap: {
+  glassWrap: {
     borderRadius: radius.md,
     overflow: 'hidden',
   },

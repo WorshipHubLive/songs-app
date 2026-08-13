@@ -1,56 +1,31 @@
-import { Tabs } from 'expo-router';
-import { StyleSheet } from 'react-native';
-import { Music, CalendarCheck, Settings as SettingsIcon } from 'lucide-react-native';
 import { useAppTheme } from '@/hooks/useAppTheme';
-import { fonts } from '@/constants/theme';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
-// Mirrors MobileNav in the web app's App.tsx: fixed bottom bar, 3 items
-// (Songs/Service/Settings), uppercase bold 10px labels, active = primary.
+// Mirrors MobileNav (Songs/Service/Settings) but as a truly native tab
+// bar — SwiftUI TabView on iOS (liquid glass automatically on iOS 26+),
+// Material 3 bottom navigation on Android — instead of a JS-drawn bar.
 export default function TabLayout() {
-  const { theme, isDark } = useAppTheme();
+  const { theme } = useAppTheme();
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: theme.mutedForeground,
-        tabBarStyle: {
-          backgroundColor: isDark ? 'rgba(6,8,15,0.95)' : 'rgba(246,248,250,0.95)',
-          borderTopColor: theme.border,
-          borderTopWidth: StyleSheet.hairlineWidth,
-          height: 68,
-          paddingTop: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontFamily: fonts.headingSemibold,
-          textTransform: 'uppercase',
-          letterSpacing: 0.5,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Songs',
-          tabBarIcon: ({ color, size }) => <Music color={color} size={size ?? 22} strokeWidth={2.25} />,
-        }}
-      />
-      <Tabs.Screen
-        name="service"
-        options={{
-          title: 'Service',
-          tabBarIcon: ({ color, size }) => <CalendarCheck color={color} size={size ?? 22} strokeWidth={2.25} />,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, size }) => <SettingsIcon color={color} size={size ?? 22} strokeWidth={2.25} />,
-        }}
-      />
-    </Tabs>
+    <NativeTabs tintColor={theme.primary} minimizeBehavior="onScrollDown">
+      <NativeTabs.Trigger name="(songs)">
+        <NativeTabs.Trigger.Icon sf="music.note.list" md="library_music" />
+        <NativeTabs.Trigger.Label>Songs</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="(service)">
+        <NativeTabs.Trigger.Icon sf="calendar.badge.checkmark" md="event_available" />
+        <NativeTabs.Trigger.Label>Service</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="settings">
+        <NativeTabs.Trigger.Icon sf="gearshape.fill" md="settings" />
+        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="new-song" role='search'>
+        <NativeTabs.Trigger.Icon sf="plus"  />
+        <NativeTabs.Trigger.Label>Search</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

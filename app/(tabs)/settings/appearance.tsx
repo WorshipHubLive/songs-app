@@ -1,9 +1,8 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { AmbientGlow } from '@/components/AmbientGlow';
-import { BackHeader } from '@/components/BackHeader';
 import { DarkTheme, LightTheme, fonts, radius, spacing } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/useAppTheme';
 
@@ -17,13 +16,12 @@ const THEMES = [
 
 export default function AppearanceScreen() {
   const { theme, mode, setMode } = useAppTheme();
-  const router = useRouter();
 
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <AmbientGlow />
-      <BackHeader title="Appearance" onBack={() => router.back()} />
-      <ScrollView contentContainerStyle={styles.grid}>
+      <Stack.Title>Appearance</Stack.Title>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.grid}>
         {THEMES.map((t) => {
           const active = mode === t.id;
           return (

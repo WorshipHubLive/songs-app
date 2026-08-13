@@ -73,12 +73,11 @@ function RootLayoutNav() {
   return (
     <NavigationThemeProvider value={navTheme}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }}>
-        <Stack.Screen name="(tabs)" />
+      <Stack screenOptions={{ contentStyle: { backgroundColor: theme.background } }}>
+        {/* NativeTabs renders its own chrome — no Stack header at this level. */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="song/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="song/new" options={{ presentation: 'card' }} />
-        <Stack.Screen name="settings/appearance" />
-        <Stack.Screen name="settings/language" />
       </Stack>
     </NavigationThemeProvider>
   );

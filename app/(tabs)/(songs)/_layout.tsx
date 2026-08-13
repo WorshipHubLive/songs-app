@@ -1,12 +1,7 @@
 import { Stack } from 'expo-router';
 import { useAppTheme } from '@/hooks/useAppTheme';
 
-// Nested stack so Settings' sub-pages (Appearance, Language, ...) push on
-// top while the bottom tab bar stays visible — unlike song/[id] and
-// song/new, which are "focused screens" that hide it entirely. Headers
-// are native now (Stack.Title inside each screen) instead of the custom
-// BackHeader component.
-export default function SettingsLayout() {
+export default function SongsStackLayout() {
   const { theme } = useAppTheme();
   return (
     <Stack
@@ -20,12 +15,10 @@ export default function SettingsLayout() {
         headerTintColor: theme.primary,
         headerTitleStyle: { color: theme.foreground },
         headerLargeTitleStyle: { color: theme.foreground },
-        headerBackButtonDisplayMode: 'minimal',
+        headerLargeTitle: true,
       }}
     >
-      <Stack.Screen name="index" options={{ headerLargeTitle: true }} />
-      <Stack.Screen name="appearance" />
-      <Stack.Screen name="language" />
+      <Stack.Screen name="index" />
     </Stack>
   );
 }
