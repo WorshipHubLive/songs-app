@@ -1,5 +1,6 @@
 import { SongCard } from '@/components/song-card';
 import type { Song } from '@/db/schema';
+import type { ReactElement } from 'react';
 import { FlatList } from 'react-native';
 
 export type SongListProps = {
@@ -13,19 +14,26 @@ export type SongListProps = {
   selectable?: boolean;
   selectedIds?: Set<number>;
   onToggleSelect?: (song: Song) => void;
+  /** Rendered as the list's own first row (scrolls with it, correctly
+   * inset below the native header/search bar) — e.g. the Songs screen's
+   * selection bar. Not a plain sibling View, which sits outside the
+   * scroll view's automatic content-inset handling and ends up under a
+   * transparent iOS header instead of below it. */
+  listHeader?: ReactElement | null;
 };
 
 // Android/web variant — plain FlatList, just the on-card "add to
 // service" button. See song-list.ios.tsx for the iOS variant, which adds
 // native swipe-to-reveal Translate/Edit/Delete (no @expo/ui equivalent
 // exists for Android, so those three stay iOS-only).
-export function SongList({ songs, onPressSong, onToggleService, selectable, selectedIds, onToggleSelect }: SongListProps) {
+export function SongList({ songs, onPressSong, onToggleService, selectable, selectedIds, onToggleSelect, listHeader }: SongListProps) {
   return (
     <FlatList
       data={songs}
       keyExtractor={(item) => String(item.id)}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-4 px-4 pb-8 pt-4"
+      ListHeaderComponent={listHeader}
       renderItem={({ item }) => (
         <SongCard
           song={item}

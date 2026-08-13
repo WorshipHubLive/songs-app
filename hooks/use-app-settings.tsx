@@ -22,6 +22,10 @@ export interface AppSettings {
   };
   localSyncPeer: {
     baseUrl: string | null;
+    // Kept stable across restarts so the desktop peer this device polls
+    // recognizes it across reconnects instead of treating every poll as
+    // a brand-new device — see hooks/use-local-sync-heartbeat.ts.
+    clientId: string;
   };
   cloud: {
     url: string;
@@ -34,7 +38,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   profile: { name: '', avatarUri: '' },
   search: { tavilyApiKey: '' },
   worshiphub: { linked: false, baseUrl: null, name: '', token: null },
-  localSyncPeer: { baseUrl: null },
+  localSyncPeer: { baseUrl: null, clientId: '' },
   cloud: { url: '', anonKey: '', lastSyncedAt: '' },
 };
 

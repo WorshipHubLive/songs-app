@@ -17,10 +17,17 @@ export function SongList({
   selectable,
   selectedIds,
   onToggleSelect,
+  listHeader,
 }: SongListProps) {
   return (
     <Host style={{ flex: 1, paddingHorizontal: 16 }}>
       <List modifiers={[listStyle("plain")]}>
+
+        {listHeader && (
+          <Section modifiers={[listRowBackground('clear'), listRowSeparator('hidden')]}>
+            <RNHostView matchContents>{listHeader}</RNHostView>
+          </Section>
+        )}
 
         {songs.map((song) => (
           <Section key={song.id} modifiers={[listRowBackground('clear'), listRowSeparator('hidden')]}>

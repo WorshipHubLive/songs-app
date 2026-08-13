@@ -73,6 +73,7 @@ export function SongList({
   selectable,
   selectedIds,
   onToggleSelect,
+  listHeader,
 }: SongListProps) {
   return (
     <FlatList
@@ -80,6 +81,7 @@ export function SongList({
       keyExtractor={(item) => String(item.id)}
       contentInsetAdjustmentBehavior="automatic"
       contentContainerClassName="gap-4 px-4 pb-8 pt-4"
+      ListHeaderComponent={listHeader}
       renderItem={({ item }) => (
         <SongRow
           song={item}

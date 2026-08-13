@@ -1,27 +1,25 @@
 import { AmbientGlow } from '@/components/ambient-glow';
 import { DeleteSongModal } from '@/components/delete-song-modal';
-import { SendToWorshipHubSheet } from '@/components/send-to-worshiphub-sheet';
+import { SendToLocalPeerSheet } from '@/components/send-to-local-peer-sheet';
 import { SongList } from '@/components/song-list';
 import type { Song } from '@/db/schema';
 import { allSongsQuery, deleteSong, setInService } from '@/db/songs-repository';
-import SyncIcon from '@expo/material-symbols/sync.xml';
+import ShareIcon from '@expo/material-symbols/ios_share.xml';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 
-// Mirrors Library.tsx. The top bar (title, search, sync) is the real
-// native header — Stack.Title (asChild, so it's a plain styled Text
-// instead of the iOS large-title look) for the title, Stack.SearchBar
-// for the native search field, Stack.Toolbar for the sync action.
-// There's no custom-drawn top bar or floating "+" button — those aren't
-// native iOS patterns; "Add" lives as its own search-role tab instead
-// (see (tabs)/_layout.tsx).
-//
-// "Enviar a WorshipHub" select mode lives here (not on the Service
-// screen, which always sends its whole queue) — same split as the web
-// app's Library grid select mode, just triggered by a toolbar toggle
-// instead of a long-press.
+// One toolbar button, share icon (same shape as standalone/songs'
+// selection flow, just a single always-visible entry point instead of a
+// laptop icon). Tap 1: not selecting yet -> enters selection mode
+// (checkboxes appear on the cards, see song-card.tsx `selectable`).
+// While selecting, the SAME button carries a badge with the running
+// count. Tap 2: selecting with >=1 picked -> opens the "where to send"
+// sheet (currently just Local Sync, i.e. another Songs instance). Tap
+// with 0 picked just cancels selection mode. WorshipHub sending is never
+// a Library selection — that's Service's whole queue, see
+// (tabs)/service/index.tsx.
 export default function LibraryScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -59,6 +57,18 @@ export default function LibraryScreen() {
     });
   };
 
+  const handleShareButtonPress = () => {
+    if (!selecting) {
+      setSelecting(true);
+      return;
+    }
+    if (selectedIds.size > 0) {
+      setSendVisible(true);
+    } else {
+      cancelSelecting();
+    }
+  };
+
   return (
     <View className="flex-1 bg-background">
       <AmbientGlow />
@@ -66,28 +76,21 @@ export default function LibraryScreen() {
       <Stack.Title asChild>
         <Text className="font-sora-bold text-xl text-foreground">Songs</Text>
       </Stack.Title>
-      {!selecting && (
-        <Stack.SearchBar
-          placeholder="Buscar canciones..."
-          onChangeText={(e) => setSearch(e.nativeEvent.text)}
-          onCancelButtonPress={() => setSearch('')}
-          obscureBackground={false}
-        />
-      )}
+      <Stack.SearchBar
+        placeholder="Buscar canciones..."
+        onChangeText={(e) => setSearch(e.nativeEvent.text)}
+        onCancelButtonPress={() => setSearch('')}
+        obscureBackground={false}
+      />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'arrow.triangle.2.circlepath' : SyncIcon} onPress={() => { }} />
+        <Stack.Toolbar.Button
+          icon={Platform.OS === 'ios' ? 'square.and.arrow.up' : ShareIcon}
+          onPress={handleShareButtonPress}
+          disabled={songs.length === 0}
+        >
+          {selecting && selectedIds.size > 0 && <Stack.Toolbar.Badge>{String(selectedIds.size)}</Stack.Toolbar.Badge>}
+        </Stack.Toolbar.Button>
       </Stack.Toolbar>
-
-      {selecting && (
-        <View className="flex-row items-center justify-between px-4 pb-2 pt-1">
-          <Text className="font-sora text-xs text-muted-foreground">
-            {selectedIds.size} de {songs.length} seleccionadas
-          </Text>
-          <Pressable onPress={() => setSelectedIds(selectedIds.size === songs.length ? new Set() : new Set(songs.map((s) => s.id)))}>
-            <Text className="font-sora-bold text-xs text-primary">{selectedIds.size === songs.length ? 'Ninguna' : 'Todas'}</Text>
-          </Pressable>
-        </View>
-      )}
 
       <SongList
         songs={songs}
@@ -103,7 +106,7 @@ export default function LibraryScreen() {
 
       <DeleteSongModal song={deleteTarget} deleting={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={handleDelete} />
 
-      <SendToWorshipHubSheet
+      <SendToLocalPeerSheet
         visible={sendVisible}
         songIds={[...selectedIds]}
         onClose={() => {

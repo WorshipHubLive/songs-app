@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { db } from './client';
 import { type NewSong, songs, translations } from './schema';
 
@@ -34,6 +34,20 @@ export async function setInService(id: number, inService: boolean) {
 export async function deleteSong(id: number) {
   await db.delete(translations).where(eq(translations.songId, id));
   await db.delete(songs).where(eq(songs.id, id));
+}
+
+// A peer (desktop Local Sync push) pushing songs in — matched by title,
+// case-insensitively, same dedupe rule as the desktop's own
+// `db::insert_if_missing` (src-tauri/src/db.rs). Existing songs are left
+// untouched; only genuinely new titles get inserted.
+export async function insertSongIfMissing(song: { title: string; artist: string; language: string; lyrics: string }) {
+  const existing = await db
+    .select({ id: songs.id })
+    .from(songs)
+    .where(sql`lower(${songs.title}) = lower(${song.title})`);
+  if (existing.length > 0) return false;
+  await db.insert(songs).values(song);
+  return true;
 }
 
 // Full lyrics + translations for a batch of songs — what WorshipHub's

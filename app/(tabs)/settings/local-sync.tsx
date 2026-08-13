@@ -3,6 +3,7 @@ import { QrScannerModal } from '@/components/qr-scanner-modal';
 import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { discoverSongsDesktopPeers, type DiscoveredPeer } from '@/lib/discovery';
+import { verifyLocalSyncPeer } from '@/lib/songs-peer-client';
 import { Stack } from 'expo-router';
 import { Laptop, QrCode, RefreshCw } from 'lucide-react-native';
 import { useState } from 'react';
@@ -13,23 +14,44 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View 
 // itself. The desktop app already advertises itself over mDNS for this
 // exact purpose (see standalone/songs/src-tauri/src/server.rs,
 // `_whsongs._tcp.local.`) — this screen just browses for that same
-// announcement, nothing changes on the desktop side. Same honesty
-// caveat as worshiphub.tsx: the address (found, scanned, or typed) is
-// saved locally, but there's no peer-sync networking built yet.
+// announcement, nothing changes on the desktop side. Saving here just
+// remembers an address for later — the actual push (with a real
+// identity check) happens from the Songs screen's selection mode, see
+// components/send-to-local-peer-sheet.tsx.
 export default function LocalSyncScreen() {
   const colors = useThemeColors();
   const { settings, updateLocalSyncPeer } = useAppSettings();
   const [address, setAddress] = useState(settings.localSyncPeer.baseUrl ?? '');
   const [scannerVisible, setScannerVisible] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [peers, setPeers] = useState<DiscoveredPeer[]>([]);
 
-  const handleSave = (value: string) => {
-    updateLocalSyncPeer({ baseUrl: value.trim() || null });
-    Alert.alert(
-      'Aún no disponible',
-      'Guardamos la dirección, pero la sincronización local entre dispositivos todavía no está implementada en esta app.'
-    );
+  const handleSave = async (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      updateLocalSyncPeer({ baseUrl: null });
+      return;
+    }
+    const baseUrl = /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
+    setSaving(true);
+    try {
+      const ok = await verifyLocalSyncPeer(baseUrl);
+      if (!ok) {
+        Alert.alert('Esa dirección no es de Songs', 'Respondió, pero no parece ser otra instancia de WorshipHub Songs.');
+        return;
+      }
+      updateLocalSyncPeer({ baseUrl });
+      Alert.alert('Guardado', 'Ya puedes enviar canciones aquí desde la pantalla de Songs.');
+    } catch {
+      // Unreachable right now isn't necessarily wrong (device off, wrong
+      // network momentarily) — save it anyway, same as everywhere else
+      // an address is remembered before it's actually used.
+      updateLocalSyncPeer({ baseUrl });
+      Alert.alert('Guardado', 'No pudimos confirmarlo ahora mismo, pero guardamos la dirección.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDiscover = async () => {
@@ -45,14 +67,14 @@ export default function LocalSyncScreen() {
   const handleSelectPeer = (peer: DiscoveredPeer) => {
     const base = `${peer.ip}:${peer.port}`;
     setAddress(base);
-    handleSave(base);
+    void handleSave(base);
   };
 
   const handleScanResult = (value: string) => {
     setScannerVisible(false);
     const base = value.replace(/\/+$/, '');
     setAddress(base);
-    handleSave(base);
+    void handleSave(base);
   };
 
   return (
@@ -127,10 +149,15 @@ export default function LocalSyncScreen() {
             className="rounded-md border border-input bg-background px-3 py-2.5 font-sora text-sm text-foreground"
           />
           <Pressable
-            onPress={() => handleSave(address)}
+            onPress={() => void handleSave(address)}
+            disabled={saving}
             className="flex-row items-center justify-center gap-1.5 rounded-md bg-primary py-2.5"
           >
-            <RefreshCw size={14} color={colors.primaryForeground} />
+            {saving ? (
+              <ActivityIndicator size="small" color={colors.primaryForeground} />
+            ) : (
+              <RefreshCw size={14} color={colors.primaryForeground} />
+            )}
             <Text className="font-sora-bold text-xs text-primary-foreground">Guardar</Text>
           </Pressable>
         </View>
