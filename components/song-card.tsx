@@ -22,31 +22,35 @@ export function SongCard({
   const colors = useThemeColors();
   const accent = accentClasses(song.id);
 
+  // Two sibling Pressables, not a nested one — the "add to service"
+  // button used to be nested inside the whole-card Pressable, and inside
+  // the native list embeddings (RNHostView/SwiftUI on iOS, Swipeable on
+  // Android) that let the outer Pressable's onPress fire on every tap,
+  // button included, instead of the touch staying scoped to the button.
+  // Siblings with non-overlapping hit areas can't have that ambiguity.
   return (
-    <Pressable onPress={onPress}>
-      <Card accentClassName={accent.border} className="flex-row items-start justify-between gap-3 overflow-hidden">
-        <View pointerEvents="none" className={`absolute -right-8 -top-8 w-28 rounded-full opacity-20 ${accent.tint}`} />
+    <Card accentClassName={accent.border} className="flex-row items-start justify-between gap-3 overflow-hidden">
+      <View pointerEvents="none" className={`absolute -right-8 -top-8 w-28 rounded-full opacity-20 ${accent.tint}`} />
 
-        <View className="flex-1">
-          <Text className="font-sora-semibold text-lg text-foreground" numberOfLines={1}>
-            {song.title}
-          </Text>
-          <Text className={`font-sora text-sm ${accent.text}`} numberOfLines={1}>
-            {song.artist}
-          </Text>
-        </View>
+      <Pressable onPress={onPress} className="flex-1">
+        <Text className="font-sora-semibold text-lg text-foreground" numberOfLines={1}>
+          {song.title}
+        </Text>
+        <Text className={`font-sora text-sm ${accent.text}`} numberOfLines={1}>
+          {song.artist}
+        </Text>
+      </Pressable>
 
-        <Pressable
-          onPress={onToggleService}
-          className={`h-10 w-10 items-center justify-center rounded-full ${song.inService ? 'bg-primary/15' : 'bg-muted'}`}
-        >
-          {song.inService ? (
-            <CalendarCheck size={20} color={colors.primary} strokeWidth={2} />
-          ) : (
-            <CalendarPlus size={20} color={colors.mutedForeground} strokeWidth={2} />
-          )}
-        </Pressable>
-      </Card>
-    </Pressable>
+      <Pressable
+        onPress={onToggleService}
+        className={`h-10 w-10 items-center justify-center rounded-full ${song.inService ? 'bg-primary/15' : 'bg-muted'}`}
+      >
+        {song.inService ? (
+          <CalendarCheck size={20} color={colors.primary} strokeWidth={2} />
+        ) : (
+          <CalendarPlus size={20} color={colors.mutedForeground} strokeWidth={2} />
+        )}
+      </Pressable>
+    </Card>
   );
 }

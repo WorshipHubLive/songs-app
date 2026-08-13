@@ -2,7 +2,11 @@ import { openDatabaseSync } from 'expo-sqlite';
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import * as schema from './schema';
 
-const expoDb = openDatabaseSync('songs.db');
+// `enableChangeListener` turns on SQLite's update hook — without it,
+// `addDatabaseChangeListener` never fires, so drizzle's `useLiveQuery`
+// (used across the songs/service screens) never learns a write happened
+// and stays stale until the component remounts.
+const expoDb = openDatabaseSync('songs.db', { enableChangeListener: true });
 
 export const db = drizzle(expoDb, { schema });
 
