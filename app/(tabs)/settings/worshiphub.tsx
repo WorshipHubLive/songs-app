@@ -2,23 +2,28 @@ import { AmbientGlow } from '@/components/ambient-glow';
 import { QrScannerModal } from '@/components/qr-scanner-modal';
 import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { discoverWorshipHub, type DiscoveredPeer } from '@/lib/discovery';
 import { Stack } from 'expo-router';
-import { QrCode, Zap } from 'lucide-react-native';
+import { Laptop, Loader2, QrCode, RefreshCw, Zap } from 'lucide-react-native';
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
-// Mirrors Settings.tsx's WorshipHub subTab: link status + a manual
-// address field (or a QR scan of the address WorshipHub shows) to pair
-// with a running instance. The web/desktop app pairs for real over LAN
-// discovery or that same QR code; this native build doesn't have that
-// networking layer yet, so "Conectar" is honest about not being wired up
-// rather than faking a connection — the address is still saved for
-// whenever it is.
+// Mirrors Settings.tsx's WorshipHub subTab: link status, mDNS-discovered
+// instances on this network, or a manual/QR-scanned address. WorshipHub
+// already advertises itself over mDNS for the desktop app to browse (see
+// ScreenWorship's src/local_server.rs, `_worshiphub._tcp.local.`) — this
+// screen just adds a second browser for that same announcement, nothing
+// changes on WorshipHub's side. The web/desktop app pairs for real once
+// found; this native build doesn't have that pairing handshake wired up
+// yet, so "Conectar" is honest about that rather than faking a
+// connection — the address is still saved for whenever it is.
 export default function WorshipHubScreen() {
   const colors = useThemeColors();
   const { settings, updateWorshipHub } = useAppSettings();
   const [address, setAddress] = useState(settings.worshiphub.baseUrl ?? '');
   const [scannerVisible, setScannerVisible] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [peers, setPeers] = useState<DiscoveredPeer[]>([]);
   const { linked } = settings.worshiphub;
 
   const handleConnect = (value: string) => {
@@ -28,6 +33,22 @@ export default function WorshipHubScreen() {
       'Aún no disponible',
       'Guardamos la dirección, pero emparejar con WorshipHub todavía no está implementado en esta app — llegará en una próxima actualización.'
     );
+  };
+
+  const handleDiscover = async () => {
+    setScanning(true);
+    try {
+      const found = await discoverWorshipHub();
+      setPeers(found);
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const handleSelectPeer = (peer: DiscoveredPeer) => {
+    const base = `https://${peer.ip}:${peer.port}`;
+    setAddress(base);
+    handleConnect(base);
   };
 
   const handleScanResult = (value: string) => {
@@ -80,7 +101,41 @@ export default function WorshipHubScreen() {
         )}
 
         <View className="gap-3 rounded-md border border-border bg-card p-4">
-          <Text className="font-sora-semibold text-sm text-foreground">Dirección de WorshipHub</Text>
+          <View className="flex-row items-center justify-between gap-3">
+            <Text className="font-sora-semibold text-sm text-foreground">Encontrados en esta red</Text>
+            <Pressable onPress={handleDiscover} disabled={scanning} className="flex-row items-center gap-1.5 rounded-full border border-border px-3 py-1.5">
+              {scanning ? <Loader2 size={13} color={colors.primary} /> : <RefreshCw size={13} color={colors.primary} />}
+              <Text className="font-sora-bold text-[11px] text-foreground">Buscar</Text>
+            </Pressable>
+          </View>
+
+          {peers.length === 0 ? (
+            <Text className="font-sora text-xs text-muted-foreground">
+              {scanning
+                ? 'Buscando…'
+                : 'Toca "Buscar" para encontrar WorshipHub en esta red, o escanea/escribe su dirección abajo.'}
+            </Text>
+          ) : (
+            <View className="gap-2">
+              {peers.map((peer) => (
+                <Pressable
+                  key={`${peer.ip}:${peer.port}`}
+                  onPress={() => handleSelectPeer(peer)}
+                  className="flex-row items-center gap-3 rounded-md border border-border px-3 py-2.5"
+                >
+                  <Laptop size={16} color={colors.mutedForeground} />
+                  <Text className="min-w-0 flex-1 font-sora-semibold text-sm text-foreground" numberOfLines={1}>
+                    {peer.name}
+                  </Text>
+                  <Text className="shrink-0 font-mono text-xs text-muted-foreground">{peer.ip}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
+
+        <View className="gap-3 rounded-md border border-border bg-card p-4">
+          <Text className="font-sora-semibold text-sm text-foreground">O escribe la dirección</Text>
 
           <Pressable
             onPress={() => setScannerVisible(true)}

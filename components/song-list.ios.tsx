@@ -8,6 +8,7 @@ import type { SongListProps } from './song-list';
 // as the row content via RNHostView. `allowsFullSwipe={false}` on the
 // trailing group so a full swipe never auto-fires Delete.
 export function SongList({ songs, onPressSong, onToggleService, onTranslate, onEdit, onDelete }: SongListProps) {
+  
   return (
     <Host style={{ flex: 1, paddingHorizontal: 16 }}>
       <List modifiers={[listStyle("plain")]}>

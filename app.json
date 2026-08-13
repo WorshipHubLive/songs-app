@@ -10,7 +10,11 @@
     "backgroundColor": "#06080f",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fercho34.songs-app"
+      "bundleIdentifier": "com.fercho34.songs-app",
+      "infoPlist": {
+        "NSBonjourServices": ["_worshiphub._tcp.", "_whsongs._tcp."],
+        "NSLocalNetworkUsageDescription": "WorshipHub Songs necesita acceso a la red local para encontrar automáticamente WorshipHub y otras copias de la app en tu red."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +24,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.fercho34.songsapp"
+      "package": "com.fercho34.songsapp",
+      "permissions": ["ACCESS_NETWORK_STATE", "ACCESS_WIFI_STATE", "CHANGE_WIFI_MULTICAST_STATE"]
     },
     "web": {
       "bundler": "metro",
