@@ -1,11 +1,17 @@
 import { AmbientGlow } from '@/components/ambient-glow';
+import { ChordsEditor } from '@/components/chords-editor';
+import { LyricsEditor } from '@/components/lyrics-editor';
+import { SongSearchResultsModal } from '@/components/song-search-results-modal';
+import { saveSong } from '@/db/songs-repository';
+import { type OnlineSearchResult, searchByStage, searchOnlineHybrid, type StageSearchResult } from '@/lib/online-search';
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
+import SaveIcon from '@expo/material-symbols/save.xml';
 import SearchIcon from '@expo/material-symbols/search.xml';
 import { Picker, type PickerRef } from '@expo/ui/community/picker';
 import SegmentedControl from '@expo/ui/community/segmented-control';
 import { Stack, useRouter } from 'expo-router';
 import { Fragment, useRef, useState } from 'react';
-import { Platform, Text, TextInput, View } from 'react-native';
+import { Alert, Platform, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const LANGUAGES = [
@@ -31,12 +37,11 @@ export default function NewSongScreen() {
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [lyrics, setLyrics] = useState('');
+  const [chords, setChords] = useState('');
   const [content, setContent] = useState<'lyrics' | 'chords'>('lyrics');
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
   const [lang, setLang] = useState('es');
 
-  const wordCount = lyrics.trim().length === 0 ? 0 : lyrics.trim().split(/\s+/).length;
-  const stanzas = lyrics.split(/\n\s*\n/).filter((s) => s.trim().length > 0);
   const currentLanguage = LANGUAGES.find((l) => l.value === lang)?.label ?? '';
 
   // `navigate` (not `replace`/`push`) — this is a cross-tab jump inside
@@ -47,6 +52,75 @@ export default function NewSongScreen() {
 
   const [language, setLanguage] = useState('java');
   const pickerRef = useRef<PickerRef>(null);
+
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [searchingMore, setSearchingMore] = useState(false);
+  const [searchResult, setSearchResult] = useState<StageSearchResult | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Chords have no free source like LRCLIB/lyrics.ovh — the web app only
+  // finds them via a paid Tavily search, and this app has no settings
+  // screen to configure that key yet.
+  const handleSearchChords = () => {
+    Alert.alert(
+      'Búsqueda de acordes no disponible',
+      'Buscar acordes en línea requiere una clave de API (Tavily) que esta app todavía no permite configurar. Puedes escribirlos manualmente en formato ChordPro.'
+    );
+  };
+
+  const handleSearch = async () => {
+    if (content === 'chords') {
+      handleSearchChords();
+      return;
+    }
+    if (!title.trim()) {
+      Alert.alert('Falta el título', 'Escribe al menos el título de la canción para buscarla.');
+      return;
+    }
+    setSearchVisible(true);
+    setSearching(true);
+    try {
+      const result = await searchOnlineHybrid(title, artist);
+      setSearchResult(result);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSearchMore = async () => {
+    if (!searchResult?.nextStage) return;
+    setSearchingMore(true);
+    try {
+      const result = await searchByStage(title, artist, searchResult.nextStage);
+      setSearchResult(result);
+    } finally {
+      setSearchingMore(false);
+    }
+  };
+
+  const handleSelectResult = (result: OnlineSearchResult) => {
+    setTitle(result.title);
+    setArtist(result.artist);
+    setLyrics(result.lyrics);
+    setSearchVisible(false);
+  };
+
+  const handleSave = async () => {
+    if (!title.trim()) {
+      Alert.alert('Falta el título', 'Escribe al menos el título de la canción para guardarla.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await saveSong({ title: title.trim(), artist: artist.trim(), lyrics, language: lang });
+      close();
+    } catch (error) {
+      Alert.alert('No se pudo guardar', String(error instanceof Error ? error.message : error));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <Fragment>
@@ -75,12 +149,14 @@ export default function NewSongScreen() {
       </Stack.Title>
 
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon} onPress={() => { }} />
+        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon} onPress={handleSearch} disabled={searching} />
+        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon} onPress={handleSave} disabled={saving} />
       </Stack.Toolbar>
 
       {/* The native bottom toolbar only works reliably on iOS here — on
       Android it fails to render for this screen, so Android gets its own
-      footer built in the page body instead (below). */}
+      footer built in the page body instead (below). The language picker
+      only makes sense for the lyrics tab — chords don't have a language. */}
       {Platform.OS === 'ios' && (
         <Stack.Toolbar placement="bottom">
           <Stack.Toolbar.View>
@@ -93,66 +169,45 @@ export default function NewSongScreen() {
             </View>
           </Stack.Toolbar.View>
           <Stack.Toolbar.Spacer />
-          <Stack.Toolbar.Menu title={currentLanguage}>
-            {LANGUAGES.map((language) => (
-              <Stack.Toolbar.MenuAction key={language.value} isOn={lang === language.value} onPress={() => setLang(language.value)}>
-                {language.label}
-              </Stack.Toolbar.MenuAction>
-            ))}
-          </Stack.Toolbar.Menu>
+          {content === 'lyrics' && (
+            <Stack.Toolbar.Menu title={currentLanguage}>
+              {LANGUAGES.map((language) => (
+                <Stack.Toolbar.MenuAction key={language.value} isOn={lang === language.value} onPress={() => setLang(language.value)}>
+                  {language.label}
+                </Stack.Toolbar.MenuAction>
+              ))}
+            </Stack.Toolbar.Menu>
+          )}
         </Stack.Toolbar>
       )}
 
-      <View className="flex-1">
+      <View className={`flex-1 ${Platform.OS === 'ios' ? 'pt-32' : 'pt-4'} `}>
         <View className="flex-1 bg-background">
           <AmbientGlow />
-          {content === 'chords' ? (
-            <View className="flex-1 px-4 pt-4">
-              <View className="rounded-xl border border-border bg-card p-6">
-                <Text className="font-mono text-sm leading-[22px] text-muted-foreground">
-                  Am{'    '}F{'    '}C{'    '}G{'\n\n'}Editor de acordes (ChordPro)
-                </Text>
-              </View>
-            </View>
-          ) : (
-            <View className={`flex-1 gap-y-4 px-4 ${Platform.OS === 'ios' ? 'pt-32' : 'pt-4'}`}>
-              <SegmentedControl
-                values={['Editar', 'Vista previa']}
-                selectedIndex={mode === 'edit' ? 0 : 1}
-                onChange={(event) => setMode(event.nativeEvent.selectedSegmentIndex === 0 ? 'edit' : 'preview')}
-                style={{ width: '100%' }}
-              />
+          <View className="flex-1 gap-y-4 px-4">
+            <SegmentedControl
+              values={['Editar', 'Vista previa']}
+              selectedIndex={mode === 'edit' ? 0 : 1}
+              onChange={(event) => setMode(event.nativeEvent.selectedSegmentIndex === 0 ? 'edit' : 'preview')}
+              style={{ width: '100%' }}
+            />
 
-              {mode === 'edit' ? (
-                <View className="flex-1 overflow-hidden rounded-lg border border-border bg-card" style={{ marginBottom: Platform.OS === 'ios' ? bottom + 60 : 20 }}>
-                  <TextInput
-                    value={lyrics}
-                    onChangeText={setLyrics}
-                    placeholder="Escribe o pega la letra aquí..."
-                    placeholderTextColorClassName="accent-muted-foreground"
-                    multiline
-                    textAlignVertical="top"
-                    className="flex-1 p-4 font-sora text-sm text-foreground"
-                  />
-                  <View className="items-end border-t border-border p-2">
-                    <Text className="font-sora text-[11px] text-muted-foreground">{wordCount} palabras</Text>
-                  </View>
-                </View>
-              ) : stanzas.length === 0 ? (
-                <View className="items-center rounded-lg border border-dashed border-border p-6">
-                  <Text className="text-center font-sora text-xs text-muted-foreground">
-                    Las diapositivas aparecerán aquí a medida que escribas.
-                  </Text>
-                </View>
-              ) : (
-                stanzas.map((stanza, index) => (
-                  <View key={index} className="rounded-lg border border-border bg-card p-4">
-                    <Text className="text-center font-sora-semibold text-[15px] text-foreground">{stanza}</Text>
-                  </View>
-                ))
-              )}
-            </View>
-          )}
+            {content === 'lyrics' ? (
+              <LyricsEditor
+                value={lyrics}
+                onChange={setLyrics}
+                mode={mode}
+                bottomInset={Platform.OS === 'ios' ? bottom + 60 : 20}
+              />
+            ) : (
+              <ChordsEditor
+                value={chords}
+                onChange={setChords}
+                mode={mode}
+                bottomInset={Platform.OS === 'ios' ? bottom + 60 : 20}
+              />
+            )}
+          </View>
         </View>
 
         {Platform.OS === 'android' && (
@@ -164,17 +219,30 @@ export default function NewSongScreen() {
                 onChange={(event) => setContent(event.nativeEvent.selectedSegmentIndex === 0 ? 'lyrics' : 'chords')}
               />
             </View>
-            <View className='w-30'>
-
-              <Picker selectedValue={lang} onValueChange={setLang}>
-                {LANGUAGES.map((language) => (
-                  <Picker.Item key={language.value} label={language.label} value={language.value} />
-                ))}
-              </Picker>
-            </View>
+            {content === 'lyrics' && (
+              <View className="w-30">
+                <Picker selectedValue={lang} onValueChange={setLang}>
+                  {LANGUAGES.map((language) => (
+                    <Picker.Item key={language.value} label={language.label} value={language.value} />
+                  ))}
+                </Picker>
+              </View>
+            )}
           </View>
         )}
       </View>
+
+      <SongSearchResultsModal
+        visible={searchVisible}
+        loading={searching}
+        results={searchResult?.results ?? []}
+        currentStage={searchResult?.currentStage ?? 1}
+        nextStage={searchResult?.nextStage ?? null}
+        searchingMore={searchingMore}
+        onSelect={handleSelectResult}
+        onSearchMore={handleSearchMore}
+        onClose={() => setSearchVisible(false)}
+      />
     </Fragment>
   );
 }
