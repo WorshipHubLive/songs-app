@@ -16,6 +16,9 @@ export interface AppSettings {
     linked: boolean;
     baseUrl: string | null;
     name: string;
+    // Pairing token from WorshipHub's human-approval flow — required on
+    // every send; see lib/worshiphub-client.ts.
+    token: string | null;
   };
   localSyncPeer: {
     baseUrl: string | null;
@@ -30,7 +33,7 @@ export interface AppSettings {
 const DEFAULT_SETTINGS: AppSettings = {
   profile: { name: '', avatarUri: '' },
   search: { tavilyApiKey: '' },
-  worshiphub: { linked: false, baseUrl: null, name: '' },
+  worshiphub: { linked: false, baseUrl: null, name: '', token: null },
   localSyncPeer: { baseUrl: null },
   cloud: { url: '', anonKey: '', lastSyncedAt: '' },
 };

@@ -1,36 +1,47 @@
 import { QrScannerModal } from '@/components/qr-scanner-modal';
+import { getSongsForExport } from '@/db/songs-repository';
 import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { shrinkAvatarForTransfer } from '@/lib/avatar';
 import { discoverWorshipHub, type DiscoveredPeer } from '@/lib/discovery';
-import { Info, Laptop, Loader2, QrCode, RefreshCw, Zap } from 'lucide-react-native';
+import { pairWithWorshipHub, sendSongsToWorshipHub } from '@/lib/worshiphub-client';
+import { Check, Laptop, QrCode, RefreshCw, ShieldCheck, Zap } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
-type Phase = 'searching' | 'found' | 'manual' | 'unavailable';
+type Phase = 'searching' | 'found' | 'manual' | 'pairing' | 'sending' | 'done' | 'error';
 
-// Bottom sheet mirroring SendSongsModal's "connect" flow: auto-discover
-// WorshipHub over mDNS as soon as it opens (see lib/discovery.ts — same
-// `_worshiphub._tcp.local.` announcement the desktop app's own discovery
-// browses), falling back to a scanned/typed address. Once a target is
-// picked we're honest that the actual pairing handshake + send call
-// aren't wired up yet (no self-signed-HTTPS client, no token flow) —
-// same caveat as settings/worshiphub.tsx, just reached from here too.
+interface Target {
+  label: string;
+  baseUrl: string;
+}
+
+// Bottom sheet mirroring SendSongsModal's "connect → pair → send" flow:
+// auto-discover WorshipHub over mDNS as soon as it opens (see
+// lib/discovery.ts — same `_worshiphub._tcp.local.` announcement the
+// desktop app's own discovery browses), falling back to a scanned/typed
+// address, then a real pair-request + import-songs call (see
+// lib/worshiphub-client.ts) — same protocol the web/desktop apps use.
 export function SendToWorshipHubSheet({
   visible,
-  count,
+  songIds,
   onClose,
+  onSent,
 }: {
   visible: boolean;
-  count: number;
+  songIds: number[];
   onClose: () => void;
+  onSent?: () => void;
 }) {
   const colors = useThemeColors();
-  const { updateWorshipHub } = useAppSettings();
+  const { settings, updateWorshipHub } = useAppSettings();
   const [phase, setPhase] = useState<Phase>('searching');
   const [peers, setPeers] = useState<DiscoveredPeer[]>([]);
-  const [targetLabel, setTargetLabel] = useState('');
+  const [target, setTarget] = useState<Target | null>(null);
   const [address, setAddress] = useState('');
   const [scannerVisible, setScannerVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [sentCount, setSentCount] = useState(0);
 
   const runDiscovery = () => {
     setPhase('searching');
@@ -43,32 +54,55 @@ export function SendToWorshipHubSheet({
 
   useEffect(() => {
     if (visible) runDiscovery();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
-  const selectTarget = (label: string, baseUrl: string) => {
-    setTargetLabel(label);
-    updateWorshipHub({ baseUrl });
-    setPhase('unavailable');
+  const pairAndSend = async (t: Target) => {
+    setPhase('pairing');
+    setErrorMessage('');
+    try {
+      const avatarDataUrl = await shrinkAvatarForTransfer(settings.profile.avatarUri);
+      const existingToken = settings.worshiphub.baseUrl === t.baseUrl ? settings.worshiphub.token : null;
+      const token = await pairWithWorshipHub(t.baseUrl, existingToken, settings.profile.name, avatarDataUrl);
+      updateWorshipHub({ linked: true, name: t.label, baseUrl: t.baseUrl, token });
+
+      setPhase('sending');
+      const songs = await getSongsForExport(songIds);
+      const received = await sendSongsToWorshipHub(t.baseUrl, token, songs, settings.profile.name, avatarDataUrl);
+      setSentCount(received);
+      setPhase('done');
+      onSent?.();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setErrorMessage(worshipHubErrorMessage(message));
+      setPhase('error');
+    }
   };
 
-  const selectPeer = (peer: DiscoveredPeer) => selectTarget(peer.name, `https://${peer.ip}:${peer.port}`);
+  const selectTarget = (t: Target) => {
+    setTarget(t);
+    void pairAndSend(t);
+  };
+
+  const selectPeer = (peer: DiscoveredPeer) => selectTarget({ label: peer.name, baseUrl: `https://${peer.ip}:${peer.port}` });
 
   const submitAddress = () => {
     const raw = address.trim().replace(/\/+$/, '');
     if (!raw) return;
     const baseUrl = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-    selectTarget(baseUrl, baseUrl);
+    selectTarget({ label: baseUrl, baseUrl });
   };
 
   const handleScanResult = (value: string) => {
     setScannerVisible(false);
     const base = value.replace(/\/remote\/ws\/?$/i, '').replace(/\/+$/, '');
     const baseUrl = /^https?:\/\//i.test(base) ? base : `https://${base}`;
-    selectTarget(baseUrl, baseUrl);
+    selectTarget({ label: baseUrl, baseUrl });
   };
 
   const handleClose = () => {
     setAddress('');
+    setTarget(null);
     onClose();
   };
 
@@ -83,14 +117,14 @@ export function SendToWorshipHubSheet({
           <View className="gap-0.5 px-5 pb-4">
             <Text className="font-sora-bold text-lg text-foreground">Enviar a WorshipHub</Text>
             <Text className="font-sora text-xs text-muted-foreground">
-              {count} {count === 1 ? 'canción' : 'canciones'} en el servicio
+              {songIds.length} {songIds.length === 1 ? 'canción' : 'canciones'}
             </Text>
           </View>
 
           <ScrollView contentContainerClassName="gap-4 px-5 pb-8">
             {phase === 'searching' && (
               <View className="items-center gap-3 py-10">
-                <Loader2 size={28} color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary} />
                 <Text className="font-sora text-sm text-muted-foreground">Buscando WorshipHub en esta red…</Text>
               </View>
             )}
@@ -170,16 +204,45 @@ export function SendToWorshipHubSheet({
               </View>
             )}
 
-            {phase === 'unavailable' && (
-              <View className="items-center gap-3 py-6">
-                <Info size={28} color={colors.primary} />
-                <Text className="text-center font-sora-semibold text-sm text-foreground">Conectado a {targetLabel}</Text>
-                <Text className="text-center font-sora text-xs leading-5 text-muted-foreground">
-                  Guardamos esta dirección, pero emparejar y enviar canciones de verdad todavía no está implementado
-                  en esta app — llegará en una próxima actualización.
+            {phase === 'pairing' && (
+              <View className="items-center gap-3 py-10">
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text className="text-center font-sora text-sm text-muted-foreground">
+                  Esperando aprobación en WorshipHub{target ? ` (${target.label})` : ''}…
+                </Text>
+              </View>
+            )}
+
+            {phase === 'sending' && (
+              <View className="items-center gap-3 py-10">
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text className="font-sora text-sm text-muted-foreground">Enviando…</Text>
+              </View>
+            )}
+
+            {phase === 'done' && (
+              <View className="items-center gap-3 py-8">
+                <View className="h-12 w-12 items-center justify-center rounded-full bg-primary/15">
+                  <Check size={24} color={colors.primary} strokeWidth={2.5} />
+                </View>
+                <Text className="text-center font-sora-semibold text-sm text-foreground">
+                  {sentCount} {sentCount === 1 ? 'canción enviada' : 'canciones enviadas'} a WorshipHub
                 </Text>
                 <Pressable onPress={handleClose} className="mt-2 rounded-full bg-muted px-5 py-2">
                   <Text className="font-sora-bold text-xs text-foreground">Cerrar</Text>
+                </Pressable>
+              </View>
+            )}
+
+            {phase === 'error' && (
+              <View className="items-center gap-3 py-8">
+                <ShieldCheck size={28} color={colors.destructive} />
+                <Text className="text-center font-sora text-sm text-destructive">{errorMessage}</Text>
+                <Pressable
+                  onPress={() => (target ? void pairAndSend(target) : setPhase('manual'))}
+                  className="mt-2 rounded-full bg-primary px-5 py-2"
+                >
+                  <Text className="font-sora-bold text-xs text-primary-foreground">Reintentar</Text>
                 </Pressable>
               </View>
             )}
@@ -195,4 +258,12 @@ export function SendToWorshipHubSheet({
       />
     </Modal>
   );
+}
+
+function worshipHubErrorMessage(message: string): string {
+  if (message === 'denied') return 'El operador de WorshipHub rechazó la conexión, o no respondió a tiempo.';
+  if (message === 'busy') return 'WorshipHub ya tiene otra solicitud de conexión esperando respuesta. Respóndela allá y vuelve a intentar.';
+  if (message === 'unauthorized') return 'WorshipHub ya no reconoce esta app — vuelve a emparejar.';
+  if (message.startsWith('HTTP ')) return `WorshipHub respondió con un error (${message}). Revisa que esté abierto y actualizado.`;
+  return `No se pudo contactar a WorshipHub. Revisa que esté abierto y en la misma red. (${message || 'sin detalle'})`;
 }

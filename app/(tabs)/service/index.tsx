@@ -80,7 +80,16 @@ export default function ServiceScreen() {
 
       <DeleteSongModal song={deleteTarget} deleting={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={handleDelete} />
 
-      <SendToWorshipHubSheet visible={sendVisible} count={songs.length} onClose={() => setSendVisible(false)} />
+      <SendToWorshipHubSheet
+        visible={sendVisible}
+        songIds={songs.map((s) => s.id)}
+        onClose={() => setSendVisible(false)}
+        onSent={() => {
+          // A sent service is done being that service — same as the web
+          // app clearing its queue after a successful send.
+          for (const song of songs) void setInService(song.id, false);
+        }}
+      />
     </View>
   );
 }

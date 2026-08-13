@@ -4,9 +4,9 @@ import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { discoverSongsDesktopPeers, type DiscoveredPeer } from '@/lib/discovery';
 import { Stack } from 'expo-router';
-import { Laptop, Loader2, QrCode, RefreshCw } from 'lucide-react-native';
+import { Laptop, QrCode, RefreshCw } from 'lucide-react-native';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 // Mirrors Settings.tsx's Local Sync subTab — passing songs to ANOTHER
 // instance of this app on the same network, unrelated to WorshipHub
@@ -72,7 +72,7 @@ export default function LocalSyncScreen() {
           <View className="flex-row items-center justify-between gap-3">
             <Text className="font-sora-semibold text-sm text-foreground">Encontrados en esta red</Text>
             <Pressable onPress={handleDiscover} disabled={scanning} className="flex-row items-center gap-1.5 rounded-full border border-border px-3 py-1.5">
-              {scanning ? <Loader2 size={13} color={colors.primary} /> : <RefreshCw size={13} color={colors.primary} />}
+              {scanning ? <ActivityIndicator size="small" color={colors.primary} /> : <RefreshCw size={13} color={colors.primary} />}
               <Text className="font-sora-bold text-[11px] text-foreground">Buscar</Text>
             </Pressable>
           </View>

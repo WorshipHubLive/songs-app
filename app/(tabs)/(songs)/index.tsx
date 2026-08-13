@@ -4,8 +4,6 @@ import { SendToWorshipHubSheet } from '@/components/send-to-worshiphub-sheet';
 import { SongList } from '@/components/song-list';
 import type { Song } from '@/db/schema';
 import { allSongsQuery, deleteSong, setInService } from '@/db/songs-repository';
-import CheckCircleIcon from '@expo/material-symbols/check_circle.xml';
-import SendIcon from '@expo/material-symbols/send.xml';
 import SyncIcon from '@expo/material-symbols/sync.xml';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useRouter } from 'expo-router';
@@ -77,27 +75,7 @@ export default function LibraryScreen() {
         />
       )}
       <Stack.Toolbar placement="right">
-        {selecting ? (
-          <>
-            <Stack.Toolbar.Button onPress={cancelSelecting}>Cancelar</Stack.Toolbar.Button>
-            <Stack.Toolbar.Button
-              icon={Platform.OS === 'ios' ? 'paperplane' : SendIcon}
-              onPress={() => setSendVisible(true)}
-              disabled={selectedIds.size === 0}
-            >
-              {selectedIds.size > 0 && <Stack.Toolbar.Badge>{String(selectedIds.size)}</Stack.Toolbar.Badge>}
-            </Stack.Toolbar.Button>
-          </>
-        ) : (
-          <>
-            <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'arrow.triangle.2.circlepath' : SyncIcon} onPress={() => {}} />
-            <Stack.Toolbar.Button
-              icon={Platform.OS === 'ios' ? 'checkmark.circle' : CheckCircleIcon}
-              onPress={() => setSelecting(true)}
-              disabled={songs.length === 0}
-            />
-          </>
-        )}
+        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'arrow.triangle.2.circlepath' : SyncIcon} onPress={() => { }} />
       </Stack.Toolbar>
 
       {selecting && (
@@ -127,11 +105,12 @@ export default function LibraryScreen() {
 
       <SendToWorshipHubSheet
         visible={sendVisible}
-        count={selectedIds.size}
+        songIds={[...selectedIds]}
         onClose={() => {
           setSendVisible(false);
           cancelSelecting();
         }}
+        onSent={cancelSelecting}
       />
     </View>
   );
