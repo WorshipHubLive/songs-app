@@ -1,5 +1,5 @@
-import { Stack } from 'expo-router';
 import { useAppTheme } from '@/hooks/useAppTheme';
+import { Stack } from 'expo-router';
 
 // Nested stack so Settings' sub-pages (Appearance, Language, ...) push on
 // top while the bottom tab bar stays visible — unlike song/[id] and
@@ -23,7 +23,7 @@ export default function SettingsLayout() {
         headerBackButtonDisplayMode: 'minimal',
       }}
     >
-      <Stack.Screen name="index" options={{ headerLargeTitle: true }} />
+      <Stack.Screen name="index" />
       <Stack.Screen name="appearance" />
       <Stack.Screen name="language" />
     </Stack>

@@ -1,4 +1,5 @@
 import { useAppTheme } from '@/hooks/useAppTheme';
+import { usePathname } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 
 // Mirrors MobileNav (Songs/Service/Settings) but as a truly native tab
@@ -6,9 +7,16 @@ import { NativeTabs } from 'expo-router/unstable-native-tabs';
 // Material 3 bottom navigation on Android — instead of a JS-drawn bar.
 export default function TabLayout() {
   const { theme } = useAppTheme();
+  // "new-song" (the role="search" trigger) is meant to read as a
+  // focused, full-screen editor rather than "one more tab" — hide the
+  // bar entirely while it's active, same as song/[id] hides it by living
+  // outside the tab navigator. This does remount the tab navigator on
+  // toggle (documented NativeTabs `hidden` behavior), which is fine here
+  // since none of the tabs hold state worth preserving through it.
+  const isOnNewSong = usePathname() === '/new-song';
 
   return (
-    <NativeTabs tintColor={theme.primary} minimizeBehavior="onScrollDown">
+    <NativeTabs hidden={isOnNewSong} tintColor={theme.primary} minimizeBehavior="onScrollDown">
       <NativeTabs.Trigger name="(songs)">
         <NativeTabs.Trigger.Icon sf="music.note.list" md="library_music" />
         <NativeTabs.Trigger.Label>Songs</NativeTabs.Trigger.Label>

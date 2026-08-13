@@ -77,7 +77,6 @@ function RootLayoutNav() {
         {/* NativeTabs renders its own chrome — no Stack header at this level. */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="song/[id]" options={{ presentation: 'card' }} />
-        <Stack.Screen name="song/new" options={{ presentation: 'card' }} />
       </Stack>
     </NavigationThemeProvider>
   );
