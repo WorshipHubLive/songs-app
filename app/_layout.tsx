@@ -1,20 +1,21 @@
-import { Stack, ThemeProvider as NavigationThemeProvider, DarkTheme as NavDark, DefaultTheme as NavLight } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import '@/global.css';
 import {
-  useFonts,
   Sora_400Regular,
   Sora_600SemiBold,
   Sora_700Bold,
   Sora_800ExtraBold,
+  useFonts,
 } from '@expo-google-fonts/sora';
+import { DarkTheme as NavDark, ThemeProvider as NavigationThemeProvider, DefaultTheme as NavLight, Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import 'react-native-reanimated';
 
 import { AppThemeProvider, useAppTheme } from '@/hooks/useAppTheme';
 
 export {
-  ErrorBoundary,
+  ErrorBoundary
 } from 'expo-router';
 
 export const unstable_settings = {
