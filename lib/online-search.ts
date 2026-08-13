@@ -118,7 +118,134 @@ async function searchStage2Ovh(title: string, artist: string): Promise<OnlineSea
   return results;
 }
 
-export async function searchByStage(title: string, artist: string, stage: number): Promise<StageSearchResult> {
+const FOOTER_MARKERS = [
+  'written by',
+  'escrito por',
+  'compositores',
+  'composición:',
+  'sent by',
+  'enviado por',
+  'revised by',
+  'revisado por',
+  'did you see an error',
+  'viste un error',
+  'datos están equivocados',
+  'envío por',
+  'educación musical',
+  'hecho con amor',
+  'derechos reservados',
+  'el mayor sitio web',
+  '1 millón de canciones',
+  '78 millones de personas',
+  '## album',
+  '## credits',
+  '## comentarios',
+  '## comments',
+  '## join',
+  'most played from',
+  'más escuchadas',
+  'share questions',
+  'discover letras',
+  'letras academy',
+  'practice this content',
+  'support center',
+];
+
+function cleanRawWebLyrics(text: string): string {
+  let cleaned = text
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li)>/gi, '\n')
+    .replace(/<[^>]+>/g, '');
+
+  const lower = cleaned.toLowerCase();
+  let cutIndex = cleaned.length;
+  for (const marker of FOOTER_MARKERS) {
+    const idx = lower.indexOf(marker);
+    if (idx !== -1 && idx < cutIndex) cutIndex = idx;
+  }
+  cleaned = cleaned.slice(0, cutIndex);
+
+  const rawLines = cleaned.split('\n');
+  const bodyLines: string[] = [];
+  let lyricsStarted = false;
+
+  for (let line of rawLines) {
+    line = line.trim();
+    if (!line) {
+      if (lyricsStarted) bodyLines.push('');
+      continue;
+    }
+    if (/^!?\[.*?\]\(.*?\)$/.test(line) || /^\[##\s+.*?\]/.test(line)) continue;
+    if (/^#{1,6}\s+/.test(line)) continue;
+    if (
+      /^(lyrics\s+views|subscribe|views\s+\d+|album\s+•|\d+\s*\/\s*\d+)/i.test(line) ||
+      /^(tono|afinación|estándar|capo|sin capo|diagramas|mostrar|tablaturas|rasgueos|afinador|metrónomo|medios|composición|auto scroll|imprimir|simplificar|corregir|cifra|favoritar|datos están equivocados|envío por|hecho con|derechos reservados|©)/i.test(line) ||
+      /^\[.*?(lyrics|translation|meaning|acordes|cifra).*?\]/i.test(line)
+    ) {
+      continue;
+    }
+
+    line = line.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
+    if (line) {
+      lyricsStarted = true;
+      bodyLines.push(line);
+    }
+  }
+
+  return bodyLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// STAGE 3: Tavily web search — advanced full-page extraction, only runs
+// with a user-supplied API key (see settings/search.tsx). Free-tier
+// LRCLIB/lyrics.ovh cover most cases; this is the fallback for the rest.
+async function searchStage3Tavily(title: string, artist: string, tavilyApiKey: string): Promise<OnlineSearchResult[]> {
+  if (!tavilyApiKey.trim()) return [];
+  try {
+    const query = `letra completa "${title}" ${artist}`.trim();
+    const res = await fetchWithTimeout('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: tavilyApiKey.trim(),
+        query,
+        search_depth: 'advanced',
+        include_raw_content: true,
+        max_results: 5,
+      }),
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const items = data.results || [];
+
+    let bestRawText = '';
+    let bestTitle = title;
+
+    for (const r of items) {
+      const rawText = r.raw_content && r.raw_content.trim().length > 150 ? r.raw_content.trim() : (r.content || '').trim();
+      if (rawText.length > bestRawText.length) {
+        bestRawText = rawText;
+        if (r.title && r.title.length < 80) {
+          bestTitle = r.title.split('-')[0].trim() || title;
+        }
+      }
+    }
+
+    if (bestRawText.length > 80) {
+      const cleaned = cleanRawWebLyrics(bestRawText);
+      return [{ title: bestTitle, artist, lyrics: cleaned.slice(0, 6000), source: 'Tavily Web Search', stage: 3 }];
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+export async function searchByStage(
+  title: string,
+  artist: string,
+  stage: number,
+  tavilyApiKey: string = ''
+): Promise<StageSearchResult> {
   if (stage === 1) {
     const results = await searchStage1Lrclib(title, artist);
     return { results, currentStage: 1, nextStage: 2, sourceName: 'LRCLIB.net' };
@@ -126,15 +253,25 @@ export async function searchByStage(title: string, artist: string, stage: number
 
   if (stage === 2) {
     const results = await searchStage2Ovh(title, artist);
-    return { results, currentStage: 2, nextStage: null, sourceName: 'iTunes / lyrics.ovh' };
+    return { results, currentStage: 2, nextStage: tavilyApiKey.trim() ? 3 : null, sourceName: 'iTunes / lyrics.ovh' };
+  }
+
+  if (stage === 3) {
+    const results = await searchStage3Tavily(title, artist, tavilyApiKey);
+    return { results, currentStage: 3, nextStage: null, sourceName: 'Tavily Web Search' };
   }
 
   return { results: [], currentStage: stage, nextStage: null, sourceName: 'Desconocido' };
 }
 
-// Cascading search: stage 1, fall back to stage 2 if empty.
-export async function searchOnlineHybrid(title: string, artist: string): Promise<StageSearchResult> {
-  const stage1 = await searchByStage(title, artist, 1);
+// Cascading search: stage 1 → stage 2 → stage 3 (only if a Tavily key is
+// configured), stopping at the first stage that finds anything.
+export async function searchOnlineHybrid(title: string, artist: string, tavilyApiKey: string = ''): Promise<StageSearchResult> {
+  const stage1 = await searchByStage(title, artist, 1, tavilyApiKey);
   if (stage1.results.length > 0) return stage1;
-  return searchByStage(title, artist, 2);
+
+  const stage2 = await searchByStage(title, artist, 2, tavilyApiKey);
+  if (stage2.results.length > 0 || !tavilyApiKey.trim()) return stage2;
+
+  return searchByStage(title, artist, 3, tavilyApiKey);
 }

@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
+import { AppSettingsProvider } from '@/hooks/use-app-settings';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 
@@ -46,7 +47,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AppSettingsProvider>
+      <RootLayoutNav />
+    </AppSettingsProvider>
+  );
 }
 
 function RootLayoutNav() {

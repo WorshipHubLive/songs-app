@@ -2,6 +2,7 @@ import { AmbientGlow } from '@/components/ambient-glow';
 import { BentoSection } from '@/components/settings/bento-section';
 import { SettingsRow, SettingsTile } from '@/components/settings/settings-row';
 import { Card } from '@/components/ui/card';
+import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack, useRouter } from 'expo-router';
 import { Cloud, Languages, Laptop, Palette, RadioTower, Search, Smartphone, User } from 'lucide-react-native';
@@ -12,6 +13,7 @@ import { Image, ScrollView, Text, View } from 'react-native';
 export default function SettingsHubScreen() {
   const colors = useThemeColors();
   const router = useRouter();
+  const { settings } = useAppSettings();
 
   return (
     <View className="flex-1 bg-background">
@@ -32,7 +34,12 @@ export default function SettingsHubScreen() {
         </Card>
 
         <BentoSection icon={Palette} label="Visuals" accent="primary">
-          <SettingsRow icon={User} title="Profile Settings" description="Nombre y avatar" />
+          <SettingsRow
+            icon={User}
+            title="Profile Settings"
+            description={settings.profile.name || 'Nombre y avatar'}
+            onPress={() => router.push('/settings/profile')}
+          />
           <SettingsRow
             icon={Palette}
             title="Appearance"
@@ -48,15 +55,25 @@ export default function SettingsHubScreen() {
         </BentoSection>
 
         <BentoSection icon={RadioTower} label="Connectivity" accent="secondary">
-          <SettingsRow icon={RadioTower} title="WorshipHub" description="No vinculado" />
+          <SettingsRow
+            icon={RadioTower}
+            title="WorshipHub"
+            description={settings.worshiphub.linked ? 'Enlazado' : 'No vinculado'}
+            onPress={() => router.push('/settings/worshiphub')}
+          />
           <View className="flex-row gap-2">
-            <SettingsTile icon={Laptop} title="Local Sync" />
-            <SettingsTile icon={Cloud} title="Cloud Sync" />
+            <SettingsTile icon={Laptop} title="Local Sync" onPress={() => router.push('/settings/local-sync')} />
+            <SettingsTile icon={Cloud} title="Cloud Sync" onPress={() => router.push('/settings/cloud-sync')} />
           </View>
         </BentoSection>
 
         <BentoSection icon={Search} label="Preferences" accent="accent">
-          <SettingsRow icon={Search} title="Search" description="Búsqueda de letras en línea" />
+          <SettingsRow
+            icon={Search}
+            title="Search"
+            description={settings.search.tavilyApiKey ? 'Búsqueda avanzada activa' : 'Búsqueda de letras en línea'}
+            onPress={() => router.push('/settings/search')}
+          />
         </BentoSection>
 
         <View className="items-center gap-2 pt-4">

@@ -8,6 +8,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Fragment, useEffect, useState } from 'react';
 import { Alert, Platform, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // A translation is a per-language copy of the lyrics, kept in its own
 // `translations` row (unique on song + language) — the song's own
@@ -23,6 +24,7 @@ export default function TranslateSongScreen() {
   const { songId: songIdParam } = useLocalSearchParams<{ songId: string }>();
   const router = useRouter();
   const songId = Number(songIdParam);
+  const { bottom } = useSafeAreaInsets();
 
   const { data: songData } = useLiveQuery(songByIdQuery(songId));
   const song = songData?.[0];
@@ -102,7 +104,10 @@ export default function TranslateSongScreen() {
       <View className={`flex-1 ${Platform.OS === 'ios' ? 'pt-32' : 'pt-4'}`}>
         <View className="flex-1 bg-background">
           <View className="flex-1 px-4">
-            <View className="flex-1 overflow-hidden rounded-lg border border-border bg-card px-4">
+            <View
+              className="flex-1 overflow-hidden rounded-lg border border-border bg-card px-4"
+              style={{ marginBottom: Platform.OS === 'ios' ? bottom + 16 : 16 }}
+            >
               <TextInput
                 value={lyrics}
                 onChangeText={setLyrics}
@@ -117,7 +122,10 @@ export default function TranslateSongScreen() {
         </View>
 
         {Platform.OS === 'android' && (
-          <View className="flex-row items-center justify-end border-t border-border bg-card px-4 py-3">
+          <View
+            className="flex-row items-center justify-end border-t border-border bg-card px-4 pt-3"
+            style={{ paddingBottom: bottom + 12 }}
+          >
             <View className="w-48">
               <Picker selectedValue={language} onValueChange={setLanguage}>
                 {availableLanguages.map((l) => (

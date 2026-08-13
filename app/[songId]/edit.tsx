@@ -120,7 +120,7 @@ export default function EditSongScreen() {
         </View>
 
         {Platform.OS === 'android' && (
-          <View className="flex-row items-center justify-end border-t border-border bg-card px-4 py-3">
+          <View className="flex-row items-center justify-end border-t border-border bg-card px-4 pt-3" style={{ paddingBottom: bottom + 12 }}>
             <View className="w-40">
               <Picker selectedValue={lang} onValueChange={setLang}>
                 {LANGUAGES.map((language) => (

@@ -3,6 +3,7 @@ import { LyricsEditor } from '@/components/lyrics-editor';
 import { SongSearchResultsModal } from '@/components/song-search-results-modal';
 import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
 import { saveSong } from '@/db/songs-repository';
+import { useAppSettings } from '@/hooks/use-app-settings';
 import { type OnlineSearchResult, searchByStage, searchOnlineHybrid, type StageSearchResult } from '@/lib/online-search';
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import SaveIcon from '@expo/material-symbols/save.xml';
@@ -26,6 +27,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function NewSongScreen() {
   const router = useRouter();
   const { bottom } = useSafeAreaInsets();
+  const { settings } = useAppSettings();
+  const tavilyApiKey = settings.search.tavilyApiKey;
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [lyrics, setLyrics] = useState('');
@@ -52,7 +55,7 @@ export default function NewSongScreen() {
     setSearchVisible(true);
     setSearching(true);
     try {
-      const result = await searchOnlineHybrid(title, artist);
+      const result = await searchOnlineHybrid(title, artist, tavilyApiKey);
       setSearchResult(result);
     } finally {
       setSearching(false);
@@ -63,7 +66,7 @@ export default function NewSongScreen() {
     if (!searchResult?.nextStage) return;
     setSearchingMore(true);
     try {
-      const result = await searchByStage(title, artist, searchResult.nextStage);
+      const result = await searchByStage(title, artist, searchResult.nextStage, tavilyApiKey);
       setSearchResult(result);
     } finally {
       setSearchingMore(false);
@@ -155,7 +158,7 @@ export default function NewSongScreen() {
         </View>
 
         {Platform.OS === 'android' && (
-          <View className="flex-row items-center justify-end border-t border-border bg-card px-4 py-3">
+          <View className="flex-row items-center justify-end border-t border-border bg-card px-4 pt-3" style={{ paddingBottom: bottom + 12 }}>
             <View className="w-40">
               <Picker selectedValue={lang} onValueChange={setLang}>
                 {LANGUAGES.map((language) => (
