@@ -1,2 +1,81 @@
 @import 'tailwindcss';
 @import 'uniwind';
+
+/*
+ * WorshipHub Songs design tokens, ported 1:1 from standalone/songs' CSS
+ * custom properties ([data-theme='worshiphub-dark'] /
+ * [data-theme='worshiphub-light']). Every `--color-*` variable here
+ * auto-generates the matching Tailwind utility (bg-primary,
+ * text-foreground, border-border, ...) — see https://docs.uniwind.dev.
+ * Both themes must define the same variable set.
+ */
+@layer theme {
+  :root {
+    @variant light {
+      --color-background: #f6f8fa;
+      --color-foreground: #0f172a;
+      --color-card: #ffffff;
+      --color-card-foreground: #0f172a;
+      --color-popover: #ffffff;
+      --color-popover-foreground: #0f172a;
+      --color-primary: #35a784;
+      --color-primary-foreground: #ffffff;
+      --color-primary-container: #35a784;
+      --color-on-primary-container: #ffffff;
+      --color-secondary: #0d9488;
+      --color-secondary-foreground: #ffffff;
+      --color-muted: #f1f5f9;
+      --color-muted-foreground: #64748b;
+      --color-accent: #0284c7;
+      --color-accent-foreground: #ffffff;
+      --color-destructive: #ef4444;
+      --color-border: #e2e8f0;
+      --color-input: #cbd5e1;
+      --color-ring: #35a784;
+    }
+
+    @variant dark {
+      --color-background: #06080f;
+      --color-foreground: #e1e2ed;
+      --color-card: #1d1f27;
+      --color-card-foreground: #e1e2ed;
+      --color-popover: #272a32;
+      --color-popover-foreground: #e1e2ed;
+      --color-primary: #6edab4;
+      --color-primary-foreground: #003829;
+      --color-primary-container: #35a784;
+      --color-on-primary-container: #ffffff;
+      --color-secondary: #44e2cd;
+      --color-secondary-foreground: #003731;
+      --color-muted: #191b23;
+      --color-muted-foreground: #bfc7d1;
+      --color-accent: #8ecdff;
+      --color-accent-foreground: #00344f;
+      --color-destructive: #ffb4ab;
+      --color-border: #40484f;
+      --color-input: #40484f;
+      --color-ring: #6edab4;
+    }
+  }
+
+  /* Radius scale, matching the web app's --radius-* tokens (rem there,
+     px here — React Native has no rem). */
+  :root {
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-2xl: 32px;
+    --radius-3xl: 40px;
+  }
+
+  /* Sora, loaded via @expo-google-fonts/sora in app/_layout.tsx — exposed
+     as font-sora-* utilities instead of a fontFamily constants file. */
+  :root {
+    --font-sora: 'Sora_400Regular';
+    --font-sora-semibold: 'Sora_600SemiBold';
+    --font-sora-bold: 'Sora_700Bold';
+    --font-sora-extrabold: 'Sora_800ExtraBold';
+  }
+}

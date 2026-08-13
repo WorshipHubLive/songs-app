@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { Check } from 'lucide-react-native';
-import { AmbientGlow } from '@/components/AmbientGlow';
-import { useAppTheme } from '@/hooks/useAppTheme';
-import { fonts, radius, spacing } from '@/constants/theme';
+import { useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
-// Mirrors Settings' Language subTab: grid of glass-card language cards
-// with a flag-emoji swatch + name + native label; selected has a primary
-// border/glow + trailing checkmark. The web app ships 9 languages.
+// Mirrors Settings' Language subTab: grid of language cards with a
+// flag-emoji swatch + name + native label; selected has a primary
+// border + trailing checkmark. The web app ships 9 languages.
 const LANGUAGES = [
   { code: 'es', flag: '🇪🇸', name: 'Español', native: 'Español' },
   { code: 'en', flag: '🇺🇸', name: 'Inglés', native: 'English' },
@@ -22,42 +21,34 @@ const LANGUAGES = [
 ];
 
 export default function LanguageScreen() {
-  const { theme } = useAppTheme();
+  const colors = useThemeColors();
   const [selected, setSelected] = useState('es');
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.background }]}>
+    <View className="flex-1 bg-background">
       <AmbientGlow />
-      <Stack.Title>Idioma</Stack.Title>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm }}
-      >
+      <Stack.Title asChild>
+        <Text className="font-sora-bold text-xl text-foreground">Idioma</Text>
+      </Stack.Title>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-2 p-4">
         {LANGUAGES.map((lang) => {
           const active = selected === lang.code;
           return (
             <Pressable
               key={lang.code}
               onPress={() => setSelected(lang.code)}
-              style={[
-                styles.card,
-                {
-                  backgroundColor: theme.card,
-                  borderColor: active ? theme.primary : theme.border,
-                  borderWidth: active ? 2 : 1,
-                },
-              ]}
+              className={`flex-row items-center gap-3 rounded-lg bg-card p-3 ${active ? 'border-2 border-primary' : 'border border-border'}`}
             >
-              <View style={[styles.flagSwatch, { backgroundColor: theme.muted }]}>
-                <Text style={styles.flag}>{lang.flag}</Text>
+              <View className="h-11 w-11 items-center justify-center rounded-md bg-muted">
+                <Text className="text-[22px]">{lang.flag}</Text>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.name, { color: theme.foreground }]}>{lang.name}</Text>
-                <Text style={[styles.native, { color: theme.mutedForeground }]}>{lang.native}</Text>
+              <View className="flex-1">
+                <Text className="font-sora-semibold text-sm text-foreground">{lang.name}</Text>
+                <Text className="mt-px font-sora text-[11px] text-muted-foreground">{lang.native}</Text>
               </View>
               {active && (
-                <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}>
-                  <Check size={12} color={theme.primaryForeground} strokeWidth={3} />
+                <View className="h-[22px] w-[22px] items-center justify-center rounded-full bg-primary">
+                  <Check size={12} color={colors.primaryForeground} strokeWidth={3} />
                 </View>
               )}
             </Pressable>
@@ -67,31 +58,3 @@ export default function LanguageScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-  },
-  flagSwatch: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.sm + 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  flag: { fontSize: 22 },
-  name: { fontSize: 14, fontFamily: fonts.headingSemibold },
-  native: { fontSize: 11, fontFamily: fonts.body, marginTop: 1 },
-  checkBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

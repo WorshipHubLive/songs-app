@@ -1,59 +1,37 @@
-import { AmbientGlow } from '@/components/AmbientGlow';
-import { GlassCard } from '@/components/GlassCard';
-import { BentoSection } from '@/components/settings/BentoSection';
-import { SettingsRow, SettingsTile } from '@/components/settings/SettingsRow';
-import { fonts, spacing } from '@/constants/theme';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { BentoSection } from '@/components/settings/bento-section';
+import { SettingsRow, SettingsTile } from '@/components/settings/settings-row';
+import { Card } from '@/components/ui/card';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack, useRouter } from 'expo-router';
-import {
-  Cloud,
-  Languages,
-  Laptop,
-  Palette,
-  RadioTower,
-  Search,
-  Smartphone,
-  User,
-} from 'lucide-react-native';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Cloud, Languages, Laptop, Palette, RadioTower, Search, Smartphone, User } from 'lucide-react-native';
+import { Image, ScrollView, Text, View } from 'react-native';
 
 // Mirrors Settings.tsx's "menu" subTab: cross-platform promo card, then a
-// bento grid of glass-card sections (Visuals / Connectivity / Preferences).
+// bento grid of sections (Visuals / Connectivity / Preferences).
 export default function SettingsHubScreen() {
-  const { theme } = useAppTheme();
+  const colors = useThemeColors();
   const router = useRouter();
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.background }]}>
+    <View className="flex-1 bg-background">
       <AmbientGlow />
       <Stack.Title asChild>
-        <View style={{width: "100%"}}>
-          <Text style={{ color: theme.primary }}>Settings</Text>
-        </View>
+        <Text className="font-sora-bold text-xl text-foreground">Settings</Text>
       </Stack.Title>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={{
-          padding: spacing.lg,
-          paddingBottom: spacing.xl,
-          gap: spacing.lg,
-        }}
-      >
-        <GlassCard>
-          <View style={styles.promoRow}>
-            <Smartphone size={22} color={theme.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.promoTitle, { color: theme.foreground }]}>
-                Usa WorshipHub Songs en más dispositivos
-              </Text>
-              <Text style={[styles.promoDesc, { color: theme.mutedForeground }]}>
-                Sincroniza tu biblioteca entre tu teléfono y la computadora del equipo.
-              </Text>
-            </View>
-          </View>
-        </GlassCard>
 
-        <BentoSection icon={Palette} label="Visuals" accentColor={theme.primary}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 p-4 pb-8">
+        <Card className="flex-row items-center gap-3">
+          <Smartphone size={22} color={colors.primary} />
+          <View className="flex-1">
+            <Text className="font-sora-semibold text-sm text-foreground">Usa WorshipHub Songs en más dispositivos</Text>
+            <Text className="mt-0.5 font-sora text-[11px] text-muted-foreground">
+              Sincroniza tu biblioteca entre tu teléfono y la computadora del equipo.
+            </Text>
+          </View>
+        </Card>
+
+        <BentoSection icon={Palette} label="Visuals" accent="primary">
           <SettingsRow icon={User} title="Profile Settings" description="Nombre y avatar" />
           <SettingsRow
             icon={Palette}
@@ -69,40 +47,23 @@ export default function SettingsHubScreen() {
           />
         </BentoSection>
 
-        <BentoSection icon={RadioTower} label="Connectivity" accentColor={theme.secondary}>
+        <BentoSection icon={RadioTower} label="Connectivity" accent="secondary">
           <SettingsRow icon={RadioTower} title="WorshipHub" description="No vinculado" />
-          <View style={styles.tileRow}>
+          <View className="flex-row gap-2">
             <SettingsTile icon={Laptop} title="Local Sync" />
             <SettingsTile icon={Cloud} title="Cloud Sync" />
           </View>
         </BentoSection>
 
-        <BentoSection icon={Search} label="Preferences" accentColor={theme.accent}>
+        <BentoSection icon={Search} label="Preferences" accent="accent">
           <SettingsRow icon={Search} title="Search" description="Búsqueda de letras en línea" />
         </BentoSection>
 
-        <View style={styles.footer}>
-          <Image
-            source={require('@/assets/brand/WorshipHub_Songs_Icon.png')}
-            style={styles.footerIcon}
-            resizeMode="contain"
-          />
-          <Text style={[styles.footerText, { color: theme.mutedForeground }]}>
-            WorshipHub Songs · v1.0.0
-          </Text>
+        <View className="items-center gap-2 pt-4">
+          <Image source={require('@/assets/brand/WorshipHub_Songs_Icon.png')} className="h-7 w-7 rounded-md opacity-60" resizeMode="contain" />
+          <Text className="font-sora text-[11px] text-muted-foreground">WorshipHub Songs · v1.0.0</Text>
         </View>
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  promoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  promoTitle: { fontSize: 13, fontFamily: fonts.headingSemibold },
-  promoDesc: { fontSize: 11, fontFamily: fonts.body, marginTop: 2 },
-  tileRow: { flexDirection: 'row', gap: spacing.sm },
-  footer: { alignItems: 'center', gap: 8, paddingTop: spacing.lg },
-  footerIcon: { width: 28, height: 28, borderRadius: 6, opacity: 0.6 },
-  footerText: { fontSize: 11, fontFamily: fonts.body },
-});

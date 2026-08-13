@@ -12,11 +12,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { AppThemeProvider, useAppTheme } from '@/hooks/useAppTheme';
+import { useAppTheme } from '@/hooks/use-app-theme';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
-export {
-  ErrorBoundary
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
   initialRouteName: '(tabs)',
@@ -46,15 +45,12 @@ export default function RootLayout() {
     return null;
   }
 
-  return (
-    <AppThemeProvider>
-      <RootLayoutNav />
-    </AppThemeProvider>
-  );
+  return <RootLayoutNav />;
 }
 
 function RootLayoutNav() {
-  const { theme, isDark } = useAppTheme();
+  const { isDark } = useAppTheme();
+  const colors = useThemeColors();
 
   // Reuses expo-router's nav theme plumbing but with WorshipHub Songs'
   // own tokens, so the native screen-transition background/tab bar
@@ -63,18 +59,18 @@ function RootLayoutNav() {
     ...(isDark ? NavDark : NavLight),
     colors: {
       ...(isDark ? NavDark.colors : NavLight.colors),
-      background: theme.background,
-      card: theme.card,
-      text: theme.foreground,
-      border: theme.border,
-      primary: theme.primary,
+      background: colors.background,
+      card: colors.card,
+      text: colors.foreground,
+      border: colors.border,
+      primary: colors.primary,
     },
   };
 
   return (
     <NavigationThemeProvider value={navTheme}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ contentStyle: { backgroundColor: theme.background } }}>
+      <Stack screenOptions={{ contentStyle: { backgroundColor: colors.background } }}>
         {/* NativeTabs renders its own chrome — no Stack header at this level. */}
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="song/[id]" options={{ presentation: 'card' }} />

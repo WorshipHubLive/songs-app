@@ -1,57 +1,50 @@
-import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { useAppTheme, type AppThemeMode } from '@/hooks/use-app-theme';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { Check } from 'lucide-react-native';
-import { AmbientGlow } from '@/components/AmbientGlow';
-import { DarkTheme, LightTheme, fonts, radius, spacing } from '@/constants/theme';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 // Mirrors Settings' Appearance subTab: a 2-col grid of theme swatch
 // cards (only 2 themes exist), each a color-preview rect + dot + label,
-// selected gets a primary ring.
-const THEMES = [
-  { id: 'worshiphub-dark' as const, label: 'WorshipHub Songs Dark Theme', tokens: DarkTheme },
-  { id: 'worshiphub-light' as const, label: 'WorshipHub Songs Light Theme', tokens: LightTheme },
+// selected gets a primary ring. The swatch itself must show the OTHER
+// theme's colors even while it isn't active, so these stay literal hex —
+// they can't come from the live CSS tokens (see global.css), which only
+// ever reflect whichever theme is currently applied.
+const THEMES: Array<{ mode: AppThemeMode; label: string; bg: string; border: string; dot: string }> = [
+  { mode: 'dark', label: 'WorshipHub Songs Dark Theme', bg: '#11131b', border: '#40484f', dot: '#8ecdff' },
+  { mode: 'light', label: 'WorshipHub Songs Light Theme', bg: '#f6f8fa', border: '#e2e8f0', dot: '#35a784' },
 ];
 
 export default function AppearanceScreen() {
-  const { theme, mode, setMode } = useAppTheme();
+  const { mode, setMode } = useAppTheme();
+  const colors = useThemeColors();
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.background }]}>
+    <View className="flex-1 bg-background">
       <AmbientGlow />
-      <Stack.Title>Appearance</Stack.Title>
-      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.grid}>
+      <Stack.Title asChild>
+        <Text className="font-sora-bold text-xl text-foreground">Appearance</Text>
+      </Stack.Title>
+      <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="flex-row flex-wrap gap-3 p-4">
         {THEMES.map((t) => {
-          const active = mode === t.id;
+          const active = mode === t.mode;
           return (
             <Pressable
-              key={t.id}
-              onPress={() => setMode(t.id)}
-              style={[
-                styles.card,
-                {
-                  borderColor: active ? theme.primary : theme.border,
-                  borderWidth: active ? 2 : 1,
-                  backgroundColor: theme.card,
-                },
-              ]}
+              key={t.mode}
+              onPress={() => setMode(t.mode)}
+              className={`w-[47%] gap-2 rounded-md bg-card p-2 ${active ? 'border-2 border-primary' : 'border border-border'}`}
             >
-              <View
-                style={[
-                  styles.preview,
-                  { backgroundColor: t.tokens.swatchBg, borderColor: t.tokens.swatchBorder },
-                ]}
-              >
-                <View style={[styles.previewDot, { backgroundColor: t.tokens.swatchDot }]} />
+              <View className="h-16 items-center justify-center rounded-[10px] border" style={{ backgroundColor: t.bg, borderColor: t.border }}>
+                <View className="h-[18px] w-[18px] rounded-full" style={{ backgroundColor: t.dot }} />
               </View>
-              <View style={styles.cardFooter}>
-                <Text style={[styles.cardLabel, { color: theme.foreground }]} numberOfLines={2}>
+              <View className="flex-row items-center justify-between gap-1.5">
+                <Text className="flex-1 font-sora-semibold text-xs text-foreground" numberOfLines={2}>
                   {t.label}
                 </Text>
                 {active && (
-                  <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}>
-                    <Check size={12} color={theme.primaryForeground} strokeWidth={3} />
+                  <View className="h-5 w-5 items-center justify-center rounded-full bg-primary">
+                    <Check size={12} color={colors.primaryForeground} strokeWidth={3} />
                   </View>
                 )}
               </View>
@@ -62,41 +55,3 @@ export default function AppearanceScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  card: {
-    width: '47%',
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    gap: spacing.sm,
-  },
-  preview: {
-    height: 64,
-    borderRadius: radius.sm + 4,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  previewDot: { width: 18, height: 18, borderRadius: 9 },
-  cardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 6,
-  },
-  cardLabel: { flex: 1, fontSize: 12, fontFamily: fonts.headingSemibold },
-  checkBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
