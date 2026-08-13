@@ -30,7 +30,7 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="new-song" role="search">
-        <NativeTabs.Trigger.Icon sf="plus" />
+        <NativeTabs.Trigger.Icon sf="plus" md="add" />
         <NativeTabs.Trigger.Label>Add</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>

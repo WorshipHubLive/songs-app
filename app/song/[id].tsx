@@ -26,8 +26,8 @@ export default function SongDetailsScreen() {
 
       <Stack.Screen.BackButton displayMode="minimal" />
       <Stack.Title asChild>
-        <View className="w-full items-center">
-          <Text className="font-sora-semibold text-lg text-foreground">{song.title}</Text>
+        <View className="w-full">
+          <Text className="font-sora-semibold text-lg text-foreground" numberOfLines={1}>{song.title.substring(0, 20)}...</Text>
           <Text className="font-sora text-[10px] text-muted-foreground">{song.artist}</Text>
         </View>
       </Stack.Title>

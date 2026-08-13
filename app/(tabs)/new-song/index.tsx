@@ -1,9 +1,10 @@
 import { AmbientGlow } from '@/components/ambient-glow';
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import SearchIcon from '@expo/material-symbols/search.xml';
+import { Picker, type PickerRef } from '@expo/ui/community/picker';
 import SegmentedControl from '@expo/ui/community/segmented-control';
 import { Stack, useRouter } from 'expo-router';
-import { Fragment, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { Platform, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -44,6 +45,9 @@ export default function NewSongScreen() {
   // and switching NativeTabs triggers isn't that.
   const close = () => router.navigate('/');
 
+  const [language, setLanguage] = useState('java');
+  const pickerRef = useRef<PickerRef>(null);
+
   return (
     <Fragment>
 
@@ -71,76 +75,103 @@ export default function NewSongScreen() {
       </Stack.Title>
 
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon} onPress={() => {}} />
+        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon} onPress={() => { }} />
       </Stack.Toolbar>
 
-      <Stack.Toolbar placement="bottom">
-        <Stack.Toolbar.View>
-          <View style={{ width: 150 }}>
-            <SegmentedControl
-              values={['Letra', 'Acordes']}
-              selectedIndex={content === 'lyrics' ? 0 : 1}
-              onChange={(event) => setContent(event.nativeEvent.selectedSegmentIndex === 0 ? 'lyrics' : 'chords')}
-            />
-          </View>
-        </Stack.Toolbar.View>
-        <Stack.Toolbar.Spacer />
-        <Stack.Toolbar.Menu title={currentLanguage}>
-          {LANGUAGES.map((language) => (
-            <Stack.Toolbar.MenuAction key={language.value} isOn={lang === language.value} onPress={() => setLang(language.value)}>
-              {language.label}
-            </Stack.Toolbar.MenuAction>
-          ))}
-        </Stack.Toolbar.Menu>
-      </Stack.Toolbar>
-
-      <View className="flex-1 bg-background">
-        <AmbientGlow />
-        {content === 'chords' ? (
-          <View className="flex-1 px-4 pt-4">
-            <View className="rounded-xl border border-border bg-card p-6">
-              <Text className="font-mono text-sm leading-[22px] text-muted-foreground">
-                Am{'    '}F{'    '}C{'    '}G{'\n\n'}Editor de acordes (ChordPro)
-              </Text>
+      {/* The native bottom toolbar only works reliably on iOS here — on
+      Android it fails to render for this screen, so Android gets its own
+      footer built in the page body instead (below). */}
+      {Platform.OS === 'ios' && (
+        <Stack.Toolbar placement="bottom">
+          <Stack.Toolbar.View>
+            <View style={{ width: 150 }}>
+              <SegmentedControl
+                values={['Letra', 'Acordes']}
+                selectedIndex={content === 'lyrics' ? 0 : 1}
+                onChange={(event) => setContent(event.nativeEvent.selectedSegmentIndex === 0 ? 'lyrics' : 'chords')}
+              />
             </View>
-          </View>
-        ) : (
-          <View className={`flex-1 gap-y-4 px-4 ${Platform.OS === 'ios' ? 'pt-32' : 'pt-4'}`}>
-            <SegmentedControl
-              values={['Editar', 'Vista previa']}
-              selectedIndex={mode === 'edit' ? 0 : 1}
-              onChange={(event) => setMode(event.nativeEvent.selectedSegmentIndex === 0 ? 'edit' : 'preview')}
-              style={{ width: '100%' }}
-            />
+          </Stack.Toolbar.View>
+          <Stack.Toolbar.Spacer />
+          <Stack.Toolbar.Menu title={currentLanguage}>
+            {LANGUAGES.map((language) => (
+              <Stack.Toolbar.MenuAction key={language.value} isOn={lang === language.value} onPress={() => setLang(language.value)}>
+                {language.label}
+              </Stack.Toolbar.MenuAction>
+            ))}
+          </Stack.Toolbar.Menu>
+        </Stack.Toolbar>
+      )}
 
-            {mode === 'edit' ? (
-              <View className="flex-1 overflow-hidden rounded-lg border border-border bg-card" style={{ marginBottom: bottom + 60 }}>
-                <TextInput
-                  value={lyrics}
-                  onChangeText={setLyrics}
-                  placeholder="Escribe o pega la letra aquí..."
-                  placeholderTextColorClassName="accent-muted-foreground"
-                  multiline
-                  textAlignVertical="top"
-                  className="flex-1 p-4 font-sora text-sm text-foreground"
-                />
-                <View className="items-end border-t border-border p-2">
-                  <Text className="font-sora text-[11px] text-muted-foreground">{wordCount} palabras</Text>
-                </View>
-              </View>
-            ) : stanzas.length === 0 ? (
-              <View className="items-center rounded-lg border border-dashed border-border p-6">
-                <Text className="text-center font-sora text-xs text-muted-foreground">
-                  Las diapositivas aparecerán aquí a medida que escribas.
+      <View className="flex-1">
+        <View className="flex-1 bg-background">
+          <AmbientGlow />
+          {content === 'chords' ? (
+            <View className="flex-1 px-4 pt-4">
+              <View className="rounded-xl border border-border bg-card p-6">
+                <Text className="font-mono text-sm leading-[22px] text-muted-foreground">
+                  Am{'    '}F{'    '}C{'    '}G{'\n\n'}Editor de acordes (ChordPro)
                 </Text>
               </View>
-            ) : (
-              stanzas.map((stanza, index) => (
-                <View key={index} className="rounded-lg border border-border bg-card p-4">
-                  <Text className="text-center font-sora-semibold text-[15px] text-foreground">{stanza}</Text>
+            </View>
+          ) : (
+            <View className={`flex-1 gap-y-4 px-4 ${Platform.OS === 'ios' ? 'pt-32' : 'pt-4'}`}>
+              <SegmentedControl
+                values={['Editar', 'Vista previa']}
+                selectedIndex={mode === 'edit' ? 0 : 1}
+                onChange={(event) => setMode(event.nativeEvent.selectedSegmentIndex === 0 ? 'edit' : 'preview')}
+                style={{ width: '100%' }}
+              />
+
+              {mode === 'edit' ? (
+                <View className="flex-1 overflow-hidden rounded-lg border border-border bg-card" style={{ marginBottom: Platform.OS === 'ios' ? bottom + 60 : 20 }}>
+                  <TextInput
+                    value={lyrics}
+                    onChangeText={setLyrics}
+                    placeholder="Escribe o pega la letra aquí..."
+                    placeholderTextColorClassName="accent-muted-foreground"
+                    multiline
+                    textAlignVertical="top"
+                    className="flex-1 p-4 font-sora text-sm text-foreground"
+                  />
+                  <View className="items-end border-t border-border p-2">
+                    <Text className="font-sora text-[11px] text-muted-foreground">{wordCount} palabras</Text>
+                  </View>
                 </View>
-              ))
-            )}
+              ) : stanzas.length === 0 ? (
+                <View className="items-center rounded-lg border border-dashed border-border p-6">
+                  <Text className="text-center font-sora text-xs text-muted-foreground">
+                    Las diapositivas aparecerán aquí a medida que escribas.
+                  </Text>
+                </View>
+              ) : (
+                stanzas.map((stanza, index) => (
+                  <View key={index} className="rounded-lg border border-border bg-card p-4">
+                    <Text className="text-center font-sora-semibold text-[15px] text-foreground">{stanza}</Text>
+                  </View>
+                ))
+              )}
+            </View>
+          )}
+        </View>
+
+        {Platform.OS === 'android' && (
+          <View className="flex-row justify-between items-center gap-3 border-t border-border bg-card px-4 py-3">
+            <View className="w-48">
+              <SegmentedControl
+                values={['Letra', 'Acordes']}
+                selectedIndex={content === 'lyrics' ? 0 : 1}
+                onChange={(event) => setContent(event.nativeEvent.selectedSegmentIndex === 0 ? 'lyrics' : 'chords')}
+              />
+            </View>
+            <View className='w-30'>
+
+              <Picker selectedValue={lang} onValueChange={setLang}>
+                {LANGUAGES.map((language) => (
+                  <Picker.Item key={language.value} label={language.label} value={language.value} />
+                ))}
+              </Picker>
+            </View>
           </View>
         )}
       </View>
