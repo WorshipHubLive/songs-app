@@ -10,8 +10,8 @@ import { DarkTheme as NavDark, ThemeProvider as NavigationThemeProvider, Default
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import 'react-native-reanimated';
 
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useThemeColors } from '@/hooks/use-theme-colors';
@@ -77,7 +77,7 @@ function RootLayoutNav() {
         <Stack screenOptions={{ contentStyle: { backgroundColor: colors.background } }}>
           {/* NativeTabs renders its own chrome — no Stack header at this level. */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="song/[id]" options={{ presentation: 'card' }} />
+          <Stack.Screen name="[songId]" options={{ headerShown: false }} />
         </Stack>
       </NavigationThemeProvider>
     </GestureHandlerRootView>

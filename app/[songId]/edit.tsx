@@ -1,90 +1,60 @@
-import { AmbientGlow } from '@/components/ambient-glow';
 import { LyricsEditor } from '@/components/lyrics-editor';
-import { SongSearchResultsModal } from '@/components/song-search-results-modal';
 import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
-import { saveSong } from '@/db/songs-repository';
-import { type OnlineSearchResult, searchByStage, searchOnlineHybrid, type StageSearchResult } from '@/lib/online-search';
+import { songByIdQuery, updateSong } from '@/db/songs-repository';
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import SaveIcon from '@expo/material-symbols/save.xml';
-import SearchIcon from '@expo/material-symbols/search.xml';
 import { Picker } from '@expo/ui/community/picker';
 import SegmentedControl from '@expo/ui/community/segmented-control';
-import { Stack, useRouter } from 'expo-router';
-import { Fragment, useState } from 'react';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Fragment, useEffect, useState } from 'react';
 import { Alert, Platform, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// This is the "new-song" native tab's own content (role="search", docked
-// to the side of the tab bar) — see (tabs)/_layout.tsx for why the tab
-// bar hides while it's active, and its own _layout.tsx for why it still
-// gets a native Stack header despite being a tab, not a pushed screen.
-//
-// Toolbar layout: left = back, title = editable title/artist, right =
-// search-lyrics-online + save, bottom = language menu. Chords aren't
-// editable here yet (preview-only, see the song detail screen) — this
-// screen is lyrics-only until that's built.
-export default function NewSongScreen() {
+// Same shape as new-song's editor (title/artist header, language toolbar,
+// Editar/Vista previa body) but bound to an existing row. Chords aren't
+// editable here (see new-song) — `chords` is only carried through
+// unchanged on save so an existing value isn't wiped out.
+export default function EditSongScreen() {
+  const { songId: songIdParam } = useLocalSearchParams<{ songId: string }>();
   const router = useRouter();
+  const songId = Number(songIdParam);
   const { bottom } = useSafeAreaInsets();
+
+  const { data } = useLiveQuery(songByIdQuery(songId));
+  const song = data?.[0];
+
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [lyrics, setLyrics] = useState('');
-  const [mode, setMode] = useState<'edit' | 'preview'>('edit');
+  const [chords, setChords] = useState('');
   const [lang, setLang] = useState('es');
+  const [mode, setMode] = useState<'edit' | 'preview'>('edit');
+  const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-  // `navigate` (not `replace`/`push`) — this is a cross-tab jump inside
-  // NativeTabs, not a same-stack history operation; `replace` silently
-  // no-ops here because it targets the current navigator's own history,
-  // and switching NativeTabs triggers isn't that.
+  useEffect(() => {
+    if (song && !loaded) {
+      setTitle(song.title);
+      setArtist(song.artist);
+      setLyrics(song.lyrics);
+      setChords(song.chords);
+      setLang(song.language);
+      setLoaded(true);
+    }
+  }, [song, loaded]);
+
   const close = () => router.back();
 
-  const [searchVisible, setSearchVisible] = useState(false);
-  const [searching, setSearching] = useState(false);
-  const [searchingMore, setSearchingMore] = useState(false);
-  const [searchResult, setSearchResult] = useState<StageSearchResult | null>(null);
-  const [saving, setSaving] = useState(false);
-
-  const handleSearch = async () => {
-    if (!title.trim()) {
-      Alert.alert('Falta el título', 'Escribe al menos el título de la canción para buscarla.');
-      return;
-    }
-    setSearchVisible(true);
-    setSearching(true);
-    try {
-      const result = await searchOnlineHybrid(title, artist);
-      setSearchResult(result);
-    } finally {
-      setSearching(false);
-    }
-  };
-
-  const handleSearchMore = async () => {
-    if (!searchResult?.nextStage) return;
-    setSearchingMore(true);
-    try {
-      const result = await searchByStage(title, artist, searchResult.nextStage);
-      setSearchResult(result);
-    } finally {
-      setSearchingMore(false);
-    }
-  };
-
-  const handleSelectResult = (result: OnlineSearchResult) => {
-    setTitle(result.title);
-    setArtist(result.artist);
-    setLyrics(result.lyrics);
-    setSearchVisible(false);
-  };
-
   const handleSave = async () => {
+    if (!song) return;
     if (!title.trim()) {
       Alert.alert('Falta el título', 'Escribe al menos el título de la canción para guardarla.');
       return;
     }
     setSaving(true);
     try {
-      await saveSong({ title: title.trim(), artist: artist.trim(), lyrics, chords: '', language: lang });
+      await updateSong(song.id, { title: title.trim(), artist: artist.trim(), lyrics, chords, language: lang });
       close();
     } catch (error) {
       Alert.alert('No se pudo guardar', String(error instanceof Error ? error.message : error));
@@ -119,13 +89,9 @@ export default function NewSongScreen() {
       </Stack.Title>
 
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon} onPress={handleSearch} disabled={searching} />
         <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon} onPress={handleSave} disabled={saving} />
       </Stack.Toolbar>
 
-      {/* The native bottom toolbar only works reliably on iOS here — on
-      Android it fails to render for this screen, so Android gets its own
-      footer built in the page body instead (below). */}
       {Platform.OS === 'ios' && (
         <Stack.Toolbar placement="bottom">
           <Stack.Toolbar.Spacer />
@@ -141,7 +107,6 @@ export default function NewSongScreen() {
 
       <View className={`flex-1 ${Platform.OS === 'ios' ? 'pt-32' : 'pt-4'} `}>
         <View className="flex-1 bg-background">
-          <AmbientGlow />
           <View className="flex-1 gap-y-4 px-4">
             <SegmentedControl
               values={['Editar', 'Vista previa']}
@@ -166,18 +131,6 @@ export default function NewSongScreen() {
           </View>
         )}
       </View>
-
-      <SongSearchResultsModal
-        visible={searchVisible}
-        loading={searching}
-        results={searchResult?.results ?? []}
-        currentStage={searchResult?.currentStage ?? 1}
-        nextStage={searchResult?.nextStage ?? null}
-        searchingMore={searchingMore}
-        onSelect={handleSelectResult}
-        onSearchMore={handleSearchMore}
-        onClose={() => setSearchVisible(false)}
-      />
     </Fragment>
   );
 }

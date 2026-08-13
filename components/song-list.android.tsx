@@ -1,5 +1,5 @@
 import { SongCard } from '@/components/song-card';
-import type { MockSong } from '@/constants/mock-songs';
+import type { Song } from '@/db/schema';
 import { Languages, Pencil, Trash2 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { FlatList, Pressable, Text, View } from 'react-native';
@@ -23,7 +23,7 @@ function SongRow({
   onEdit,
   onDelete,
 }: {
-  song: MockSong;
+  song: Song;
   onPress: () => void;
   onToggleService: () => void;
   onTranslate: () => void;

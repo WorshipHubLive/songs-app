@@ -1,5 +1,5 @@
 import { accentClasses } from '@/constants/accent-classes';
-import type { MockSong } from '@/constants/mock-songs';
+import type { Song } from '@/db/schema';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { CalendarCheck, CalendarPlus } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
@@ -15,7 +15,7 @@ export function SongCard({
   onPress,
   onToggleService,
 }: {
-  song: MockSong;
+  song: Song;
   onPress?: () => void;
   onToggleService?: () => void;
 }) {

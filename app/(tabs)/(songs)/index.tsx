@@ -1,7 +1,10 @@
 import { AmbientGlow } from '@/components/ambient-glow';
+import { DeleteSongModal } from '@/components/delete-song-modal';
 import { SongList } from '@/components/song-list';
-import { mockSongs } from '@/constants/mock-songs';
+import type { Song } from '@/db/schema';
+import { allSongsQuery, deleteSong, setInService } from '@/db/songs-repository';
 import SyncIcon from '@expo/material-symbols/sync.xml';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Platform, Text, View } from 'react-native';
@@ -16,8 +19,22 @@ import { Platform, Text, View } from 'react-native';
 export default function LibraryScreen() {
   const router = useRouter();
   const [search, setSearch] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<Song | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  const songs = mockSongs.filter((s) => `${s.title} ${s.artist}`.toLowerCase().includes(search.toLowerCase()));
+  const { data: allSongs } = useLiveQuery(allSongsQuery());
+  const songs = (allSongs ?? []).filter((s) => `${s.title} ${s.artist}`.toLowerCase().includes(search.toLowerCase()));
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteSong(deleteTarget.id);
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -38,12 +55,14 @@ export default function LibraryScreen() {
 
       <SongList
         songs={songs}
-        onPressSong={(song) => router.push(`/song/${song.id}`)}
-        onToggleService={() => {}}
-        onTranslate={() => {}}
-        onEdit={() => {}}
-        onDelete={() => {}}
+        onPressSong={(song) => router.push(`/${song.id}`)}
+        onToggleService={(song) => setInService(song.id, !song.inService)}
+        onTranslate={(song) => router.push(`/${song.id}/translate`)}
+        onEdit={(song) => router.push(`/${song.id}/edit`)}
+        onDelete={(song) => setDeleteTarget(song)}
       />
+
+      <DeleteSongModal song={deleteTarget} deleting={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={handleDelete} />
     </View>
   );
 }

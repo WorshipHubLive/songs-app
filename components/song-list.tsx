@@ -1,14 +1,14 @@
 import { SongCard } from '@/components/song-card';
-import type { MockSong } from '@/constants/mock-songs';
+import type { Song } from '@/db/schema';
 import { FlatList } from 'react-native';
 
 export type SongListProps = {
-  songs: MockSong[];
-  onPressSong: (song: MockSong) => void;
-  onToggleService: (song: MockSong) => void;
-  onTranslate: (song: MockSong) => void;
-  onEdit: (song: MockSong) => void;
-  onDelete: (song: MockSong) => void;
+  songs: Song[];
+  onPressSong: (song: Song) => void;
+  onToggleService: (song: Song) => void;
+  onTranslate: (song: Song) => void;
+  onEdit: (song: Song) => void;
+  onDelete: (song: Song) => void;
 };
 
 // Android/web variant — plain FlatList, just the on-card "add to

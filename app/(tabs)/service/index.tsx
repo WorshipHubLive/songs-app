@@ -1,19 +1,39 @@
 import { AmbientGlow } from '@/components/ambient-glow';
-import { SongCard } from '@/components/song-card';
-import { mockSongs } from '@/constants/mock-songs';
+import { DeleteSongModal } from '@/components/delete-song-modal';
+import { SongList } from '@/components/song-list';
+import type { Song } from '@/db/schema';
+import { deleteSong, serviceSongsQuery, setInService } from '@/db/songs-repository';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import CloudUploadIcon from '@expo/material-symbols/cloud_upload.xml';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useRouter } from 'expo-router';
-import { CalendarCheck, GripVertical } from 'lucide-react-native';
-import { FlatList, Platform, Text, View } from 'react-native';
+import { CalendarCheck } from 'lucide-react-native';
+import { useState } from 'react';
+import { Platform, Text, View } from 'react-native';
 
 // Mirrors Service.tsx — native Stack.Title + a native Stack.Toolbar "Send
 // to WorshipHub" button (badged with the queue count) replace the custom
-// top bar.
+// top bar. Reuses SongList (same swipe-to-translate/edit/delete as the
+// library) since a service song is a library song, just filtered.
 export default function ServiceScreen() {
   const colors = useThemeColors();
   const router = useRouter();
-  const songs = mockSongs.filter((s) => s.inService);
+  const [deleteTarget, setDeleteTarget] = useState<Song | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const { data } = useLiveQuery(serviceSongsQuery());
+  const songs = data ?? [];
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteSong(deleteTarget.id);
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -37,21 +57,17 @@ export default function ServiceScreen() {
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={songs}
-          keyExtractor={(item) => String(item.id)}
-          contentInsetAdjustmentBehavior="automatic"
-          contentContainerClassName="gap-4 px-4 pb-8 pt-4"
-          renderItem={({ item }) => (
-            <View>
-              <SongCard song={item} onPress={() => router.push(`/song/${item.id}`)} />
-              <View className="absolute right-3 top-3 h-[26px] w-[26px] items-center justify-center rounded-sm border border-border bg-card">
-                <GripVertical size={14} color={colors.mutedForeground} />
-              </View>
-            </View>
-          )}
+        <SongList
+          songs={songs}
+          onPressSong={(song) => router.push(`/${song.id}`)}
+          onToggleService={(song) => setInService(song.id, !song.inService)}
+          onTranslate={(song) => router.push(`/${song.id}/translate`)}
+          onEdit={(song) => router.push(`/${song.id}/edit`)}
+          onDelete={(song) => setDeleteTarget(song)}
         />
       )}
+
+      <DeleteSongModal song={deleteTarget} deleting={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={handleDelete} />
     </View>
   );
 }

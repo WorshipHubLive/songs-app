@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
 
 // Nested stack so Settings' sub-pages (Appearance, Language) push on top
-// while the bottom tab bar stays visible — unlike song/[id] and
+// while the bottom tab bar stays visible — unlike [songId] and
 // new-song, which are "focused screens" that hide it entirely.
 export default function SettingsLayout() {
   const colors = useThemeColors();

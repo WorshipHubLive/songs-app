@@ -9,7 +9,7 @@ export default function TabLayout() {
   const colors = useThemeColors();
   // "new-song" (the role="search" trigger) is meant to read as a
   // focused, full-screen editor rather than "one more tab" — hide the
-  // bar entirely while it's active, same as song/[id] hides it by living
+  // bar entirely while it's active, same as [songId] hides it by living
   // outside the tab navigator. This does remount the tab navigator on
   // toggle (documented NativeTabs `hidden` behavior), which is fine here
   // since none of the tabs hold state worth preserving through it.
