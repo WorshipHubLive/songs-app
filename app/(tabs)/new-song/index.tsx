@@ -1,8 +1,10 @@
 import { AmbientGlow } from '@/components/ambient-glow';
+import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
+import SearchIcon from '@expo/material-symbols/search.xml';
 import SegmentedControl from '@expo/ui/community/segmented-control';
 import { Stack, useRouter } from 'expo-router';
 import { Fragment, useState } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Platform, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const LANGUAGES = [
@@ -46,7 +48,7 @@ export default function NewSongScreen() {
     <Fragment>
 
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon="chevron.backward" onPress={close} />
+        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon} onPress={close} />
       </Stack.Toolbar>
 
       <Stack.Title asChild>
@@ -69,7 +71,7 @@ export default function NewSongScreen() {
       </Stack.Title>
 
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="magnifyingglass" onPress={() => { }} />
+        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon} onPress={() => {}} />
       </Stack.Toolbar>
 
       <Stack.Toolbar placement="bottom">
@@ -103,7 +105,7 @@ export default function NewSongScreen() {
             </View>
           </View>
         ) : (
-          <View className="flex-1 px-4 pt-32 gap-y-4">
+          <View className={`flex-1 gap-y-4 px-4 ${Platform.OS === 'ios' ? 'pt-32' : 'pt-4'}`}>
             <SegmentedControl
               values={['Editar', 'Vista previa']}
               selectedIndex={mode === 'edit' ? 0 : 1}

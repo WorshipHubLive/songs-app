@@ -1,14 +1,15 @@
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
+import { Platform } from 'react-native';
 
 export default function ServiceStackLayout() {
   const colors = useThemeColors();
   return (
     <Stack
       screenOptions={{
-        headerTransparent: true,
+        headerTransparent: Platform.OS === 'ios',
         headerShadowVisible: false,
-        headerStyle: { backgroundColor: 'transparent' },
+        headerStyle: { backgroundColor: Platform.OS === 'ios' ? 'transparent' : colors.background },
         headerTintColor: colors.primary,
         headerTitleStyle: { color: colors.foreground },
       }}

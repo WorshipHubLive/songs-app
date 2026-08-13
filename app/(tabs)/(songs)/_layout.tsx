@@ -1,14 +1,19 @@
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
+import { Platform } from 'react-native';
 
 export default function SongsStackLayout() {
   const colors = useThemeColors();
   return (
     <Stack
       screenOptions={{
-        headerTransparent: true,
+        // Transparent + blur reads great on iOS; on Android the header
+        // has no automatic blur/scrim behind it, so "transparent" just
+        // means content scrolls straight under an invisible bar — looks
+        // broken. Android gets a plain solid header instead.
+        headerTransparent: Platform.OS === 'ios',
         headerShadowVisible: false,
-        headerStyle: { backgroundColor: 'transparent' },
+        headerStyle: { backgroundColor: Platform.OS === 'ios' ? 'transparent' : colors.background },
         headerTintColor: colors.primary,
         headerTitleStyle: { color: colors.foreground },
       }}

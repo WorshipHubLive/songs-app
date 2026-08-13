@@ -1,9 +1,10 @@
 import { AmbientGlow } from '@/components/ambient-glow';
 import { SongList } from '@/components/song-list';
 import { mockSongs } from '@/constants/mock-songs';
+import SyncIcon from '@expo/material-symbols/sync.xml';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 
 // Mirrors Library.tsx. The top bar (title, search, sync) is the real
 // native header — Stack.Title (asChild, so it's a plain styled Text
@@ -32,7 +33,7 @@ export default function LibraryScreen() {
         obscureBackground={false}
       />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="arrow.triangle.2.circlepath" onPress={() => {}} />
+        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'arrow.triangle.2.circlepath' : SyncIcon} onPress={() => {}} />
       </Stack.Toolbar>
 
       <SongList

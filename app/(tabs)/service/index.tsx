@@ -2,9 +2,10 @@ import { AmbientGlow } from '@/components/ambient-glow';
 import { SongCard } from '@/components/song-card';
 import { mockSongs } from '@/constants/mock-songs';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import CloudUploadIcon from '@expo/material-symbols/cloud_upload.xml';
 import { Stack, useRouter } from 'expo-router';
 import { CalendarCheck, GripVertical } from 'lucide-react-native';
-import { FlatList, Text, View } from 'react-native';
+import { FlatList, Platform, Text, View } from 'react-native';
 
 // Mirrors Service.tsx — native Stack.Title + a native Stack.Toolbar "Send
 // to WorshipHub" button (badged with the queue count) replace the custom
@@ -22,7 +23,7 @@ export default function ServiceScreen() {
         <Text className="font-sora-bold text-xl text-foreground">Service</Text>
       </Stack.Title>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="icloud.and.arrow.up" onPress={() => {}}>
+        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'icloud.and.arrow.up' : CloudUploadIcon} onPress={() => {}}>
           {songs.length > 0 && <Stack.Toolbar.Badge>{String(songs.length)}</Stack.Toolbar.Badge>}
         </Stack.Toolbar.Button>
       </Stack.Toolbar>

@@ -1,9 +1,14 @@
 import { AmbientGlow } from '@/components/ambient-glow';
 import { mockSongs } from '@/constants/mock-songs';
+import DeleteIcon from '@expo/material-symbols/delete.xml';
+import EditIcon from '@expo/material-symbols/edit.xml';
+import MoreVertIcon from '@expo/material-symbols/more_vert.xml';
+import PrintIcon from '@expo/material-symbols/print.xml';
+import TranslateIcon from '@expo/material-symbols/translate.xml';
 import SegmentedControl from '@expo/ui/community/segmented-control';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Platform, ScrollView, Text, View } from 'react-native';
 
 // Mirrors SongDetails.tsx: native Stack header (back button comes free)
 // with print/translate/edit/delete grouped in a Stack.Toolbar menu;
@@ -27,11 +32,13 @@ export default function SongDetailsScreen() {
         </View>
       </Stack.Title>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Menu icon="ellipsis">
-          <Stack.Toolbar.MenuAction icon="printer">Print</Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction icon="character.bubble">Translate</Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction icon="pencil">Edit</Stack.Toolbar.MenuAction>
-          <Stack.Toolbar.MenuAction icon="trash" destructive>
+        <Stack.Toolbar.Menu icon={Platform.OS === 'ios' ? 'ellipsis' : MoreVertIcon}>
+          <Stack.Toolbar.MenuAction icon={Platform.OS === 'ios' ? 'printer' : PrintIcon}>Print</Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction icon={Platform.OS === 'ios' ? 'character.bubble' : TranslateIcon}>
+            Translate
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction icon={Platform.OS === 'ios' ? 'pencil' : EditIcon}>Edit</Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction icon={Platform.OS === 'ios' ? 'trash' : DeleteIcon} destructive>
             Delete
           </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
