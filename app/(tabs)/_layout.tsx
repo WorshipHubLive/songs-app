@@ -1,68 +1,54 @@
-import { SymbolView } from 'expo-symbols';
-import { Link, Tabs } from 'expo-router';
-import { Platform, Pressable } from 'react-native';
+import { Tabs } from 'expo-router';
+import { StyleSheet } from 'react-native';
+import { Music, CalendarCheck, Settings as SettingsIcon } from 'lucide-react-native';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { fonts } from '@/constants/theme';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-
+// Mirrors MobileNav in the web app's App.tsx: fixed bottom bar, 3 items
+// (Songs/Service/Settings), uppercase bold 10px labels, active = primary.
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { theme, isDark } = useAppTheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
+        headerShown: false,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.mutedForeground,
+        tabBarStyle: {
+          backgroundColor: isDark ? 'rgba(6,8,15,0.95)' : 'rgba(246,248,250,0.95)',
+          borderTopColor: theme.border,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          height: 68,
+          paddingTop: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontFamily: fonts.headingSemibold,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
-            />
-          ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable style={{ marginRight: 15 }}>
-                {({ pressed }) => (
-                  <SymbolView
-                    name={{ ios: 'info.circle', android: 'info', web: 'info' }}
-                    size={25}
-                    tintColor={Colors[colorScheme].text}
-                    style={{ opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+          title: 'Songs',
+          tabBarIcon: ({ color, size }) => <Music color={color} size={size ?? 22} strokeWidth={2.25} />,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="service"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
-            />
-          ),
+          title: 'Service',
+          tabBarIcon: ({ color, size }) => <CalendarCheck color={color} size={size ?? 22} strokeWidth={2.25} />,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => <SettingsIcon color={color} size={size ?? 22} strokeWidth={2.25} />,
         }}
       />
     </Tabs>
