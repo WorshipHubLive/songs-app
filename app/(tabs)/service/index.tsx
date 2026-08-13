@@ -1,12 +1,11 @@
-import React from 'react';
-import { FlatList, Text, View } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { CalendarCheck, GripVertical } from 'lucide-react-native';
 import { AmbientGlow } from '@/components/AmbientGlow';
 import { SongCard } from '@/components/SongCard';
-import { useAppTheme } from '@/hooks/useAppTheme';
-import { fonts, radius, spacing } from '@/constants/theme';
 import { mockSongs } from '@/constants/mockSongs';
+import { fonts, radius, spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { Stack, useRouter } from 'expo-router';
+import { CalendarCheck, GripVertical } from 'lucide-react-native';
+import { FlatList, Text, View } from 'react-native';
 
 // Mirrors Service.tsx — native Stack.Title + a native Stack.Toolbar "Send
 // to WorshipHub" button replace the custom top bar.
@@ -15,16 +14,28 @@ export default function ServiceScreen() {
   const router = useRouter();
   const songs = mockSongs.filter((s) => s.inService);
 
+  const unreadCount = 10;
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <AmbientGlow />
 
-      <Stack.Title>Service</Stack.Title>
+      <Stack.Title asChild>
+        <View style={{ width: "100%" }}>
+          <Text style={{ color: theme.primary }}>Service</Text>
+        </View>
+      </Stack.Title>
+      
+
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button disabled={songs.length === 0} onPress={() => {}}>
-          {`Send (${songs.length})`}
+        <Stack.Toolbar.Button
+          icon="icloud.and.arrow.up"
+          onPress={() => { }}>
+          {songs.length > 0 && <Stack.Toolbar.Badge>{String(songs.length)}</Stack.Toolbar.Badge>}
         </Stack.Toolbar.Button>
       </Stack.Toolbar>
+
+
 
       {songs.length === 0 ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 40 }}>

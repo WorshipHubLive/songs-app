@@ -5,7 +5,7 @@ import { Stack } from 'expo-router';
 // song/new, which are "focused screens" that hide it entirely. Headers
 // are native now (Stack.Title inside each screen) instead of the custom
 // BackHeader component.
-export default function SettingsLayout() {
+export default function NewSowngLayout() {
   return (
     <Stack
       screenOptions={{
@@ -14,8 +14,6 @@ export default function SettingsLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="appearance" />
-      <Stack.Screen name="language" />
     </Stack>
   );
 }

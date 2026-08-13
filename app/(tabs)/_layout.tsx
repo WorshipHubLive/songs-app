@@ -21,7 +21,7 @@ export default function TabLayout() {
         <NativeTabs.Trigger.Icon sf="music.note.list" md="library_music" />
         <NativeTabs.Trigger.Label>Songs</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="(service)">
+      <NativeTabs.Trigger name="service">
         <NativeTabs.Trigger.Icon sf="calendar.badge.checkmark" md="event_available" />
         <NativeTabs.Trigger.Label>Service</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>

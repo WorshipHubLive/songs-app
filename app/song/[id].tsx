@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { Music2, FileText } from 'lucide-react-native';
 import { AmbientGlow } from '@/components/AmbientGlow';
-import { useAppTheme } from '@/hooks/useAppTheme';
-import { fonts, radius, spacing } from '@/constants/theme';
 import { mockSongs } from '@/constants/mockSongs';
+import { fonts, radius, spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import SegmentedControl from '@expo/ui/community/segmented-control';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import { Music2 } from 'lucide-react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // Mirrors SongDetails.tsx: native Stack header (back button comes free)
 // with print/translate/edit/delete as a native Stack.Toolbar; centered
@@ -22,32 +23,62 @@ export default function SongDetailsScreen() {
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <AmbientGlow />
 
-      <Stack.Title>{song.title}</Stack.Title>
-      <Stack.Toolbar placement="right">
+      <Stack.Screen.BackButton displayMode='minimal' />
+
+      <Stack.Title asChild>
+        <View style={{ width: "100%" }}>
+          <Text style={{ color: "#fff", fontSize: 18 }}>Holly Forever</Text>
+          <Text style={{ color: "#fff", fontSize: 10 }}>{song.artist}</Text>
+        </View>
+      </Stack.Title>
+      {/* <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button icon="printer" onPress={() => {}} />
         <Stack.Toolbar.Button icon="character.bubble" onPress={() => {}} />
         <Stack.Toolbar.Button icon="pencil" onPress={() => {}} />
         <Stack.Toolbar.Button icon="trash" tintColor={theme.destructive} onPress={() => {}} />
+      </Stack.Toolbar> */}
+
+      <Stack.Toolbar placement="right">
+        <Stack.Toolbar.Menu icon="ellipsis">
+          <Stack.Toolbar.MenuAction
+            icon="printer"
+          >
+            Print
+          </Stack.Toolbar.MenuAction>
+
+          <Stack.Toolbar.MenuAction
+            icon="character.bubble"
+          >
+            Translate
+          </Stack.Toolbar.MenuAction>
+
+          <Stack.Toolbar.MenuAction
+            icon="pencil"
+          >
+            Edit
+          </Stack.Toolbar.MenuAction>
+
+          <Stack.Toolbar.MenuAction
+            icon="trash"
+            destructive
+          >
+            Delete
+          </Stack.Toolbar.MenuAction>
+
+        </Stack.Toolbar.Menu>
       </Stack.Toolbar>
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ paddingBottom: 40 }}>
-        <Text style={[styles.artist, { color: theme.mutedForeground }]}>{song.artist}</Text>
 
-        <View style={styles.tabRow}>
-          <View style={[styles.segmented, { backgroundColor: theme.muted, borderColor: theme.border }]}>
-            <SegButton
-              active={tab === 'lyrics'}
-              icon={FileText}
-              label="Letra"
-              onPress={() => setTab('lyrics')}
-            />
-            <SegButton
-              active={tab === 'chords'}
-              icon={Music2}
-              label="Acordes"
-              onPress={() => setTab('chords')}
-            />
-          </View>
+
+        <View style={{ paddingHorizontal: spacing.xl, marginVertical: 20 }}>
+          <SegmentedControl
+            values={['Letra', 'Acordes']}
+            selectedIndex={tab === 'lyrics' ? 0 : 1}
+            onChange={event => {
+              setTab(event.nativeEvent.selectedSegmentIndex === 0 ? 'lyrics' : 'chords');
+            }}
+          />
         </View>
 
         <View style={{ paddingHorizontal: spacing.xl }}>

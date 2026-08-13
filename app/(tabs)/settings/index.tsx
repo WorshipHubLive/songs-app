@@ -1,22 +1,21 @@
-import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import {
-  User,
-  Palette,
-  Languages,
-  RadioTower,
-  Laptop,
-  Cloud,
-  Search,
-  Smartphone,
-} from 'lucide-react-native';
 import { AmbientGlow } from '@/components/AmbientGlow';
 import { GlassCard } from '@/components/GlassCard';
 import { BentoSection } from '@/components/settings/BentoSection';
 import { SettingsRow, SettingsTile } from '@/components/settings/SettingsRow';
-import { useAppTheme } from '@/hooks/useAppTheme';
 import { fonts, spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import { Stack, useRouter } from 'expo-router';
+import {
+  Cloud,
+  Languages,
+  Laptop,
+  Palette,
+  RadioTower,
+  Search,
+  Smartphone,
+  User,
+} from 'lucide-react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // Mirrors Settings.tsx's "menu" subTab: cross-platform promo card, then a
 // bento grid of glass-card sections (Visuals / Connectivity / Preferences).
@@ -27,7 +26,11 @@ export default function SettingsHubScreen() {
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <AmbientGlow />
-      <Stack.Title large>Settings</Stack.Title>
+      <Stack.Title asChild>
+        <View style={{width: "100%"}}>
+          <Text style={{ color: theme.primary }}>Settings</Text>
+        </View>
+      </Stack.Title>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Search, Music2, FileText } from 'lucide-react-native';
-import { Host, Picker } from '@expo/ui';
 import { AmbientGlow } from '@/components/AmbientGlow';
-import { useAppTheme } from '@/hooks/useAppTheme';
 import { fonts, radius, spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/useAppTheme';
+import SegmentedControl from '@expo/ui/community/segmented-control';
+import { Stack, useRouter } from 'expo-router';
+import { Music2 } from 'lucide-react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // This is the "new-song" native tab's own content (role="search", docked
 // to the side of the tab bar) — NOT a pushed Stack screen, so it has no
@@ -39,7 +39,66 @@ export default function NewSongScreen() {
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <AmbientGlow />
 
-      <View
+
+      <Stack.Toolbar placement='left'>
+        <Stack.Toolbar.Button icon="chevron.backward" onPress={() => router.back()} />
+      </Stack.Toolbar>
+      <Stack.Title asChild>
+        <View style={{ flex: 1 }}>
+          <TextInput
+            value={title}
+            onChangeText={setTitle}
+            placeholder="Título de la canción"
+            placeholderTextColor={theme.mutedForeground}
+            style={[styles.titleInput, { color: theme.foreground }]}
+          />
+          <TextInput
+            value={artist}
+            onChangeText={setArtist}
+            placeholder="Artista"
+            placeholderTextColor={theme.mutedForeground}
+            style={[styles.artistInput, { color: theme.mutedForeground }]}
+          />
+        </View>
+      </Stack.Title>
+
+      <Stack.Toolbar placement='right'>
+        <Stack.Toolbar.Button icon="magnifyingglass" />
+      </Stack.Toolbar>
+
+      <Stack.Toolbar placement='bottom'>
+
+        <Stack.Toolbar.View >
+          <View style={{ width: 150 }}>
+            <SegmentedControl
+              values={['Lyric', 'Chords']}
+              selectedIndex={mode === 'edit' ? 0 : 1}
+              onChange={event => {
+                setMode(event.nativeEvent.selectedSegmentIndex === 0 ? 'edit' : 'preview');
+              }}
+            />
+          </View>
+        </Stack.Toolbar.View>
+
+        <Stack.Toolbar.Spacer />
+        <Stack.Toolbar.Menu>
+          <Stack.Toolbar.Label>🇪🇸 Español</Stack.Toolbar.Label>
+          <Stack.Toolbar.MenuAction>
+            🇪🇸 Español
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction>
+            🇺🇸 English
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction>
+            🇫🇷 Français
+          </Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction>
+            🇹🇷 한국어
+          </Stack.Toolbar.MenuAction>
+        </Stack.Toolbar.Menu>
+      </Stack.Toolbar>
+
+      {/* <View
         style={[
           styles.topBar,
           {
@@ -73,9 +132,9 @@ export default function NewSongScreen() {
         <Pressable onPress={close} style={[styles.saveButton, { backgroundColor: theme.primary }]}>
           <Text style={[styles.saveText, { color: theme.primaryForeground }]}>Guardar</Text>
         </Pressable>
-      </View>
+      </View> */}
 
-      <View style={styles.toolRow}>
+      {/* <View style={styles.toolRow}>
         <Host
           matchContents
           seedColor={theme.primary}
@@ -93,23 +152,16 @@ export default function NewSongScreen() {
             Buscar letra en línea
           </Text>
         </Pressable>
-      </View>
+      </View> */}
 
-      <View style={styles.segmentedWrap}>
-        <View style={[styles.segmented, { backgroundColor: theme.muted, borderColor: theme.border }]}>
-          <SegTab
-            active={mode === 'edit'}
-            icon={FileText}
-            label="Editar"
-            onPress={() => setMode('edit')}
-          />
-          <SegTab
-            active={mode === 'preview'}
-            icon={Music2}
-            label="Vista previa"
-            onPress={() => setMode('preview')}
-          />
-        </View>
+      <View style={{ paddingHorizontal: spacing.lg, marginTop: 120, marginBottom: 20 }}>
+        <SegmentedControl
+          values={['Editar', 'Vista previa']}
+          selectedIndex={mode === 'edit' ? 0 : 1}
+          onChange={event => {
+            setMode(event.nativeEvent.selectedSegmentIndex === 0 ? 'edit' : 'preview');
+          }}
+        />
       </View>
 
       {mode === 'edit' ? (
@@ -205,11 +257,12 @@ const styles = StyleSheet.create({
   saveButton: { borderRadius: radius.full, paddingHorizontal: 16, height: 34, justifyContent: 'center' },
   saveText: { fontSize: 12, fontFamily: fonts.headingSemibold },
   toolRow: {
+
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: 120,
   },
   pickerHost: { height: 34, borderRadius: radius.full, borderWidth: 1, justifyContent: 'center' },
   searchPill: {

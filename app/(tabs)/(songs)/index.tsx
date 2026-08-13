@@ -26,7 +26,11 @@ export default function LibraryScreen() {
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <AmbientGlow />
 
-      <Stack.Title>Songs</Stack.Title>
+      <Stack.Title asChild>
+        <View style={{width: "100%"}}>
+          <Text style={{ color: theme.primary }}>Sonaaa</Text>
+        </View>
+      </Stack.Title>
       <Stack.SearchBar
         placeholder="Buscar canciones..."
         onChangeText={(e) => setSearch(e.nativeEvent.text)}
@@ -34,7 +38,7 @@ export default function LibraryScreen() {
         obscureBackground={false}
       />
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon="arrow.triangle.2.circlepath" onPress={() => {}} />
+        <Stack.Toolbar.Button icon="arrow.triangle.2.circlepath" onPress={() => { }} />
       </Stack.Toolbar>
 
       <FlatList
