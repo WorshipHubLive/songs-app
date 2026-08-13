@@ -1,5 +1,6 @@
 import { AmbientGlow } from '@/components/ambient-glow';
 import { DeleteSongModal } from '@/components/delete-song-modal';
+import { SendToWorshipHubSheet } from '@/components/send-to-worshiphub-sheet';
 import { SongList } from '@/components/song-list';
 import type { Song } from '@/db/schema';
 import { deleteSong, serviceSongsQuery, setInService } from '@/db/songs-repository';
@@ -15,11 +16,17 @@ import { Platform, Text, View } from 'react-native';
 // to WorshipHub" button (badged with the queue count) replace the custom
 // top bar. Reuses SongList (same swipe-to-translate/edit/delete as the
 // library) since a service song is a library song, just filtered.
+// Sending ALWAYS sends the whole queue — there's no per-song picker
+// here, that lives on the Songs screen's own select mode instead (see
+// (songs)/index.tsx) — same split as the web app: Service is a queue you
+// build up over time and ship as a batch, not something you re-filter on
+// the way out the door.
 export default function ServiceScreen() {
   const colors = useThemeColors();
   const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<Song | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [sendVisible, setSendVisible] = useState(false);
 
   const { data } = useLiveQuery(serviceSongsQuery());
   const songs = data ?? [];
@@ -43,7 +50,11 @@ export default function ServiceScreen() {
         <Text className="font-sora-bold text-xl text-foreground">Service</Text>
       </Stack.Title>
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'icloud.and.arrow.up' : CloudUploadIcon} onPress={() => {}}>
+        <Stack.Toolbar.Button
+          icon={Platform.OS === 'ios' ? 'icloud.and.arrow.up' : CloudUploadIcon}
+          onPress={() => setSendVisible(true)}
+          disabled={songs.length === 0}
+        >
           {songs.length > 0 && <Stack.Toolbar.Badge>{String(songs.length)}</Stack.Toolbar.Badge>}
         </Stack.Toolbar.Button>
       </Stack.Toolbar>
@@ -68,6 +79,8 @@ export default function ServiceScreen() {
       )}
 
       <DeleteSongModal song={deleteTarget} deleting={deleting} onCancel={() => setDeleteTarget(null)} onConfirm={handleDelete} />
+
+      <SendToWorshipHubSheet visible={sendVisible} count={songs.length} onClose={() => setSendVisible(false)} />
     </View>
   );
 }

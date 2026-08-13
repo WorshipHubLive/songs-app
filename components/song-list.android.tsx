@@ -22,6 +22,9 @@ function SongRow({
   onTranslate,
   onEdit,
   onDelete,
+  selectable,
+  selected,
+  onToggleSelect,
 }: {
   song: Song;
   onPress: () => void;
@@ -29,6 +32,9 @@ function SongRow({
   onTranslate: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
 }) {
   return (
     <Swipeable
@@ -40,7 +46,14 @@ function SongRow({
         </View>
       )}
     >
-      <SongCard song={song} onPress={onPress} onToggleService={onToggleService} />
+      <SongCard
+        song={song}
+        onPress={onPress}
+        onToggleService={onToggleService}
+        selectable={selectable}
+        selected={selected}
+        onToggleSelect={onToggleSelect}
+      />
     </Swipeable>
   );
 }
@@ -50,7 +63,17 @@ function SongRow({
 // gets the real native SwiftUI SwipeActions instead, see
 // song-list.ios.tsx). Requires GestureHandlerRootView at the app root
 // (see app/_layout.tsx) or the gesture silently does nothing.
-export function SongList({ songs, onPressSong, onToggleService, onTranslate, onEdit, onDelete }: SongListProps) {
+export function SongList({
+  songs,
+  onPressSong,
+  onToggleService,
+  onTranslate,
+  onEdit,
+  onDelete,
+  selectable,
+  selectedIds,
+  onToggleSelect,
+}: SongListProps) {
   return (
     <FlatList
       data={songs}
@@ -65,6 +88,9 @@ export function SongList({ songs, onPressSong, onToggleService, onTranslate, onE
           onTranslate={() => onTranslate(item)}
           onEdit={() => onEdit(item)}
           onDelete={() => onDelete(item)}
+          selectable={selectable}
+          selected={selectedIds?.has(item.id)}
+          onToggleSelect={() => onToggleSelect?.(item)}
         />
       )}
     />

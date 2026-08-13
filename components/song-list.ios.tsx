@@ -7,8 +7,17 @@ import type { SongListProps } from './song-list';
 // SwipeActions), with our existing Tailwind-styled SongCard bridged in
 // as the row content via RNHostView. `allowsFullSwipe={false}` on the
 // trailing group so a full swipe never auto-fires Delete.
-export function SongList({ songs, onPressSong, onToggleService, onTranslate, onEdit, onDelete }: SongListProps) {
-  
+export function SongList({
+  songs,
+  onPressSong,
+  onToggleService,
+  onTranslate,
+  onEdit,
+  onDelete,
+  selectable,
+  selectedIds,
+  onToggleSelect,
+}: SongListProps) {
   return (
     <Host style={{ flex: 1, paddingHorizontal: 16 }}>
       <List modifiers={[listStyle("plain")]}>
@@ -17,7 +26,14 @@ export function SongList({ songs, onPressSong, onToggleService, onTranslate, onE
           <Section key={song.id} modifiers={[listRowBackground('clear'), listRowSeparator('hidden')]}>
             <SwipeActions>
               <RNHostView matchContents>
-                <SongCard song={song} onPress={() => onPressSong(song)} onToggleService={() => onToggleService(song)} />
+                <SongCard
+                  song={song}
+                  onPress={() => onPressSong(song)}
+                  onToggleService={() => onToggleService(song)}
+                  selectable={selectable}
+                  selected={selectedIds?.has(song.id)}
+                  onToggleSelect={() => onToggleSelect?.(song)}
+                />
               </RNHostView>
               <SwipeActions.Actions edge="trailing" allowsFullSwipe={false}>
                 <Button label="Delete" systemImage="trash" role="destructive" onPress={() => onDelete(song)} />
