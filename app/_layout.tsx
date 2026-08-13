@@ -15,6 +15,7 @@ import 'react-native-reanimated';
 
 import { AppSettingsProvider } from '@/hooks/use-app-settings';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useLocalSyncHeartbeat } from '@/hooks/use-local-sync-heartbeat';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 
 export { ErrorBoundary } from 'expo-router';
@@ -57,6 +58,9 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const { isDark } = useAppTheme();
   const colors = useThemeColors();
+  // Runs for the whole life of the app, same as the desktop's own
+  // always-on microserver — see hooks/use-local-sync-heartbeat.ts.
+  useLocalSyncHeartbeat();
 
   // Reuses expo-router's nav theme plumbing but with WorshipHub Songs'
   // own tokens, so the native screen-transition background/tab bar
