@@ -1,17 +1,23 @@
 # Basic smoke test — the app launches and its three NativeTabs (Songs,
 # Service, Settings) are all reachable. Run with:
 #   maestro test .maestro/smoke-test.yaml
+#
+# Assertions are in Spanish because the app is now fully localized (see
+# i18n/) and this flow runs against a simulator whose device locale is
+# Spanish — i18next correctly resolves to the `es` resource there, not
+# the `en` fallback. Update these strings (or add a locale override) if
+# you run this against a differently-localized simulator.
 appId: com.fercho34.songs-app
 ---
 - launchApp
-- assertVisible: "Songs"
-- assertVisible: "Search songs..."
+- assertVisible: "Canciones"
+- assertVisible: "Buscar canciones..."
 
-- tapOn: "Service"
-- assertVisible: "Service"
+- tapOn: "Servicio"
+- assertVisible: "Servicio"
 
-- tapOn: "Settings"
-- assertVisible: "Settings"
+- tapOn: "Ajustes"
+- assertVisible: "Ajustes"
 
-- tapOn: "Songs"
-- assertVisible: "Search songs..."
+- tapOn: "Canciones"
+- assertVisible: "Buscar canciones..."

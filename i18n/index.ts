@@ -7,6 +7,14 @@ import { initReactI18next } from 'react-i18next';
 import { LANGUAGE_KEY } from '@/consts/keys';
 import { getKvJson, setKvJson } from '@/utils/kv-store';
 import en from './locales/en';
+import es from './locales/es';
+import fr from './locales/fr';
+import ht from './locales/ht';
+import it from './locales/it';
+import ko from './locales/ko';
+import pl from './locales/pl';
+import ru from './locales/ru';
+import zh from './locales/zh';
 
 export const lng = getLocales()[0].languageCode ?? 'en';
 
@@ -21,6 +29,14 @@ const resolveLanguage = (): string => {
 i18n.use(initReactI18next).init({
   resources: {
     en,
+    es,
+    fr,
+    ht,
+    it,
+    ko,
+    pl,
+    ru,
+    zh,
   },
   lng: resolveLanguage(),
   fallbackLng: 'en',
@@ -37,6 +53,7 @@ i18n.use(initReactI18next).init({
     'fr',
     'de',
     'el',
+    'ht',
     'he',
     'hi',
     'hu',

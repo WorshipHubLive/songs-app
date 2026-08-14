@@ -29,6 +29,7 @@ export default function SongDetailsScreen() {
 
   const { data } = useLiveQuery(songByIdQuery(songId));
   const song = data?.[0];
+  const hasChords = !!song?.chords.trim();
 
   const handleDelete = async () => {
     if (!song) return;
@@ -95,23 +96,25 @@ export default function SongDetailsScreen() {
       </Stack.Toolbar>
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="pb-10">
-        <View className="mx-5 my-5">
-          <SegmentedControl
-            values={[t('songDetails.tabLyrics'), t('songDetails.tabChords')]}
-            selectedIndex={tab === 'lyrics' ? 0 : 1}
-            onChange={(event) => setTab(event.nativeEvent.selectedSegmentIndex === 0 ? 'lyrics' : 'chords')}
-          />
-        </View>
+        {hasChords && (
+          <View className="mx-5 my-5">
+            <SegmentedControl
+              values={[t('songDetails.tabLyrics'), t('songDetails.tabChords')]}
+              selectedIndex={tab === 'lyrics' ? 0 : 1}
+              onChange={(event) => setTab(event.nativeEvent.selectedSegmentIndex === 0 ? 'lyrics' : 'chords')}
+            />
+          </View>
+        )}
 
-        <View className="px-6">
-          {tab === 'lyrics' ? (
-            <Text className="font-sora-bold text-[17px] leading-7 text-foreground">
-              {song.lyrics || t('songDetails.noLyrics')}
-            </Text>
-          ) : (
+        <View className={`px-6 ${hasChords ? '' : 'mt-5'}`}>
+          {hasChords && tab === 'chords' ? (
             <View className="rounded-xl border border-border bg-card p-6">
               <ChordProPreview chordPro={song.chords} />
             </View>
+          ) : (
+            <Text className="font-sora-bold text-[17px] leading-7 text-foreground">
+              {song.lyrics || t('songDetails.noLyrics')}
+            </Text>
           )}
         </View>
       </ScrollView>
