@@ -50,7 +50,7 @@ async function searchStage1Lrclib(title: string, artist: string): Promise<Online
           lyrics = item.syncedLyrics.replace(/^\s*\[\d+:\d+(?:\.\d+)?\]\s*/gm, '');
         }
 
-        if (lyrics && lyrics.trim()) {
+        if (lyrics?.trim()) {
           const itemTitle = item.trackName || item.name || title;
           const itemArtist = item.artistName || artist;
           const key = `${itemTitle.toLowerCase()}::${itemArtist.toLowerCase()}`;
@@ -77,11 +77,11 @@ async function searchItunes(title: string, artist: string): Promise<{ title: str
     const url = `https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=5`;
     const res = await fetchWithTimeout(url);
     if (!res.ok) return [];
-    const data = await res.json();
+    const data = (await res.json()) as { results?: { trackName?: string; artistName?: string }[] };
     if (!data.results || !Array.isArray(data.results)) return [];
     return data.results
-      .filter((item: any) => item.trackName)
-      .map((item: any) => ({ title: item.trackName || title, artist: item.artistName || artist }));
+      .filter((item) => item.trackName)
+      .map((item) => ({ title: item.trackName || title, artist: item.artistName || artist }));
   } catch {
     return [];
   }
@@ -106,8 +106,14 @@ async function searchStage2Ovh(title: string, artist: string): Promise<OnlineSea
       const res = await fetchWithTimeout(url);
       if (res.ok) {
         const data = await res.json();
-        if (data.lyrics && data.lyrics.trim()) {
-          results.push({ title: target.title, artist: target.artist, lyrics: data.lyrics.trim(), source: 'lyrics.ovh', stage: 2 });
+        if (data.lyrics?.trim()) {
+          results.push({
+            title: target.title,
+            artist: target.artist,
+            lyrics: data.lyrics.trim(),
+            source: 'lyrics.ovh',
+            stage: 2,
+          });
         }
       }
     } catch {
@@ -179,7 +185,9 @@ function cleanRawWebLyrics(text: string): string {
     if (/^#{1,6}\s+/.test(line)) continue;
     if (
       /^(lyrics\s+views|subscribe|views\s+\d+|album\s+•|\d+\s*\/\s*\d+)/i.test(line) ||
-      /^(tono|afinación|estándar|capo|sin capo|diagramas|mostrar|tablaturas|rasgueos|afinador|metrónomo|medios|composición|auto scroll|imprimir|simplificar|corregir|cifra|favoritar|datos están equivocados|envío por|hecho con|derechos reservados|©)/i.test(line) ||
+      /^(tono|afinación|estándar|capo|sin capo|diagramas|mostrar|tablaturas|rasgueos|afinador|metrónomo|medios|composición|auto scroll|imprimir|simplificar|corregir|cifra|favoritar|datos están equivocados|envío por|hecho con|derechos reservados|©)/i.test(
+        line
+      ) ||
       /^\[.*?(lyrics|translation|meaning|acordes|cifra).*?\]/i.test(line)
     ) {
       continue;
@@ -192,7 +200,10 @@ function cleanRawWebLyrics(text: string): string {
     }
   }
 
-  return bodyLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return bodyLines
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 // STAGE 3: Tavily web search — advanced full-page extraction, only runs

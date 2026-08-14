@@ -1,14 +1,14 @@
+import ShareIcon from '@expo/material-symbols/ios_share.xml';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { Stack, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Platform, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { DeleteSongModal } from '@/components/delete-song-modal';
 import { SendToLocalPeerSheet } from '@/components/send-to-local-peer-sheet';
 import { SongList } from '@/components/song-list';
 import type { Song } from '@/db/schema';
 import { allSongsQuery, deleteSong, setInService } from '@/db/songs-repository';
-import ShareIcon from '@expo/material-symbols/ios_share.xml';
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { Stack, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Platform, Text, View } from 'react-native';
 
 // One toolbar button, share icon (same shape as standalone/songs'
 // selection flow, just a single always-visible entry point instead of a

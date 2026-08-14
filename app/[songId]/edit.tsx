@@ -1,6 +1,3 @@
-import { LyricsEditor } from '@/components/lyrics-editor';
-import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
-import { songByIdQuery, updateSong } from '@/db/songs-repository';
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import SaveIcon from '@expo/material-symbols/save.xml';
 import { Picker } from '@expo/ui/community/picker';
@@ -10,6 +7,9 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Fragment, useEffect, useState } from 'react';
 import { Alert, Platform, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LyricsEditor } from '@/components/lyrics-editor';
+import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
+import { songByIdQuery, updateSong } from '@/db/songs-repository';
 
 // Same shape as new-song's editor (title/artist header, language toolbar,
 // Editar/Vista previa body) but bound to an existing row. Chords aren't
@@ -89,7 +89,11 @@ export default function EditSongScreen() {
       </Stack.Title>
 
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon} onPress={handleSave} disabled={saving} />
+        <Stack.Toolbar.Button
+          icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon}
+          onPress={handleSave}
+          disabled={saving}
+        />
       </Stack.Toolbar>
 
       {Platform.OS === 'ios' && (
@@ -97,7 +101,11 @@ export default function EditSongScreen() {
           <Stack.Toolbar.Spacer />
           <Stack.Toolbar.Menu title={languageFlagLabel(lang)}>
             {LANGUAGES.map((language) => (
-              <Stack.Toolbar.MenuAction key={language.value} isOn={lang === language.value} onPress={() => setLang(language.value)}>
+              <Stack.Toolbar.MenuAction
+                key={language.value}
+                isOn={lang === language.value}
+                onPress={() => setLang(language.value)}
+              >
                 {`${language.flag} ${language.label}`}
               </Stack.Toolbar.MenuAction>
             ))}
@@ -115,12 +123,20 @@ export default function EditSongScreen() {
               style={{ width: '100%' }}
             />
 
-            <LyricsEditor value={lyrics} onChange={setLyrics} mode={mode} bottomInset={Platform.OS === 'ios' ? bottom + 60 : 20} />
+            <LyricsEditor
+              value={lyrics}
+              onChange={setLyrics}
+              mode={mode}
+              bottomInset={Platform.OS === 'ios' ? bottom + 60 : 20}
+            />
           </View>
         </View>
 
         {Platform.OS === 'android' && (
-          <View className="flex-row items-center justify-end border-t border-border bg-card px-4 pt-3" style={{ paddingBottom: bottom + 12 }}>
+          <View
+            className="flex-row items-center justify-end border-t border-border bg-card px-4 pt-3"
+            style={{ paddingBottom: bottom + 12 }}
+          >
             <View className="w-40">
               <Picker selectedValue={lang} onValueChange={setLang}>
                 {LANGUAGES.map((language) => (

@@ -1,0 +1,17 @@
+# Basic smoke test — the app launches and its three NativeTabs (Songs,
+# Service, Settings) are all reachable. Run with:
+#   maestro test .maestro/smoke-test.yaml
+appId: com.fercho34.songs-app
+---
+- launchApp
+- assertVisible: "Songs"
+- assertVisible: "Buscar canciones..."
+
+- tapOn: "Service"
+- assertVisible: "Service"
+
+- tapOn: "Settings"
+- assertVisible: "Settings"
+
+- tapOn: "Songs"
+- assertVisible: "Buscar canciones..."

@@ -1,6 +1,6 @@
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Nested stack so Settings' sub-pages (Appearance, Language) push on top
 // while the bottom tab bar stays visible — unlike [songId] and

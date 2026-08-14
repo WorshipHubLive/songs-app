@@ -3,7 +3,10 @@ import { db } from './client';
 import { type NewTranslation, translations } from './schema';
 
 export function translationQuery(songId: number, language: string) {
-  return db.select().from(translations).where(and(eq(translations.songId, songId), eq(translations.language, language)));
+  return db
+    .select()
+    .from(translations)
+    .where(and(eq(translations.songId, songId), eq(translations.language, language)));
 }
 
 export function translationsForSongQuery(songId: number) {

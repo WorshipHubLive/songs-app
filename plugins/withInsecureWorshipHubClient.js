@@ -33,7 +33,7 @@ function withInsecureWorshipHubClient(config) {
     if (!contents.includes('ReactNativeBlobUtilUtils')) {
       const lastImportIndex = contents.lastIndexOf('\nimport ');
       const lineEnd = contents.indexOf('\n', lastImportIndex + 1);
-      contents = contents.slice(0, lineEnd + 1) + IMPORTS.join('\n') + '\n' + contents.slice(lineEnd + 1);
+      contents = `${contents.slice(0, lineEnd + 1) + IMPORTS.join('\n')}\n${contents.slice(lineEnd + 1)}`;
     }
 
     if (!contents.includes('sharedTrustManager')) {

@@ -1,10 +1,10 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { useAppSettings } from '@/hooks/use-app-settings';
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { ExternalLink } from 'lucide-react-native';
 import { useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { useAppSettings } from '@/hooks/use-app-settings';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Mirrors Settings.tsx's Search subTab. The lyric search in new-song
 // already works for free via LRCLIB + iTunes/lyrics.ovh (see
@@ -24,9 +24,9 @@ export default function SearchSettingsScreen() {
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 p-4">
         <Text className="font-sora text-xs leading-5 text-muted-foreground">
-          El botón de buscar en "Agregar canción" combina automáticamente LRCLIB e iTunes/lyrics.ovh para encontrar
-          letras gratis. Si una canción no aparece ahí, puedes agregar una clave de Tavily como respaldo — el plan
-          gratuito incluye 1000 búsquedas al mes.
+          El botón de buscar en "Agregar canción" combina automáticamente LRCLIB e iTunes/lyrics.ovh para encontrar letras gratis.
+          Si una canción no aparece ahí, puedes agregar una clave de Tavily como respaldo — el plan gratuito incluye 1000
+          búsquedas al mes.
         </Text>
 
         <View className="gap-1.5 rounded-md border border-border bg-card p-4">

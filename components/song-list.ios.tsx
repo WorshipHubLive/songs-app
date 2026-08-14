@@ -1,6 +1,6 @@
-import { SongCard } from '@/components/song-card';
 import { Button, Host, List, RNHostView, Section, SwipeActions } from '@expo/ui/swift-ui';
 import { listRowBackground, listRowSeparator, listStyle } from '@expo/ui/swift-ui/modifiers';
+import { SongCard } from '@/components/song-card';
 import type { SongListProps } from './song-list';
 
 // iOS variant — real native swipe-to-reveal actions (SwiftUI List +
@@ -21,8 +21,7 @@ export function SongList({
 }: SongListProps) {
   return (
     <Host style={{ flex: 1, paddingHorizontal: 16 }}>
-      <List modifiers={[listStyle("plain")]}>
-
+      <List modifiers={[listStyle('plain')]}>
         {listHeader && (
           <Section modifiers={[listRowBackground('clear'), listRowSeparator('hidden')]}>
             <RNHostView matchContents>{listHeader}</RNHostView>
@@ -50,10 +49,7 @@ export function SongList({
             </SwipeActions>
           </Section>
         ))}
-
       </List>
-
-
-    </Host >
+    </Host>
   );
 }

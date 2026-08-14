@@ -1,9 +1,9 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Mirrors Settings' Language subTab: grid of language cards with a
 // flag-emoji swatch + name + native label; selected has a primary

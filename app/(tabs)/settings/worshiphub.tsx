@@ -1,12 +1,12 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { QrScannerModal } from '@/components/qr-scanner-modal';
-import { useAppSettings } from '@/hooks/use-app-settings';
-import { useThemeColors } from '@/hooks/use-theme-colors';
-import { discoverWorshipHub, type DiscoveredPeer } from '@/lib/discovery';
 import { Stack } from 'expo-router';
 import { Laptop, QrCode, RefreshCw, Zap } from 'lucide-react-native';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { QrScannerModal } from '@/components/qr-scanner-modal';
+import { useAppSettings } from '@/hooks/use-app-settings';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { type DiscoveredPeer, discoverWorshipHub } from '@/lib/discovery';
 
 // Mirrors Settings.tsx's WorshipHub subTab: link status, mDNS-discovered
 // instances on this network, or a manual/QR-scanned address. WorshipHub
@@ -73,8 +73,8 @@ export default function WorshipHubScreen() {
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 p-4">
         <Text className="font-sora text-xs leading-5 text-muted-foreground">
-          Enlaza esta app con WorshipHub (la app principal de proyección) para enviarle canciones. Solo viajan la
-          letra y las traducciones — los acordes nunca salen de aquí.
+          Enlaza esta app con WorshipHub (la app principal de proyección) para enviarle canciones. Solo viajan la letra y las
+          traducciones — los acordes nunca salen de aquí.
         </Text>
 
         <View className="flex-row items-center justify-between gap-3 rounded-md border border-border bg-card p-4">
@@ -103,8 +103,16 @@ export default function WorshipHubScreen() {
         <View className="gap-3 rounded-md border border-border bg-card p-4">
           <View className="flex-row items-center justify-between gap-3">
             <Text className="font-sora-semibold text-sm text-foreground">Encontrados en esta red</Text>
-            <Pressable onPress={handleDiscover} disabled={scanning} className="flex-row items-center gap-1.5 rounded-full border border-border px-3 py-1.5">
-              {scanning ? <ActivityIndicator size="small" color={colors.primary} /> : <RefreshCw size={13} color={colors.primary} />}
+            <Pressable
+              onPress={handleDiscover}
+              disabled={scanning}
+              className="flex-row items-center gap-1.5 rounded-full border border-border px-3 py-1.5"
+            >
+              {scanning ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <RefreshCw size={13} color={colors.primary} />
+              )}
               <Text className="font-sora-bold text-[11px] text-foreground">Buscar</Text>
             </Pressable>
           </View>

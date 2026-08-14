@@ -1,9 +1,9 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { useAppTheme, type AppThemeMode } from '@/hooks/use-app-theme';
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { type AppThemeMode, useAppTheme } from '@/hooks/use-app-theme';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Mirrors Settings' Appearance subTab: a 2-col grid of theme swatch
 // cards (only 2 themes exist), each a color-preview rect + dot + label,
@@ -35,7 +35,10 @@ export default function AppearanceScreen() {
               onPress={() => setMode(t.mode)}
               className={`w-[47%] gap-2 rounded-md bg-card p-2 ${active ? 'border-2 border-primary' : 'border border-border'}`}
             >
-              <View className="h-16 items-center justify-center rounded-[10px] border" style={{ backgroundColor: t.bg, borderColor: t.border }}>
+              <View
+                className="h-16 items-center justify-center rounded-[10px] border"
+                style={{ backgroundColor: t.bg, borderColor: t.border }}
+              >
                 <View className="h-[18px] w-[18px] rounded-full" style={{ backgroundColor: t.dot }} />
               </View>
               <View className="flex-row items-center justify-between gap-1.5">

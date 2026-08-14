@@ -1,8 +1,8 @@
+import { CalendarCheck, CalendarPlus, Check } from 'lucide-react-native';
+import { Pressable, Text, View } from 'react-native';
 import { accentClasses } from '@/constants/accent-classes';
 import type { Song } from '@/db/schema';
 import { useThemeColors } from '@/hooks/use-theme-colors';
-import { CalendarCheck, CalendarPlus, Check } from 'lucide-react-native';
-import { Pressable, Text, View } from 'react-native';
 import { Card } from './ui/card';
 
 // Mirrors SongCard.tsx's colored left-border accent cycle. Content is
@@ -80,6 +80,7 @@ export function SongCard({
           </Pressable>
 
           <Pressable
+            testID="song-card-toggle-service"
             onPress={onToggleService}
             className={`h-10 w-10 items-center justify-center rounded-full ${song.inService ? 'bg-primary/15' : 'bg-muted'}`}
           >

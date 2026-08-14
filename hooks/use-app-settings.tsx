@@ -1,5 +1,5 @@
 import Storage from 'expo-sqlite/kv-store';
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 
 export interface AppSettings {
   profile: {
@@ -88,8 +88,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     persist({ ...settings, search: { ...settings.search, ...patch } });
   const updateWorshipHub = (patch: Partial<AppSettings['worshiphub']>) =>
     persist({ ...settings, worshiphub: { ...settings.worshiphub, ...patch } });
-  const updateCloud = (patch: Partial<AppSettings['cloud']>) =>
-    persist({ ...settings, cloud: { ...settings.cloud, ...patch } });
+  const updateCloud = (patch: Partial<AppSettings['cloud']>) => persist({ ...settings, cloud: { ...settings.cloud, ...patch } });
 
   return (
     <AppSettingsContext.Provider value={{ settings, loaded, updateProfile, updateSearch, updateWorshipHub, updateCloud }}>

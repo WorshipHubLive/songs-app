@@ -1,13 +1,13 @@
+import { useEffect } from 'react';
 import { insertSongIfMissing } from '@/db/songs-repository';
 import { LOCAL_SYNC_PORT, localSyncDeviceName } from '@/lib/local-sync-device';
 import {
   addLocalSyncRequestListener,
+  type LocalSyncRequestEvent,
   respondToLocalSyncRequest,
   startLocalSyncServer,
   stopLocalSyncServer,
-  type LocalSyncRequestEvent,
 } from '@/modules/local-sync-server';
-import { useEffect } from 'react';
 
 interface SongPayload {
   title: string;

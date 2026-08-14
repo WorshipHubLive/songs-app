@@ -1,12 +1,12 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { useThemeColors } from '@/hooks/use-theme-colors';
-import { LOCAL_SYNC_PORT, localSyncDeviceName } from '@/lib/local-sync-device';
 import * as Network from 'expo-network';
 import { Stack } from 'expo-router';
 import { Laptop, Radio } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { LOCAL_SYNC_PORT, localSyncDeviceName } from '@/lib/local-sync-device';
 
 // Mirrors Settings.tsx's Local Sync subTab — but only its *desktop*
 // ("isTauri") branch: this app now runs its own always-on mDNS-advertised
@@ -52,8 +52,8 @@ export default function LocalSyncScreen() {
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 p-4">
         <Text className="font-sora text-xs leading-5 text-muted-foreground">
-          Pasa canciones a OTRA instancia de WorshipHub Songs en tu misma red — nada que ver con WorshipHub (la app
-          principal), solo entre copias de esta misma app.
+          Pasa canciones a OTRA instancia de WorshipHub Songs en tu misma red — nada que ver con WorshipHub (la app principal),
+          solo entre copias de esta misma app.
         </Text>
 
         <View className="items-center gap-3 rounded-md border border-border bg-card p-6">
@@ -66,8 +66,8 @@ export default function LocalSyncScreen() {
           </View>
           <Text className="text-center font-sora-bold text-sm text-foreground">Sincronización local activada</Text>
           <Text className="text-center font-sora text-xs text-muted-foreground">
-            Otras copias de WorshipHub Songs en esta red (de escritorio o de otro teléfono) te encuentran
-            automáticamente — no hace falta guardar ninguna dirección aquí.
+            Otras copias de WorshipHub Songs en esta red (de escritorio o de otro teléfono) te encuentran automáticamente — no
+            hace falta guardar ninguna dirección aquí.
           </Text>
           <View className="mt-1 flex-row items-center gap-2 rounded-full border border-border px-3 py-1.5">
             <Laptop size={13} color={colors.mutedForeground} />
@@ -80,8 +80,8 @@ export default function LocalSyncScreen() {
             Escanea para sincronizar con este teléfono
           </Text>
           <Text className="text-center font-sora text-xs text-muted-foreground">
-            Desde la versión web de Songs en otro dispositivo, entra a Ajustes → Sincronización local y escanea este
-            código (o escribe la dirección a mano) — la versión web no puede buscar en la red por sí sola.
+            Desde la versión web de Songs en otro dispositivo, entra a Ajustes → Sincronización local y escanea este código (o
+            escribe la dirección a mano) — la versión web no puede buscar en la red por sí sola.
           </Text>
           {address ? (
             <>

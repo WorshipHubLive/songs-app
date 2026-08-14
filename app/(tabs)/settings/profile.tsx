@@ -1,12 +1,12 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { useAppSettings } from '@/hooks/use-app-settings';
-import { useThemeColors } from '@/hooks/use-theme-colors';
-import { initialsFor } from '@/lib/profile';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack } from 'expo-router';
 import { Camera, User } from 'lucide-react-native';
 import { useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { useAppSettings } from '@/hooks/use-app-settings';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { initialsFor } from '@/lib/profile';
 
 // Mirrors Settings.tsx's Profile subTab: big avatar (tap to change),
 // name field, saved to the local settings blob — shown to WorshipHub

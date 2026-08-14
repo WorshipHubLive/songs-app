@@ -1,9 +1,9 @@
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { X } from 'lucide-react-native';
 import { useRef } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Native QR scanner overlay — CameraView's own barcode detector, not a
 // canvas + jsQR pass like the web build needs (browsers have no
@@ -21,7 +21,7 @@ export function QrScannerModal({
   onClose: () => void;
   hint: string;
 }) {
-  const colors = useThemeColors();
+  const _colors = useThemeColors();
   const { top, bottom } = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const scannedRef = useRef(false);

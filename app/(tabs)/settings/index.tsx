@@ -1,12 +1,12 @@
+import { Stack, useRouter } from 'expo-router';
+import { Cloud, Languages, Laptop, Palette, RadioTower, Search, Smartphone, User } from 'lucide-react-native';
+import { Image, ScrollView, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { BentoSection } from '@/components/settings/bento-section';
 import { SettingsRow, SettingsTile } from '@/components/settings/settings-row';
 import { Card } from '@/components/ui/card';
 import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
-import { Stack, useRouter } from 'expo-router';
-import { Cloud, Languages, Laptop, Palette, RadioTower, Search, Smartphone, User } from 'lucide-react-native';
-import { Image, ScrollView, Text, View } from 'react-native';
 
 // Mirrors Settings.tsx's "menu" subTab: cross-platform promo card, then a
 // bento grid of sections (Visuals / Connectivity / Preferences).
@@ -77,7 +77,11 @@ export default function SettingsHubScreen() {
         </BentoSection>
 
         <View className="items-center gap-2 pt-4">
-          <Image source={require('@/assets/brand/WorshipHub_Songs_Icon.png')} className="h-7 w-7 rounded-md opacity-60" resizeMode="contain" />
+          <Image
+            source={require('@/assets/brand/WorshipHub_Songs_Icon.png')}
+            className="h-7 w-7 rounded-md opacity-60"
+            resizeMode="contain"
+          />
           <Text className="font-sora text-[11px] text-muted-foreground">WorshipHub Songs · v1.0.0</Text>
         </View>
       </ScrollView>

@@ -1,6 +1,6 @@
 import type { EventSubscription } from 'expo-modules-core';
-import LocalSyncServerModule from './src/LocalSyncServerModule';
 import type { LocalSyncRequestEvent } from './src/LocalSyncServer.types';
+import LocalSyncServerModule from './src/LocalSyncServerModule';
 
 export type { LocalSyncRequestEvent };
 

@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'uniwind';
+@import "tailwindcss";
+@import "uniwind";
 
 /*
  * WorshipHub Songs design tokens, ported 1:1 from standalone/songs' CSS
@@ -73,9 +73,9 @@
   /* Sora, loaded via @expo-google-fonts/sora in app/_layout.tsx — exposed
      as font-sora-* utilities instead of a fontFamily constants file. */
   :root {
-    --font-sora: 'Sora_400Regular';
-    --font-sora-semibold: 'Sora_600SemiBold';
-    --font-sora-bold: 'Sora_700Bold';
-    --font-sora-extrabold: 'Sora_800ExtraBold';
+    --font-sora: "Sora_400Regular";
+    --font-sora-semibold: "Sora_600SemiBold";
+    --font-sora-bold: "Sora_700Bold";
+    --font-sora-extrabold: "Sora_800ExtraBold";
   }
 }

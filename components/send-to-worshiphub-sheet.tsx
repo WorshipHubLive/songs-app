@@ -1,14 +1,14 @@
+import BottomSheet, { BottomSheetScrollView } from '@expo/ui/community/bottom-sheet';
+import { Check, Laptop, QrCode, RefreshCw, ShieldCheck, Zap } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 import { QrScannerModal } from '@/components/qr-scanner-modal';
 import { getSongsForExport } from '@/db/songs-repository';
 import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { shrinkAvatarForTransfer } from '@/lib/avatar';
-import { discoverWorshipHub, type DiscoveredPeer } from '@/lib/discovery';
+import { type DiscoveredPeer, discoverWorshipHub } from '@/lib/discovery';
 import { pairWithWorshipHub, sendSongsToWorshipHub } from '@/lib/worshiphub-client';
-import BottomSheet, { BottomSheetScrollView } from '@expo/ui/community/bottom-sheet';
-import { Check, Laptop, QrCode, RefreshCw, ShieldCheck, Zap } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 
 type Phase = 'searching' | 'found' | 'manual' | 'pairing' | 'sending' | 'done' | 'error';
 
@@ -191,7 +191,9 @@ export function SendToWorshipHubSheet({
                   className={`flex-row items-center gap-1.5 rounded-md px-4 py-2.5 ${address.trim() ? 'bg-primary' : 'bg-muted'}`}
                 >
                   <Zap size={14} color={address.trim() ? colors.primaryForeground : colors.mutedForeground} />
-                  <Text className={`font-sora-bold text-xs ${address.trim() ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                  <Text
+                    className={`font-sora-bold text-xs ${address.trim() ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+                  >
                     Conectar
                   </Text>
                 </Pressable>
@@ -261,8 +263,10 @@ export function SendToWorshipHubSheet({
 
 function worshipHubErrorMessage(message: string): string {
   if (message === 'denied') return 'El operador de WorshipHub rechazó la conexión, o no respondió a tiempo.';
-  if (message === 'busy') return 'WorshipHub ya tiene otra solicitud de conexión esperando respuesta. Respóndela allá y vuelve a intentar.';
+  if (message === 'busy')
+    return 'WorshipHub ya tiene otra solicitud de conexión esperando respuesta. Respóndela allá y vuelve a intentar.';
   if (message === 'unauthorized') return 'WorshipHub ya no reconoce esta app — vuelve a emparejar.';
-  if (message.startsWith('HTTP ')) return `WorshipHub respondió con un error (${message}). Revisa que esté abierto y actualizado.`;
+  if (message.startsWith('HTTP '))
+    return `WorshipHub respondió con un error (${message}). Revisa que esté abierto y actualizado.`;
   return `No se pudo contactar a WorshipHub. Revisa que esté abierto y en la misma red. (${message || 'sin detalle'})`;
 }

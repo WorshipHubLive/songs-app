@@ -41,10 +41,7 @@ export async function deleteSong(id: number) {
 // `db::insert_if_missing` (src-tauri/src/db.rs). Existing songs are left
 // untouched; only genuinely new titles get inserted.
 export async function insertSongIfMissing(song: { title: string; artist: string; language: string; lyrics: string }) {
-  const existing = await db
-    .select({ id: songs.id })
-    .from(songs)
-    .where(sql`lower(${songs.title}) = lower(${song.title})`);
+  const existing = await db.select({ id: songs.id }).from(songs).where(sql`lower(${songs.title}) = lower(${song.title})`);
   if (existing.length > 0) return false;
   await db.insert(songs).values(song);
   return true;

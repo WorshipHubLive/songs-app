@@ -1,5 +1,5 @@
-import { countWords, splitIntoSlides } from '@/lib/lyrics';
 import { ScrollView, Text, TextInput, View } from 'react-native';
+import { countWords, splitIntoSlides } from '@/lib/lyrics';
 
 export function LyricsEditor({
   value,

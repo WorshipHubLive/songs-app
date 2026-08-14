@@ -1,7 +1,3 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { ChordProPreview } from '@/components/chord-pro-preview';
-import { DeleteSongModal } from '@/components/delete-song-modal';
-import { deleteSong, songByIdQuery } from '@/db/songs-repository';
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import DeleteIcon from '@expo/material-symbols/delete.xml';
 import EditIcon from '@expo/material-symbols/edit.xml';
@@ -13,7 +9,10 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Platform, ScrollView, Text, View } from 'react-native';
-
+import { AmbientGlow } from '@/components/ambient-glow';
+import { ChordProPreview } from '@/components/chord-pro-preview';
+import { DeleteSongModal } from '@/components/delete-song-modal';
+import { deleteSong, songByIdQuery } from '@/db/songs-repository';
 
 // Mirrors SongDetails.tsx: native Stack header (back button comes free)
 // with print/translate/edit/delete grouped in a Stack.Toolbar menu;
@@ -54,13 +53,15 @@ export default function SongDetailsScreen() {
     <View className="flex-1 bg-background">
       <AmbientGlow />
 
-       <Stack.Toolbar placement="left">
+      <Stack.Toolbar placement="left">
         <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon} onPress={() => router.back()} />
       </Stack.Toolbar>
 
       <Stack.Title asChild>
         <View className="w-full">
-          <Text className="font-sora-semibold text-lg text-foreground" numberOfLines={1}>{song.title}</Text>
+          <Text className="font-sora-semibold text-lg text-foreground" numberOfLines={1}>
+            {song.title}
+          </Text>
           <Text className="font-sora text-[10px] text-muted-foreground">{song.artist}</Text>
         </View>
       </Stack.Title>
@@ -100,9 +101,7 @@ export default function SongDetailsScreen() {
 
         <View className="px-6">
           {tab === 'lyrics' ? (
-            <Text className="font-sora-bold text-[17px] leading-7 text-foreground">
-              {song.lyrics || 'Sin letra todavía.'}
-            </Text>
+            <Text className="font-sora-bold text-[17px] leading-7 text-foreground">{song.lyrics || 'Sin letra todavía.'}</Text>
           ) : (
             <View className="rounded-xl border border-border bg-card p-6">
               <ChordProPreview chordPro={song.chords} />

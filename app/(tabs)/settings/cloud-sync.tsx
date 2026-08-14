@@ -1,11 +1,11 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { QrScannerModal } from '@/components/qr-scanner-modal';
-import { useAppSettings } from '@/hooks/use-app-settings';
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { QrCode } from 'lucide-react-native';
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { QrScannerModal } from '@/components/qr-scanner-modal';
+import { useAppSettings } from '@/hooks/use-app-settings';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Mirrors Settings.tsx's Cloud subTab — a Supabase project URL + anon
 // key so this library can sync across devices via the cloud instead of
@@ -43,8 +43,8 @@ export default function CloudSyncScreen() {
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 p-4">
         <Text className="font-sora text-xs leading-5 text-muted-foreground">
-          Conecta un proyecto de Supabase para mantener tu biblioteca sincronizada entre todos tus dispositivos, sin
-          depender de estar en la misma red.
+          Conecta un proyecto de Supabase para mantener tu biblioteca sincronizada entre todos tus dispositivos, sin depender de
+          estar en la misma red.
         </Text>
 
         <Pressable

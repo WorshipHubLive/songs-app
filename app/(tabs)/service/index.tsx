@@ -1,3 +1,9 @@
+import CloudUploadIcon from '@expo/material-symbols/cloud_upload.xml';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { Stack, useRouter } from 'expo-router';
+import { CalendarCheck } from 'lucide-react-native';
+import { useState } from 'react';
+import { Platform, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { DeleteSongModal } from '@/components/delete-song-modal';
 import { SendToWorshipHubSheet } from '@/components/send-to-worshiphub-sheet';
@@ -5,12 +11,6 @@ import { SongList } from '@/components/song-list';
 import type { Song } from '@/db/schema';
 import { deleteSong, serviceSongsQuery, setInService } from '@/db/songs-repository';
 import { useThemeColors } from '@/hooks/use-theme-colors';
-import CloudUploadIcon from '@expo/material-symbols/cloud_upload.xml';
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { Stack, useRouter } from 'expo-router';
-import { CalendarCheck } from 'lucide-react-native';
-import { useState } from 'react';
-import { Platform, Text, View } from 'react-native';
 
 // Mirrors Service.tsx — native Stack.Title + a native Stack.Toolbar "Send
 // to WorshipHub" button (badged with the queue count) replace the custom

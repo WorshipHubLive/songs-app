@@ -25,10 +25,9 @@ export function parseChordProLine(line: string): ParsedChordProLine {
   const chordRegex = /\[([^\]]+)\]/g;
   const tokens: ChordToken[] = [];
   let lastIndex = 0;
-  let match: RegExpExecArray | null;
   let hasChords = false;
 
-  while ((match = chordRegex.exec(line)) !== null) {
+  for (let match = chordRegex.exec(line); match !== null; match = chordRegex.exec(line)) {
     hasChords = true;
     const before = line.slice(lastIndex, match.index);
     if (tokens.length > 0) {

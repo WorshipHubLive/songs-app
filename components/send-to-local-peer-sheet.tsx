@@ -1,11 +1,11 @@
-import { getSongsForExport } from '@/db/songs-repository';
-import { useThemeColors } from '@/hooks/use-theme-colors';
-import { discoverSongsDesktopPeers, type DiscoveredPeer } from '@/lib/discovery';
-import { pushSongsToLocalPeer, verifyLocalSyncPeer } from '@/lib/songs-peer-client';
 import BottomSheet, { BottomSheetScrollView } from '@expo/ui/community/bottom-sheet';
 import { Check, Laptop, RefreshCw, ShieldAlert, Zap } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
+import { getSongsForExport } from '@/db/songs-repository';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { type DiscoveredPeer, discoverSongsDesktopPeers } from '@/lib/discovery';
+import { pushSongsToLocalPeer, verifyLocalSyncPeer } from '@/lib/songs-peer-client';
 
 type Phase = 'searching' | 'found' | 'manual' | 'sending' | 'done' | 'error';
 
@@ -140,8 +140,8 @@ export function SendToLocalPeerSheet({
         {phase === 'manual' && (
           <View className="gap-3">
             <Text className="font-sora text-xs text-muted-foreground">
-              No encontramos otra copia automáticamente — escribe su dirección (Ajustes → Sincronización local en esa
-              app la muestra).
+              No encontramos otra copia automáticamente — escribe su dirección (Ajustes → Sincronización local en esa app la
+              muestra).
             </Text>
 
             <View className="flex-row gap-2">
@@ -160,7 +160,9 @@ export function SendToLocalPeerSheet({
                 className={`flex-row items-center gap-1.5 rounded-md px-4 py-2.5 ${address.trim() ? 'bg-primary' : 'bg-muted'}`}
               >
                 <Zap size={14} color={address.trim() ? colors.primaryForeground : colors.mutedForeground} />
-                <Text className={`font-sora-bold text-xs ${address.trim() ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                <Text
+                  className={`font-sora-bold text-xs ${address.trim() ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+                >
                   Enviar
                 </Text>
               </Pressable>

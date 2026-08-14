@@ -1,4 +1,4 @@
-import { registerWebModule, NativeModule } from 'expo';
+import { NativeModule, registerWebModule } from 'expo';
 import type { LocalSyncServerEvents } from './LocalSyncServer.types';
 
 // No-op — a browser tab can't open a listening TCP socket. The web build

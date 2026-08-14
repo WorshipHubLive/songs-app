@@ -1,9 +1,9 @@
-import { Card } from '@/components/ui/card';
-import { ACCENT_CLASSES, type AccentName } from '@/constants/accent-classes';
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import type { LucideIcon } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
+import { Card } from '@/components/ui/card';
+import { ACCENT_CLASSES, type AccentName } from '@/constants/accent-classes';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Mirrors Settings' bento-grid section cards: colored left border-accent
 // + circular icon badge + uppercase header, wrapping a stack of rows.

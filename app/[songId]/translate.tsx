@@ -1,6 +1,3 @@
-import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
-import { songByIdQuery } from '@/db/songs-repository';
-import { saveTranslation, translationQuery, translationsForSongQuery } from '@/db/translations-repository';
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import SaveIcon from '@expo/material-symbols/save.xml';
 import { Picker } from '@expo/ui/community/picker';
@@ -9,6 +6,9 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Fragment, useEffect, useState } from 'react';
 import { Alert, Platform, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
+import { songByIdQuery } from '@/db/songs-repository';
+import { saveTranslation, translationQuery, translationsForSongQuery } from '@/db/translations-repository';
 
 // A translation is a per-language copy of the lyrics, kept in its own
 // `translations` row (unique on song + language) — the song's own

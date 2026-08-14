@@ -1,7 +1,7 @@
-import { SongCard } from '@/components/song-card';
-import type { Song } from '@/db/schema';
 import type { ReactElement } from 'react';
 import { FlatList } from 'react-native';
+import { SongCard } from '@/components/song-card';
+import type { Song } from '@/db/schema';
 
 export type SongListProps = {
   songs: Song[];
@@ -26,7 +26,15 @@ export type SongListProps = {
 // service" button. See song-list.ios.tsx for the iOS variant, which adds
 // native swipe-to-reveal Translate/Edit/Delete (no @expo/ui equivalent
 // exists for Android, so those three stay iOS-only).
-export function SongList({ songs, onPressSong, onToggleService, selectable, selectedIds, onToggleSelect, listHeader }: SongListProps) {
+export function SongList({
+  songs,
+  onPressSong,
+  onToggleService,
+  selectable,
+  selectedIds,
+  onToggleSelect,
+  listHeader,
+}: SongListProps) {
   return (
     <FlatList
       data={songs}

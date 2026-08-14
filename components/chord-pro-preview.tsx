@@ -1,5 +1,5 @@
-import { parseChordPro } from '@/lib/chord-pro';
 import { Text, View } from 'react-native';
+import { parseChordPro } from '@/lib/chord-pro';
 
 export function ChordProPreview({ chordPro }: { chordPro: string }) {
   if (!chordPro.trim()) {

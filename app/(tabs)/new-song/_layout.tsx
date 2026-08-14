@@ -1,6 +1,6 @@
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Nested stack so this screen gets a real native header (Stack.Title/
 // Stack.Toolbar) even though it's a NativeTabs trigger's own content,

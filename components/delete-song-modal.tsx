@@ -1,5 +1,5 @@
-import type { Song } from '@/db/schema';
 import { Modal, Pressable, Text, View } from 'react-native';
+import type { Song } from '@/db/schema';
 
 export function DeleteSongModal({
   song,
@@ -15,7 +15,10 @@ export function DeleteSongModal({
   return (
     <Modal visible={song !== null} animationType="fade" transparent onRequestClose={onCancel}>
       <Pressable className="flex-1 items-center justify-center bg-black/60 px-8" onPress={onCancel}>
-        <Pressable className="w-full max-w-sm gap-4 rounded-2xl border border-border bg-card p-5" onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          className="w-full max-w-sm gap-4 rounded-2xl border border-border bg-card p-5"
+          onPress={(e) => e.stopPropagation()}
+        >
           <View className="gap-1">
             <Text className="font-sora-bold text-base text-foreground">Eliminar canción</Text>
             <Text className="font-sora text-sm text-muted-foreground">

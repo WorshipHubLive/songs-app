@@ -1,6 +1,6 @@
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { usePathname } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Mirrors MobileNav (Songs/Service/Settings) but as a truly native tab
 // bar — SwiftUI TabView on iOS (liquid glass automatically on iOS 26+),

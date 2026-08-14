@@ -1,6 +1,6 @@
-import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 export default function SongsStackLayout() {
   const colors = useThemeColors();

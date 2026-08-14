@@ -1,12 +1,22 @@
-import { SongCard } from '@/components/song-card';
-import type { Song } from '@/db/schema';
-import { Languages, Pencil, Trash2 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
+import { Languages, Pencil, Trash2 } from 'lucide-react-native';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { SongCard } from '@/components/song-card';
+import type { Song } from '@/db/schema';
 import type { SongListProps } from './song-list';
 
-function SwipeAction({ label, icon: Icon, className, onPress }: { label: string; icon: LucideIcon; className: string; onPress: () => void }) {
+function SwipeAction({
+  label,
+  icon: Icon,
+  className,
+  onPress,
+}: {
+  label: string;
+  icon: LucideIcon;
+  className: string;
+  onPress: () => void;
+}) {
   return (
     <Pressable onPress={onPress} className={`w-20 items-center justify-center gap-1 ${className}`}>
       <Icon size={20} color="#ffffff" strokeWidth={2} />

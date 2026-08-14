@@ -1,10 +1,3 @@
-import { AmbientGlow } from '@/components/ambient-glow';
-import { LyricsEditor } from '@/components/lyrics-editor';
-import { SongSearchResultsModal } from '@/components/song-search-results-modal';
-import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
-import { saveSong } from '@/db/songs-repository';
-import { useAppSettings } from '@/hooks/use-app-settings';
-import { type OnlineSearchResult, searchByStage, searchOnlineHybrid, type StageSearchResult } from '@/lib/online-search';
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import SaveIcon from '@expo/material-symbols/save.xml';
 import SearchIcon from '@expo/material-symbols/search.xml';
@@ -14,6 +7,13 @@ import { Stack, useRouter } from 'expo-router';
 import { Fragment, useState } from 'react';
 import { Alert, Platform, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AmbientGlow } from '@/components/ambient-glow';
+import { LyricsEditor } from '@/components/lyrics-editor';
+import { SongSearchResultsModal } from '@/components/song-search-results-modal';
+import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
+import { saveSong } from '@/db/songs-repository';
+import { useAppSettings } from '@/hooks/use-app-settings';
+import { type OnlineSearchResult, type StageSearchResult, searchByStage, searchOnlineHybrid } from '@/lib/online-search';
 
 // This is the "new-song" native tab's own content (role="search", docked
 // to the side of the tab bar) — see (tabs)/_layout.tsx for why the tab
@@ -99,7 +99,11 @@ export default function NewSongScreen() {
   return (
     <Fragment>
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon} onPress={close} />
+        <Stack.Toolbar.Button
+          icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon}
+          onPress={close}
+          accessibilityLabel="Volver"
+        />
       </Stack.Toolbar>
 
       <Stack.Title asChild>
@@ -122,8 +126,18 @@ export default function NewSongScreen() {
       </Stack.Title>
 
       <Stack.Toolbar placement="right">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon} onPress={handleSearch} disabled={searching} />
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon} onPress={handleSave} disabled={saving} />
+        <Stack.Toolbar.Button
+          icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon}
+          onPress={handleSearch}
+          disabled={searching}
+          accessibilityLabel="Buscar en línea"
+        />
+        <Stack.Toolbar.Button
+          icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon}
+          onPress={handleSave}
+          disabled={saving}
+          accessibilityLabel="Guardar"
+        />
       </Stack.Toolbar>
 
       {/* The native bottom toolbar only works reliably on iOS here — on
@@ -134,7 +148,11 @@ export default function NewSongScreen() {
           <Stack.Toolbar.Spacer />
           <Stack.Toolbar.Menu title={languageFlagLabel(lang)}>
             {LANGUAGES.map((language) => (
-              <Stack.Toolbar.MenuAction key={language.value} isOn={lang === language.value} onPress={() => setLang(language.value)}>
+              <Stack.Toolbar.MenuAction
+                key={language.value}
+                isOn={lang === language.value}
+                onPress={() => setLang(language.value)}
+              >
                 {`${language.flag} ${language.label}`}
               </Stack.Toolbar.MenuAction>
             ))}
@@ -153,12 +171,20 @@ export default function NewSongScreen() {
               style={{ width: '100%' }}
             />
 
-            <LyricsEditor value={lyrics} onChange={setLyrics} mode={mode} bottomInset={Platform.OS === 'ios' ? bottom + 60 : 20} />
+            <LyricsEditor
+              value={lyrics}
+              onChange={setLyrics}
+              mode={mode}
+              bottomInset={Platform.OS === 'ios' ? bottom + 60 : 20}
+            />
           </View>
         </View>
 
         {Platform.OS === 'android' && (
-          <View className="flex-row items-center justify-end border-t border-border bg-card px-4 pt-3" style={{ paddingBottom: bottom + 12 }}>
+          <View
+            className="flex-row items-center justify-end border-t border-border bg-card px-4 pt-3"
+            style={{ paddingBottom: bottom + 12 }}
+          >
             <View className="w-40">
               <Picker selectedValue={lang} onValueChange={setLang}>
                 {LANGUAGES.map((language) => (
@@ -174,7 +200,6 @@ export default function NewSongScreen() {
         visible={searchVisible}
         loading={searching}
         results={searchResult?.results ?? []}
-        currentStage={searchResult?.currentStage ?? 1}
         nextStage={searchResult?.nextStage ?? null}
         searchingMore={searchingMore}
         onSelect={handleSelectResult}

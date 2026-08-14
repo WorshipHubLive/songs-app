@@ -1,9 +1,9 @@
-import { useThemeColors } from '@/hooks/use-theme-colors';
-import type { OnlineSearchResult } from '@/lib/online-search';
 import BottomSheet, { BottomSheetFlatList } from '@expo/ui/community/bottom-sheet';
 import { Loader2, Search, X } from 'lucide-react-native';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, Text, View } from 'react-native';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import type { OnlineSearchResult } from '@/lib/online-search';
 
 function Spinner({ color }: { color: string }) {
   const spin = useRef(new Animated.Value(0)).current;
@@ -31,12 +31,16 @@ function ResultRow({ result, onSelect }: { result: OnlineSearchResult; onSelect:
       <View className="flex-row items-start justify-between gap-3">
         <View className="min-w-0 flex-1">
           <View className="flex-row items-center gap-2">
-            <Text className="flex-shrink font-sora-bold text-base text-foreground" numberOfLines={1}>{result.title}</Text>
+            <Text className="flex-shrink font-sora-bold text-base text-foreground" numberOfLines={1}>
+              {result.title}
+            </Text>
             <View className="rounded-full bg-primary/10 px-2.5 py-0.5">
               <Text className="font-sora-semibold text-[10px] text-primary">{result.source}</Text>
             </View>
           </View>
-          <Text className="mt-0.5 font-sora text-xs text-muted-foreground" numberOfLines={1}>{result.artist}</Text>
+          <Text className="mt-0.5 font-sora text-xs text-muted-foreground" numberOfLines={1}>
+            {result.artist}
+          </Text>
         </View>
         <Pressable onPress={onSelect} className="shrink-0 rounded-full bg-primary px-4 py-1.5">
           <Text className="font-sora-bold text-xs text-primary-foreground">Usar</Text>
@@ -61,7 +65,6 @@ export function SongSearchResultsModal({
   visible,
   loading,
   results,
-  currentStage,
   nextStage,
   searchingMore,
   onSelect,
@@ -71,7 +74,6 @@ export function SongSearchResultsModal({
   visible: boolean;
   loading: boolean;
   results: OnlineSearchResult[];
-  currentStage: number;
   nextStage: number | null;
   searchingMore: boolean;
   onSelect: (result: OnlineSearchResult) => void;
