@@ -20,9 +20,6 @@ export interface AppSettings {
     // every send; see lib/worshiphub-client.ts.
     token: string | null;
   };
-  localSyncPeer: {
-    baseUrl: string | null;
-  };
   cloud: {
     url: string;
     anonKey: string;
@@ -34,7 +31,6 @@ const DEFAULT_SETTINGS: AppSettings = {
   profile: { name: '', avatarUri: '' },
   search: { tavilyApiKey: '' },
   worshiphub: { linked: false, baseUrl: null, name: '', token: null },
-  localSyncPeer: { baseUrl: null },
   cloud: { url: '', anonKey: '', lastSyncedAt: '' },
 };
 
@@ -46,7 +42,6 @@ interface AppSettingsContextValue {
   updateProfile: (patch: Partial<AppSettings['profile']>) => void;
   updateSearch: (patch: Partial<AppSettings['search']>) => void;
   updateWorshipHub: (patch: Partial<AppSettings['worshiphub']>) => void;
-  updateLocalSyncPeer: (patch: Partial<AppSettings['localSyncPeer']>) => void;
   updateCloud: (patch: Partial<AppSettings['cloud']>) => void;
 }
 
@@ -68,7 +63,6 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
               profile: { ...DEFAULT_SETTINGS.profile, ...parsed.profile },
               search: { ...DEFAULT_SETTINGS.search, ...parsed.search },
               worshiphub: { ...DEFAULT_SETTINGS.worshiphub, ...parsed.worshiphub },
-              localSyncPeer: { ...DEFAULT_SETTINGS.localSyncPeer, ...parsed.localSyncPeer },
               cloud: { ...DEFAULT_SETTINGS.cloud, ...parsed.cloud },
             });
           } catch {
@@ -94,15 +88,11 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     persist({ ...settings, search: { ...settings.search, ...patch } });
   const updateWorshipHub = (patch: Partial<AppSettings['worshiphub']>) =>
     persist({ ...settings, worshiphub: { ...settings.worshiphub, ...patch } });
-  const updateLocalSyncPeer = (patch: Partial<AppSettings['localSyncPeer']>) =>
-    persist({ ...settings, localSyncPeer: { ...settings.localSyncPeer, ...patch } });
   const updateCloud = (patch: Partial<AppSettings['cloud']>) =>
     persist({ ...settings, cloud: { ...settings.cloud, ...patch } });
 
   return (
-    <AppSettingsContext.Provider
-      value={{ settings, loaded, updateProfile, updateSearch, updateWorshipHub, updateLocalSyncPeer, updateCloud }}
-    >
+    <AppSettingsContext.Provider value={{ settings, loaded, updateProfile, updateSearch, updateWorshipHub, updateCloud }}>
       {children}
     </AppSettingsContext.Provider>
   );

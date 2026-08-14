@@ -1,4 +1,5 @@
 import { insertSongIfMissing } from '@/db/songs-repository';
+import { LOCAL_SYNC_PORT, localSyncDeviceName } from '@/lib/local-sync-device';
 import {
   addLocalSyncRequestListener,
   respondToLocalSyncRequest,
@@ -7,14 +8,6 @@ import {
   type LocalSyncRequestEvent,
 } from '@/modules/local-sync-server';
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
-
-// Same port standalone/songs' desktop app listens on (its own
-// src-tauri/src/server.rs `PORT` constant) — a different device on the
-// LAN, so no conflict; using the same port means this device shows up in
-// the desktop's *existing* mDNS peer picker exactly like another
-// desktop instance (`kind: 'lan'`), not as a separate "web peer" bucket.
-const PORT = 47822;
 
 interface SongPayload {
   title: string;
@@ -40,8 +33,8 @@ interface SongPayload {
  */
 export function useLocalSyncServer(): void {
   useEffect(() => {
-    const serviceName = `Songs móvil (${Platform.OS === 'ios' ? 'iOS' : 'Android'})`;
-    startLocalSyncServer(serviceName, PORT);
+    const serviceName = localSyncDeviceName();
+    startLocalSyncServer(serviceName, LOCAL_SYNC_PORT);
 
     const subscription = addLocalSyncRequestListener((event) => {
       void handleRequest(event, serviceName);

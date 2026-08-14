@@ -166,6 +166,15 @@ class LocalSyncServerModule : Module() {
       }
       val body = String(bodyBytes, 0, read, Charsets.UTF_8)
 
+      // A browser (the web build) preflights any POST with a JSON
+      // Content-Type — answered here directly, same as desktop's own
+      // `cors_allow_all` Axum middleware, rather than round-tripping to
+      // JS for something that's identical on every route.
+      if (method == "OPTIONS") {
+        sendRaw(socket, 204, "No Content", ByteArray(0))
+        return
+      }
+
       val requestId = UUID.randomUUID().toString()
       sockets[requestId] = socket
 
@@ -213,16 +222,27 @@ class LocalSyncServerModule : Module() {
 
   private fun sendResponse(requestId: String, status: Int, body: String) {
     val socket = sockets.remove(requestId) ?: return
+    val statusText = if (status == 200) "OK" else "Error"
+    sendRaw(socket, status, statusText, body.toByteArray(Charsets.UTF_8))
+  }
+
+  // Every response — including the OPTIONS short-circuit in
+  // handleClient — carries the same CORS headers desktop's
+  // `cors_allow_all` Axum middleware adds to every route, since a
+  // browser (the web build) reaching this server needs them regardless
+  // of which route answered.
+  private fun sendRaw(socket: Socket, status: Int, statusText: String, body: ByteArray) {
     try {
-      val bodyBytes = body.toByteArray(Charsets.UTF_8)
-      val statusText = if (status == 200) "OK" else "Error"
       val header = "HTTP/1.1 $status $statusText\r\n" +
         "Content-Type: application/json\r\n" +
-        "Content-Length: ${bodyBytes.size}\r\n" +
+        "Content-Length: ${body.size}\r\n" +
+        "Access-Control-Allow-Origin: *\r\n" +
+        "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n" +
+        "Access-Control-Allow-Headers: content-type\r\n" +
         "Connection: close\r\n\r\n"
       val output = BufferedOutputStream(socket.getOutputStream())
       output.write(header.toByteArray(Charsets.UTF_8))
-      output.write(bodyBytes)
+      output.write(body)
       output.flush()
     } catch (e: Exception) {
       // client likely disconnected already — nothing to do

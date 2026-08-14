@@ -94,6 +94,14 @@ public class LocalSyncServerModule: Module {
         return
       }
       if let parsed = self.parseRequest(buffer) {
+        // A browser (the web build) preflights any POST with a JSON
+        // Content-Type — answered here directly, same as desktop's own
+        // `cors_allow_all` Axum middleware, rather than round-tripping
+        // to JS for something that's identical on every route.
+        if parsed.method == "OPTIONS" {
+          self.sendRaw(connection, status: 204, statusText: "No Content", body: Data())
+          return
+        }
         let requestId = UUID().uuidString
         self.connectionsById[requestId] = connection
         self.sendEvent("onRequest", [
@@ -154,15 +162,24 @@ public class LocalSyncServerModule: Module {
   private func sendResponse(requestId: String, status: Int, body: String) {
     guard let connection = connectionsById[requestId] else { return }
     connectionsById[requestId] = nil
+    sendRaw(connection, status: status, statusText: statusText(status), body: body.data(using: .utf8) ?? Data())
+  }
 
-    let bodyData = body.data(using: .utf8) ?? Data()
-    var responseText = "HTTP/1.1 \(status) \(statusText(status))\r\n"
+  // Every response — including the OPTIONS short-circuit above — carries
+  // the same CORS headers desktop's `cors_allow_all` Axum middleware
+  // adds to every route, since a browser (the web build) reaching this
+  // server needs them regardless of which route answered.
+  private func sendRaw(_ connection: NWConnection, status: Int, statusText: String, body: Data) {
+    var responseText = "HTTP/1.1 \(status) \(statusText)\r\n"
     responseText += "Content-Type: application/json\r\n"
-    responseText += "Content-Length: \(bodyData.count)\r\n"
+    responseText += "Content-Length: \(body.count)\r\n"
+    responseText += "Access-Control-Allow-Origin: *\r\n"
+    responseText += "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
+    responseText += "Access-Control-Allow-Headers: content-type\r\n"
     responseText += "Connection: close\r\n\r\n"
 
     var responseData = responseText.data(using: .utf8) ?? Data()
-    responseData.append(bodyData)
+    responseData.append(body)
 
     connection.send(content: responseData, completion: .contentProcessed { _ in
       connection.cancel()

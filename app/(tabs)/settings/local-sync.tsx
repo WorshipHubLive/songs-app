@@ -1,81 +1,47 @@
 import { AmbientGlow } from '@/components/ambient-glow';
-import { QrScannerModal } from '@/components/qr-scanner-modal';
-import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
-import { discoverSongsDesktopPeers, type DiscoveredPeer } from '@/lib/discovery';
-import { verifyLocalSyncPeer } from '@/lib/songs-peer-client';
+import { LOCAL_SYNC_PORT, localSyncDeviceName } from '@/lib/local-sync-device';
+import * as Network from 'expo-network';
 import { Stack } from 'expo-router';
-import { Laptop, QrCode, RefreshCw } from 'lucide-react-native';
-import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Laptop, Radio } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
 
-// Mirrors Settings.tsx's Local Sync subTab — passing songs to ANOTHER
-// instance of this app on the same network, unrelated to WorshipHub
-// itself. The desktop app already advertises itself over mDNS for this
-// exact purpose (see standalone/songs/src-tauri/src/server.rs,
-// `_whsongs._tcp.local.`) — this screen just browses for that same
-// announcement, nothing changes on the desktop side. Saving here just
-// remembers an address for later — the actual push (with a real
-// identity check) happens from the Songs screen's selection mode, see
-// components/send-to-local-peer-sheet.tsx.
+// Mirrors Settings.tsx's Local Sync subTab — but only its *desktop*
+// ("isTauri") branch: this app now runs its own always-on mDNS-advertised
+// microserver too (see hooks/use-local-sync-server.ts, modules/
+// local-sync-server), so it's a real peer exactly like a desktop
+// instance, not a "web build with no server of its own" that has to save
+// a desktop address and poll. That's why there's no address field or
+// device picker here anymore — both directions (desktop -> phone, phone
+// -> desktop) discover each other automatically over the LAN. This QR +
+// address is for the ONE client that still can't do LAN discovery on its
+// own: standalone/songs' web build, which reaches a peer by a
+// scanned/typed address — same reason desktop's own Settings shows a QR
+// of ITS address here. Sending FROM this phone still has its own picker,
+// reached from the Songs screen's selection mode (see
+// components/send-to-local-peer-sheet.tsx), unrelated to this screen.
 export default function LocalSyncScreen() {
   const colors = useThemeColors();
-  const { settings, updateLocalSyncPeer } = useAppSettings();
-  const [address, setAddress] = useState(settings.localSyncPeer.baseUrl ?? '');
-  const [scannerVisible, setScannerVisible] = useState(false);
-  const [scanning, setScanning] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [peers, setPeers] = useState<DiscoveredPeer[]>([]);
+  const deviceName = localSyncDeviceName();
+  const [ip, setIp] = useState<string | null>(null);
 
-  const handleSave = async (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      updateLocalSyncPeer({ baseUrl: null });
-      return;
-    }
-    const baseUrl = /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
-    setSaving(true);
-    try {
-      const ok = await verifyLocalSyncPeer(baseUrl);
-      if (!ok) {
-        Alert.alert('Esa dirección no es de Songs', 'Respondió, pero no parece ser otra instancia de WorshipHub Songs.');
-        return;
-      }
-      updateLocalSyncPeer({ baseUrl });
-      Alert.alert('Guardado', 'Ya puedes enviar canciones aquí desde la pantalla de Songs.');
-    } catch {
-      // Unreachable right now isn't necessarily wrong (device off, wrong
-      // network momentarily) — save it anyway, same as everywhere else
-      // an address is remembered before it's actually used.
-      updateLocalSyncPeer({ baseUrl });
-      Alert.alert('Guardado', 'No pudimos confirmarlo ahora mismo, pero guardamos la dirección.');
-    } finally {
-      setSaving(false);
-    }
-  };
+  useEffect(() => {
+    let cancelled = false;
+    Network.getIpAddressAsync()
+      .then((value) => {
+        if (!cancelled) setIp(value || null);
+      })
+      .catch(() => {
+        if (!cancelled) setIp(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const handleDiscover = async () => {
-    setScanning(true);
-    try {
-      const found = await discoverSongsDesktopPeers();
-      setPeers(found);
-    } finally {
-      setScanning(false);
-    }
-  };
-
-  const handleSelectPeer = (peer: DiscoveredPeer) => {
-    const base = `${peer.ip}:${peer.port}`;
-    setAddress(base);
-    void handleSave(base);
-  };
-
-  const handleScanResult = (value: string) => {
-    setScannerVisible(false);
-    const base = value.replace(/\/+$/, '');
-    setAddress(base);
-    void handleSave(base);
-  };
+  const address = ip ? `http://${ip}:${LOCAL_SYNC_PORT}` : null;
 
   return (
     <View className="flex-1 bg-background">
@@ -90,85 +56,45 @@ export default function LocalSyncScreen() {
           principal), solo entre copias de esta misma app.
         </Text>
 
-        <View className="gap-3 rounded-md border border-border bg-card p-4">
-          <View className="flex-row items-center justify-between gap-3">
-            <Text className="font-sora-semibold text-sm text-foreground">Encontrados en esta red</Text>
-            <Pressable onPress={handleDiscover} disabled={scanning} className="flex-row items-center gap-1.5 rounded-full border border-border px-3 py-1.5">
-              {scanning ? <ActivityIndicator size="small" color={colors.primary} /> : <RefreshCw size={13} color={colors.primary} />}
-              <Text className="font-sora-bold text-[11px] text-foreground">Buscar</Text>
-            </Pressable>
-          </View>
-
-          {peers.length === 0 ? (
-            <Text className="font-sora text-xs text-muted-foreground">
-              {scanning ? 'Buscando…' : 'Toca "Buscar" para encontrar otra copia de la app en esta red.'}
-            </Text>
-          ) : (
-            <View className="gap-2">
-              {peers.map((peer) => (
-                <Pressable
-                  key={`${peer.ip}:${peer.port}`}
-                  onPress={() => handleSelectPeer(peer)}
-                  className="flex-row items-center gap-3 rounded-md border border-border px-3 py-2.5"
-                >
-                  <Laptop size={16} color={colors.mutedForeground} />
-                  <Text className="min-w-0 flex-1 font-sora-semibold text-sm text-foreground" numberOfLines={1}>
-                    {peer.name}
-                  </Text>
-                  <Text className="shrink-0 font-mono text-xs text-muted-foreground">{peer.ip}</Text>
-                </Pressable>
-              ))}
+        <View className="items-center gap-3 rounded-md border border-border bg-card p-6">
+          <View className="relative h-12 w-12 items-center justify-center rounded-full bg-primary/15">
+            <Radio size={22} color={colors.primary} />
+            <View className="absolute top-0 right-0 flex size-3">
+              <View className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-75" />
+              <View className="relative inline-flex size-3 rounded-full bg-primary" />
             </View>
+          </View>
+          <Text className="text-center font-sora-bold text-sm text-foreground">Sincronización local activada</Text>
+          <Text className="text-center font-sora text-xs text-muted-foreground">
+            Otras copias de WorshipHub Songs en esta red (de escritorio o de otro teléfono) te encuentran
+            automáticamente — no hace falta guardar ninguna dirección aquí.
+          </Text>
+          <View className="mt-1 flex-row items-center gap-2 rounded-full border border-border px-3 py-1.5">
+            <Laptop size={13} color={colors.mutedForeground} />
+            <Text className="font-mono text-[11px] text-muted-foreground">{deviceName}</Text>
+          </View>
+        </View>
+
+        <View className="items-center gap-3 rounded-md border border-border bg-card p-6">
+          <Text className="text-center font-sora-semibold text-sm text-foreground">
+            Escanea para sincronizar con este teléfono
+          </Text>
+          <Text className="text-center font-sora text-xs text-muted-foreground">
+            Desde la versión web de Songs en otro dispositivo, entra a Ajustes → Sincronización local y escanea este
+            código (o escribe la dirección a mano) — la versión web no puede buscar en la red por sí sola.
+          </Text>
+          {address ? (
+            <>
+              <View className="rounded-lg bg-white p-3">
+                <QRCode value={address} size={180} />
+              </View>
+              <Text className="font-mono text-xs text-muted-foreground">{address}</Text>
+            </>
+          ) : (
+            <ActivityIndicator size="small" color={colors.primary} />
           )}
         </View>
-
-        <View className="gap-3 rounded-md border border-border bg-card p-4">
-          <Text className="font-sora-semibold text-sm text-foreground">O escribe la dirección</Text>
-
-          <Pressable
-            onPress={() => setScannerVisible(true)}
-            className="flex-row items-center justify-center gap-1.5 rounded-md bg-secondary py-2.5"
-          >
-            <QrCode size={14} color={colors.secondaryForeground} />
-            <Text className="font-sora-bold text-xs text-secondary-foreground">Escanear código QR</Text>
-          </Pressable>
-
-          <View className="flex-row items-center gap-2">
-            <View className="h-px flex-1 bg-border" />
-            <Text className="font-sora text-[10px] text-muted-foreground">o</Text>
-            <View className="h-px flex-1 bg-border" />
-          </View>
-
-          <TextInput
-            value={address}
-            onChangeText={setAddress}
-            placeholder="192.168.1.42:47822"
-            placeholderTextColorClassName="accent-muted-foreground"
-            autoCapitalize="none"
-            autoCorrect={false}
-            className="rounded-md border border-input bg-background px-3 py-2.5 font-sora text-sm text-foreground"
-          />
-          <Pressable
-            onPress={() => void handleSave(address)}
-            disabled={saving}
-            className="flex-row items-center justify-center gap-1.5 rounded-md bg-primary py-2.5"
-          >
-            {saving ? (
-              <ActivityIndicator size="small" color={colors.primaryForeground} />
-            ) : (
-              <RefreshCw size={14} color={colors.primaryForeground} />
-            )}
-            <Text className="font-sora-bold text-xs text-primary-foreground">Guardar</Text>
-          </Pressable>
-        </View>
       </ScrollView>
-
-      <QrScannerModal
-        visible={scannerVisible}
-        onResult={handleScanResult}
-        onClose={() => setScannerVisible(false)}
-        hint="Escanea el código de Sincronización Local del otro dispositivo."
-      />
     </View>
   );
 }
