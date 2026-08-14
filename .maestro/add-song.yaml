@@ -3,9 +3,14 @@
 #   maestro test .maestro/add-song.yaml
 #
 # Assertions are in Spanish — see smoke-test.yaml's header comment.
-appId: com.fercho34.songs-app
+appId: live.worshiphub.songs
 ---
 - launchApp
+# expo-dev-client's tutorial/dev-menu overlay — see smoke-test.yaml's
+# header comment.
+- tapOn:
+    point: "68%,36%"
+    optional: true
 - tapOn: "Añadir"
 - assertVisible: "Atrás"
 
@@ -13,7 +18,16 @@ appId: com.fercho34.songs-app
 - inputText: "Maestro Flow Test Song"
 - tapOn: "Artista"
 - inputText: "Maestro"
+- hideKeyboard:
+    optional: true
 
+# expo-dev-client's floating dev-menu bubble physically overlaps this
+# same top-right corner where the save button sits on a dev build,
+# intercepting a plain `tapOn: "Guardar"` before it reaches the app.
+# Drag the bubble out of the way first, then tap the real button.
+- swipe:
+    start: "91%,9%"
+    end: "50%,60%"
 - tapOn: "Guardar"
 
 # Asserting on the exact typed text back in the list is flaky here —

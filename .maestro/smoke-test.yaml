@@ -7,9 +7,16 @@
 # Spanish — i18next correctly resolves to the `es` resource there, not
 # the `en` fallback. Update these strings (or add a locale override) if
 # you run this against a differently-localized simulator.
-appId: com.fercho34.songs-app
+appId: live.worshiphub.songs
 ---
 - launchApp
+# expo-dev-client shows either a one-time "Dev Tools" tutorial or the
+# dev menu itself on a fresh launch here — both are dismissed the same
+# way (their shared "✕" close button, top-right of the sheet).
+# `optional: true` skips the step without failing once neither appears.
+- tapOn:
+    point: "68%,36%"
+    optional: true
 - assertVisible: "Canciones"
 - assertVisible: "Buscar canciones..."
 

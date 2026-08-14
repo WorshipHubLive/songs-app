@@ -5,19 +5,14 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/brand/WorshipHub_Songs_Icon.png",
-    "scheme": "worshiphub_songs",
+    "scheme": "worshiphub-songs",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#06080f",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "live.worshiphub.songs",
       "infoPlist": {
-        "NSBonjourServices": [
-          "_worshiphub._tcp.",
-          "_whsongs._tcp.",
-          "_worshiphub._tcp.",
-          "_whsongs._tcp."
-        ],
+        "NSBonjourServices": ["_worshiphub._tcp.", "_whsongs._tcp."],
         "NSLocalNetworkUsageDescription": "WorshipHub Songs necesita acceso a la red local para encontrar automáticamente WorshipHub y otras copias de la app en tu red."
       }
     },
@@ -31,9 +26,6 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.fercho34.songsapp",
       "permissions": [
-        "android.permission.ACCESS_NETWORK_STATE",
-        "android.permission.ACCESS_WIFI_STATE",
-        "android.permission.CHANGE_WIFI_MULTICAST_STATE",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.ACCESS_WIFI_STATE",
         "android.permission.CHANGE_WIFI_MULTICAST_STATE"

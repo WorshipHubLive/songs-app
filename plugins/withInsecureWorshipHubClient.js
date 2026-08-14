@@ -1,4 +1,4 @@
-const { withMainApplication } = require('@expo/config-plugins');
+const { withMainApplication } = require('expo/config-plugins');
 
 // WorshipHub's local server is HTTPS with a self-signed certificate (no
 // CA anywhere on the LAN to sign it) — this is a deliberate trust model
