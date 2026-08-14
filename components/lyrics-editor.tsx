@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, TextInput, View } from 'react-native';
 import { countWords, splitIntoSlides } from '@/lib/lyrics';
 
@@ -12,6 +13,7 @@ export function LyricsEditor({
   mode: 'edit' | 'preview';
   bottomInset?: number;
 }) {
+  const { t } = useTranslation();
   const wordCount = countWords(value);
   const slides = splitIntoSlides(value);
 
@@ -20,9 +22,7 @@ export function LyricsEditor({
       <ScrollView className="flex-1" contentContainerClassName="gap-3.5 px-4 pb-8" showsVerticalScrollIndicator={false}>
         {slides.length === 0 ? (
           <View className="items-center rounded-lg border border-dashed border-border p-6">
-            <Text className="text-center font-sora text-xs text-muted-foreground">
-              Las diapositivas aparecerán aquí a medida que escribas.
-            </Text>
+            <Text className="text-center font-sora text-xs text-muted-foreground">{t('lyricsEditor.emptyPreview')}</Text>
           </View>
         ) : (
           slides.map((stanza, index) => (
@@ -40,14 +40,14 @@ export function LyricsEditor({
       <TextInput
         value={value}
         onChangeText={onChange}
-        placeholder="Escribe o pega la letra aquí..."
+        placeholder={t('lyricsEditor.placeholder')}
         placeholderTextColorClassName="accent-muted-foreground"
         multiline
         textAlignVertical="top"
         className="flex-1 py-4 font-sora text-sm text-foreground"
       />
       <View className="items-end border-t border-border py-2">
-        <Text className="font-sora text-[11px] text-muted-foreground">{wordCount} palabras</Text>
+        <Text className="font-sora text-[11px] text-muted-foreground">{t('lyricsEditor.wordsCount', { count: wordCount })}</Text>
       </View>
     </View>
   );

@@ -1,4 +1,5 @@
 import '@/global.css';
+import '@/i18n';
 import { Sora_400Regular, Sora_600SemiBold, Sora_700Bold, Sora_800ExtraBold, useFonts } from '@expo-google-fonts/sora';
 import { DarkTheme as NavDark, ThemeProvider as NavigationThemeProvider, DefaultTheme as NavLight, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';

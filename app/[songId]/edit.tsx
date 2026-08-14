@@ -5,6 +5,7 @@ import SegmentedControl from '@expo/ui/community/segmented-control';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Fragment, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Platform, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LyricsEditor } from '@/components/lyrics-editor';
@@ -18,6 +19,7 @@ import { songByIdQuery, updateSong } from '@/db/songs-repository';
 export default function EditSongScreen() {
   const { songId: songIdParam } = useLocalSearchParams<{ songId: string }>();
   const router = useRouter();
+  const { t } = useTranslation();
   const songId = Number(songIdParam);
   const { bottom } = useSafeAreaInsets();
 
@@ -49,7 +51,7 @@ export default function EditSongScreen() {
   const handleSave = async () => {
     if (!song) return;
     if (!title.trim()) {
-      Alert.alert('Falta el título', 'Escribe al menos el título de la canción para guardarla.');
+      Alert.alert(t('songForm.missingTitleTitle'), t('songForm.missingTitleToSave'));
       return;
     }
     setSaving(true);
@@ -57,7 +59,7 @@ export default function EditSongScreen() {
       await updateSong(song.id, { title: title.trim(), artist: artist.trim(), lyrics, chords, language: lang });
       close();
     } catch (error) {
-      Alert.alert('No se pudo guardar', String(error instanceof Error ? error.message : error));
+      Alert.alert(t('songForm.saveFailedTitle'), String(error instanceof Error ? error.message : error));
     } finally {
       setSaving(false);
     }
@@ -66,7 +68,11 @@ export default function EditSongScreen() {
   return (
     <Fragment>
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon} onPress={close} />
+        <Stack.Toolbar.Button
+          icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon}
+          onPress={close}
+          accessibilityLabel={t('common.back')}
+        />
       </Stack.Toolbar>
 
       <Stack.Title asChild>
@@ -74,14 +80,14 @@ export default function EditSongScreen() {
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Título de la canción"
+            placeholder={t('songForm.titlePlaceholder')}
             placeholderTextColorClassName="accent-muted-foreground"
             className="font-sora-semibold text-base text-foreground"
           />
           <TextInput
             value={artist}
             onChangeText={setArtist}
-            placeholder="Artista"
+            placeholder={t('songForm.artistPlaceholder')}
             placeholderTextColorClassName="accent-muted-foreground"
             className="mt-0.5 font-sora text-xs italic text-muted-foreground"
           />
@@ -93,6 +99,7 @@ export default function EditSongScreen() {
           icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon}
           onPress={handleSave}
           disabled={saving}
+          accessibilityLabel={t('common.save')}
         />
       </Stack.Toolbar>
 
@@ -117,7 +124,7 @@ export default function EditSongScreen() {
         <View className="flex-1 bg-background">
           <View className="flex-1 gap-y-4 px-4">
             <SegmentedControl
-              values={['Editar', 'Vista previa']}
+              values={[t('songForm.modeEdit'), t('songForm.modePreview')]}
               selectedIndex={mode === 'edit' ? 0 : 1}
               onChange={(event) => setMode(event.nativeEvent.selectedSegmentIndex === 0 ? 'edit' : 'preview')}
               style={{ width: '100%' }}

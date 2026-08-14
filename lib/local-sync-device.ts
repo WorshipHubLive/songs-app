@@ -9,6 +9,10 @@ import { Platform } from 'react-native';
 // settings screen (which just displays it for troubleshooting).
 export const LOCAL_SYNC_PORT = 47822;
 
+// Not routed through i18n on purpose — this is a network-broadcast mDNS
+// instance name another device's peer picker displays (see
+// worshiphub-client.ts's own DEVICE_NAME for the same pattern), not
+// conversational UI text a user reads in their own language.
 export function localSyncDeviceName(): string {
-  return `Songs móvil (${Platform.OS === 'ios' ? 'iOS' : 'Android'})`;
+  return `Songs Mobile (${Platform.OS === 'ios' ? 'iOS' : 'Android'})`;
 }

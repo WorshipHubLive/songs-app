@@ -5,14 +5,14 @@ appId: com.fercho34.songs-app
 ---
 - launchApp
 - tapOn: "Add"
-- assertVisible: "Volver"
+- assertVisible: "Back"
 
-- tapOn: "Título de la canción"
+- tapOn: "Song title"
 - inputText: "Maestro Flow Test Song"
-- tapOn: "Artista"
+- tapOn: "Artist"
 - inputText: "Maestro"
 
-- tapOn: "Guardar"
+- tapOn: "Save"
 
 # Asserting on the exact typed text back in the list is flaky here —
 # Maestro's synthetic typing on a React Native controlled TextInput can
@@ -21,4 +21,4 @@ appId: com.fercho34.songs-app
 # successful save (an empty/failed title shows an Alert instead and
 # stays on this screen) — being back on the Songs list is itself proof
 # the save went through.
-- assertVisible: "Buscar canciones..."
+- assertVisible: "Search songs..."

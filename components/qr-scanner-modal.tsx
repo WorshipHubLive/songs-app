@@ -1,6 +1,7 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { X } from 'lucide-react-native';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColors } from '@/hooks/use-theme-colors';
@@ -22,6 +23,7 @@ export function QrScannerModal({
   hint: string;
 }) {
   const _colors = useThemeColors();
+  const { t } = useTranslation();
   const { top, bottom } = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const scannedRef = useRef(false);
@@ -34,7 +36,7 @@ export function QrScannerModal({
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 bg-black" style={{ paddingTop: top }}>
         <View className="h-14 flex-row items-center justify-between px-4">
-          <Text className="font-sora-bold text-sm text-white">Escanear código QR</Text>
+          <Text className="font-sora-bold text-sm text-white">{t('qrScanner.title')}</Text>
           <Pressable onPress={onClose} className="h-10 w-10 items-center justify-center rounded-full bg-white/10">
             <X size={18} color="white" />
           </Pressable>
@@ -42,11 +44,9 @@ export function QrScannerModal({
 
         {!permission ? null : !permission.granted ? (
           <View className="flex-1 items-center justify-center gap-4 px-8">
-            <Text className="text-center font-sora text-sm text-white/80">
-              WorshipHub Songs necesita acceso a la cámara para escanear el código QR.
-            </Text>
+            <Text className="text-center font-sora text-sm text-white/80">{t('qrScanner.permissionMessage')}</Text>
             <Pressable onPress={requestPermission} className="rounded-full bg-primary px-5 py-2.5">
-              <Text className="font-sora-bold text-sm text-primary-foreground">Dar acceso</Text>
+              <Text className="font-sora-bold text-sm text-primary-foreground">{t('qrScanner.grantAccess')}</Text>
             </Pressable>
           </View>
         ) : (

@@ -2,6 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack } from 'expo-router';
 import { Camera, User } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { useAppSettings } from '@/hooks/use-app-settings';
@@ -13,13 +14,14 @@ import { initialsFor } from '@/lib/profile';
 // when pairing, once that's wired up (see settings/worshiphub.tsx).
 export default function ProfileScreen() {
   const colors = useThemeColors();
+  const { t } = useTranslation();
   const { settings, updateProfile } = useAppSettings();
   const [name, setName] = useState(settings.profile.name);
 
   const pickAvatar = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Permiso necesario', 'Necesitas dar acceso a tus fotos para elegir un avatar.');
+      Alert.alert(t('profileScreen.permissionNeededTitle'), t('profileScreen.permissionNeededMessage'));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -35,14 +37,14 @@ export default function ProfileScreen() {
 
   const handleSave = () => {
     updateProfile({ name: name.trim() });
-    Alert.alert('Guardado', 'Tu perfil se actualizó.');
+    Alert.alert(t('profileScreen.savedTitle'), t('profileScreen.savedMessage'));
   };
 
   return (
     <View className="flex-1 bg-background">
       <AmbientGlow />
       <Stack.Title asChild>
-        <Text className="font-sora-bold text-xl text-foreground">Profile</Text>
+        <Text className="font-sora-bold text-xl text-foreground">{t('profileScreen.title')}</Text>
       </Stack.Title>
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="items-center gap-6 p-6">
@@ -58,23 +60,25 @@ export default function ProfileScreen() {
           </View>
           <View className="flex-row items-center gap-1.5">
             <Camera size={13} color={colors.primary} />
-            <Text className="font-sora-semibold text-xs text-primary">Cambiar foto</Text>
+            <Text className="font-sora-semibold text-xs text-primary">{t('profileScreen.changePhoto')}</Text>
           </View>
         </Pressable>
 
         <View className="w-full gap-1.5">
-          <Text className="font-sora-semibold text-xs uppercase tracking-wider text-muted-foreground">Nombre</Text>
+          <Text className="font-sora-semibold text-xs uppercase tracking-wider text-muted-foreground">
+            {t('profileScreen.nameLabel')}
+          </Text>
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Tu nombre"
+            placeholder={t('profileScreen.namePlaceholder')}
             placeholderTextColorClassName="accent-muted-foreground"
             className="rounded-md border border-border bg-card px-3.5 py-3 font-sora text-sm text-foreground"
           />
         </View>
 
         <Pressable onPress={handleSave} className="w-full items-center rounded-md bg-primary py-3">
-          <Text className="font-sora-bold text-sm text-primary-foreground">Guardar</Text>
+          <Text className="font-sora-bold text-sm text-primary-foreground">{t('common.save')}</Text>
         </Pressable>
       </ScrollView>
     </View>

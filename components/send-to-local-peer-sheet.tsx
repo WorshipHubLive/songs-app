@@ -1,6 +1,7 @@
 import BottomSheet, { BottomSheetScrollView } from '@expo/ui/community/bottom-sheet';
 import { Check, Laptop, RefreshCw, ShieldAlert, Zap } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native';
 import { getSongsForExport } from '@/db/songs-repository';
 import { useThemeColors } from '@/hooks/use-theme-colors';
@@ -36,6 +37,7 @@ export function SendToLocalPeerSheet({
   onSent?: () => void;
 }) {
   const colors = useThemeColors();
+  const { t } = useTranslation();
   const [phase, setPhase] = useState<Phase>('searching');
   const [peers, setPeers] = useState<DiscoveredPeer[]>([]);
   const [target, setTarget] = useState<Target | null>(null);
@@ -57,16 +59,16 @@ export function SendToLocalPeerSheet({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
-  const sendTo = async (t: Target) => {
-    setTarget(t);
+  const sendTo = async (target: Target) => {
+    setTarget(target);
     setPhase('sending');
     setErrorMessage('');
     try {
-      const isSongsPeer = await verifyLocalSyncPeer(t.baseUrl);
+      const isSongsPeer = await verifyLocalSyncPeer(target.baseUrl);
       if (!isSongsPeer) throw new Error('wrong-app');
       const songs = await getSongsForExport(songIds);
       const received = await pushSongsToLocalPeer(
-        t.baseUrl,
+        target.baseUrl,
         songs.map((s) => ({ title: s.title, artist: s.artist, language: s.language, lyrics: s.lyrics }))
       );
       setSentCount(received);
@@ -74,7 +76,7 @@ export function SendToLocalPeerSheet({
       onSent?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      setErrorMessage(localSyncErrorMessage(message));
+      setErrorMessage(localSyncErrorMessage(message, t));
       setPhase('error');
     }
   };
@@ -97,9 +99,9 @@ export function SendToLocalPeerSheet({
   return (
     <BottomSheet index={visible ? 0 : -1} snapPoints={['70%']} enablePanDownToClose onClose={handleClose}>
       <View className="gap-0.5 px-5 pb-4">
-        <Text className="font-sora-bold text-lg text-foreground">Sincronización local</Text>
+        <Text className="font-sora-bold text-lg text-foreground">{t('sendToLocalPeerSheet.title')}</Text>
         <Text className="font-sora text-xs text-muted-foreground">
-          {songIds.length} {songIds.length === 1 ? 'canción' : 'canciones'} a otra copia de la app
+          {t('sendToLocalPeerSheet.subtitleCount', { count: songIds.length })}
         </Text>
       </View>
 
@@ -107,13 +109,13 @@ export function SendToLocalPeerSheet({
         {phase === 'searching' && (
           <View className="items-center gap-3 py-10">
             <ActivityIndicator size="large" color={colors.primary} />
-            <Text className="font-sora text-sm text-muted-foreground">Buscando otras copias en esta red…</Text>
+            <Text className="font-sora text-sm text-muted-foreground">{t('sendToLocalPeerSheet.searching')}</Text>
           </View>
         )}
 
         {phase === 'found' && (
           <View className="gap-3">
-            <Text className="font-sora text-xs text-muted-foreground">Encontradas en esta red — toca una para enviar ahí:</Text>
+            <Text className="font-sora text-xs text-muted-foreground">{t('sendToLocalPeerSheet.foundLabel')}</Text>
             {peers.map((peer) => (
               <Pressable
                 key={`${peer.ip}:${peer.port}`}
@@ -129,20 +131,17 @@ export function SendToLocalPeerSheet({
             ))}
             <Pressable onPress={runDiscovery} className="flex-row items-center justify-center gap-1.5 self-center px-2 py-1.5">
               <RefreshCw size={12} color={colors.primary} />
-              <Text className="font-sora-bold text-xs text-primary">Buscar de nuevo</Text>
+              <Text className="font-sora-bold text-xs text-primary">{t('common.searchAgain')}</Text>
             </Pressable>
             <Pressable onPress={() => setPhase('manual')} className="self-center px-2 py-1">
-              <Text className="font-sora text-xs text-muted-foreground underline">¿No aparece? Escribe la dirección</Text>
+              <Text className="font-sora text-xs text-muted-foreground underline">{t('common.cantFindTypeAddress')}</Text>
             </Pressable>
           </View>
         )}
 
         {phase === 'manual' && (
           <View className="gap-3">
-            <Text className="font-sora text-xs text-muted-foreground">
-              No encontramos otra copia automáticamente — escribe su dirección (Ajustes → Sincronización local en esa app la
-              muestra).
-            </Text>
+            <Text className="font-sora text-xs text-muted-foreground">{t('sendToLocalPeerSheet.manualDescription')}</Text>
 
             <View className="flex-row gap-2">
               <TextInput
@@ -163,14 +162,14 @@ export function SendToLocalPeerSheet({
                 <Text
                   className={`font-sora-bold text-xs ${address.trim() ? 'text-primary-foreground' : 'text-muted-foreground'}`}
                 >
-                  Enviar
+                  {t('common.send')}
                 </Text>
               </Pressable>
             </View>
 
             <Pressable onPress={runDiscovery} className="flex-row items-center justify-center gap-1.5 self-center px-2 py-1.5">
               <RefreshCw size={12} color={colors.primary} />
-              <Text className="font-sora-bold text-xs text-primary">Buscar de nuevo</Text>
+              <Text className="font-sora-bold text-xs text-primary">{t('common.searchAgain')}</Text>
             </Pressable>
           </View>
         )}
@@ -179,7 +178,9 @@ export function SendToLocalPeerSheet({
           <View className="items-center gap-3 py-10">
             <ActivityIndicator size="large" color={colors.primary} />
             <Text className="text-center font-sora text-sm text-muted-foreground">
-              Enviando{target ? ` a ${target.label}` : ''}…
+              {target
+                ? t('sendToLocalPeerSheet.sendingTarget', { target: target.label })
+                : t('sendToLocalPeerSheet.sendingGeneric')}
             </Text>
           </View>
         )}
@@ -190,10 +191,10 @@ export function SendToLocalPeerSheet({
               <Check size={24} color={colors.primary} strokeWidth={2.5} />
             </View>
             <Text className="text-center font-sora-semibold text-sm text-foreground">
-              {sentCount} {sentCount === 1 ? 'canción enviada' : 'canciones enviadas'}
+              {t('sendToLocalPeerSheet.doneCount', { count: sentCount })}
             </Text>
             <Pressable onPress={handleClose} className="mt-2 rounded-full bg-muted px-5 py-2">
-              <Text className="font-sora-bold text-xs text-foreground">Cerrar</Text>
+              <Text className="font-sora-bold text-xs text-foreground">{t('common.close')}</Text>
             </Pressable>
           </View>
         )}
@@ -206,7 +207,7 @@ export function SendToLocalPeerSheet({
               onPress={() => (target ? void sendTo(target) : setPhase('manual'))}
               className="mt-2 rounded-full bg-primary px-5 py-2"
             >
-              <Text className="font-sora-bold text-xs text-primary-foreground">Reintentar</Text>
+              <Text className="font-sora-bold text-xs text-primary-foreground">{t('common.retry')}</Text>
             </Pressable>
           </View>
         )}
@@ -215,8 +216,8 @@ export function SendToLocalPeerSheet({
   );
 }
 
-function localSyncErrorMessage(message: string): string {
-  if (message === 'wrong-app') return 'Esa dirección no es de otra instancia de WorshipHub Songs.';
-  if (message.startsWith('HTTP ')) return `Respondió con un error (${message}). Revisa que esa app esté abierta y actualizada.`;
-  return `No se pudo enviar. Revisa que ambas apps estén en la misma red. (${message || 'sin detalle'})`;
+function localSyncErrorMessage(message: string, t: (key: string, options?: Record<string, unknown>) => string): string {
+  if (message === 'wrong-app') return t('sendToLocalPeerSheet.errorWrongApp');
+  if (message.startsWith('HTTP ')) return t('sendToLocalPeerSheet.errorHttp', { message });
+  return t('sendToLocalPeerSheet.errorGeneric', { message: message || t('common.noDetail') });
 }

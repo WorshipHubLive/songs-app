@@ -10,12 +10,12 @@ describe('localSyncDeviceName', () => {
 
   it('labels the device as iOS when running on iOS', () => {
     Platform.OS = 'ios';
-    expect(localSyncDeviceName()).toBe('Songs móvil (iOS)');
+    expect(localSyncDeviceName()).toBe('Songs Mobile (iOS)');
   });
 
   it('labels the device as Android when running on Android', () => {
     Platform.OS = 'android';
-    expect(localSyncDeviceName()).toBe('Songs móvil (Android)');
+    expect(localSyncDeviceName()).toBe('Songs Mobile (Android)');
   });
 });
 

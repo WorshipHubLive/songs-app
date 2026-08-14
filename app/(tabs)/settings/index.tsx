@@ -1,5 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 import { Cloud, Languages, Laptop, Palette, RadioTower, Search, Smartphone, User } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Image, ScrollView, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { BentoSection } from '@/components/settings/bento-section';
@@ -13,65 +14,76 @@ import { useThemeColors } from '@/hooks/use-theme-colors';
 export default function SettingsHubScreen() {
   const colors = useThemeColors();
   const router = useRouter();
+  const { t } = useTranslation();
   const { settings } = useAppSettings();
 
   return (
     <View className="flex-1 bg-background">
       <AmbientGlow />
       <Stack.Title asChild>
-        <Text className="font-sora-bold text-xl text-foreground">Settings</Text>
+        <Text className="font-sora-bold text-xl text-foreground">{t('settingsHub.title')}</Text>
       </Stack.Title>
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 p-4 pb-8">
         <Card className="flex-row items-center gap-3">
           <Smartphone size={22} color={colors.primary} />
           <View className="flex-1">
-            <Text className="font-sora-semibold text-sm text-foreground">Usa WorshipHub Songs en más dispositivos</Text>
-            <Text className="mt-0.5 font-sora text-[11px] text-muted-foreground">
-              Sincroniza tu biblioteca entre tu teléfono y la computadora del equipo.
-            </Text>
+            <Text className="font-sora-semibold text-sm text-foreground">{t('settingsHub.promoTitle')}</Text>
+            <Text className="mt-0.5 font-sora text-[11px] text-muted-foreground">{t('settingsHub.promoDescription')}</Text>
           </View>
         </Card>
 
-        <BentoSection icon={Palette} label="Visuals" accent="primary">
+        <BentoSection icon={Palette} label={t('settingsHub.sectionVisuals')} accent="primary">
           <SettingsRow
             icon={User}
-            title="Profile Settings"
-            description={settings.profile.name || 'Nombre y avatar'}
+            title={t('settingsHub.rowProfile')}
+            description={settings.profile.name || t('settingsHub.rowProfileDescriptionFallback')}
             onPress={() => router.push('/settings/profile')}
           />
           <SettingsRow
             icon={Palette}
-            title="Appearance"
-            description="Tema claro / oscuro"
+            title={t('settingsHub.rowAppearance')}
+            description={t('settingsHub.rowAppearanceDescription')}
             onPress={() => router.push('/settings/appearance')}
           />
           <SettingsRow
             icon={Languages}
-            title="Idioma"
-            description="Idioma de la interfaz"
+            title={t('settingsHub.rowLanguage')}
+            description={t('settingsHub.rowLanguageDescription')}
             onPress={() => router.push('/settings/language')}
           />
         </BentoSection>
 
-        <BentoSection icon={RadioTower} label="Connectivity" accent="secondary">
+        <BentoSection icon={RadioTower} label={t('settingsHub.sectionConnectivity')} accent="secondary">
           <SettingsRow
             icon={RadioTower}
-            title="WorshipHub"
-            description={settings.worshiphub.linked ? 'Enlazado' : 'No vinculado'}
+            title={t('settingsHub.rowWorshiphub')}
+            description={
+              settings.worshiphub.linked ? t('settingsHub.rowWorshiphubLinked') : t('settingsHub.rowWorshiphubNotLinked')
+            }
             onPress={() => router.push('/settings/worshiphub')}
           />
           <View className="flex-row gap-2">
-            <SettingsTile icon={Laptop} title="Local Sync" onPress={() => router.push('/settings/local-sync')} />
-            <SettingsTile icon={Cloud} title="Cloud Sync" onPress={() => router.push('/settings/cloud-sync')} />
+            <SettingsTile
+              icon={Laptop}
+              title={t('settingsHub.rowLocalSync')}
+              onPress={() => router.push('/settings/local-sync')}
+            />
+            <SettingsTile
+              icon={Cloud}
+              title={t('settingsHub.rowCloudSync')}
+              onPress={() => router.push('/settings/cloud-sync')}
+            />
           </View>
         </BentoSection>
 
-        <BentoSection icon={Search} label="Preferences" accent="accent">
+        <BentoSection icon={Search} label={t('settingsHub.sectionPreferences')} accent="accent">
           <SettingsRow
             icon={Search}
-            title="Search"
-            description={settings.search.tavilyApiKey ? 'Búsqueda avanzada activa' : 'Búsqueda de letras en línea'}
+            title={t('settingsHub.rowSearch')}
+            description={
+              settings.search.tavilyApiKey ? t('settingsHub.rowSearchAdvancedActive') : t('settingsHub.rowSearchOnlineLyrics')
+            }
             onPress={() => router.push('/settings/search')}
           />
         </BentoSection>
@@ -82,7 +94,7 @@ export default function SettingsHubScreen() {
             className="h-7 w-7 rounded-md opacity-60"
             resizeMode="contain"
           />
-          <Text className="font-sora text-[11px] text-muted-foreground">WorshipHub Songs · v1.0.0</Text>
+          <Text className="font-sora text-[11px] text-muted-foreground">{t('settingsHub.footer', { version: '1.0.0' })}</Text>
         </View>
       </ScrollView>
     </View>

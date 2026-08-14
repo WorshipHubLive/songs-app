@@ -1,6 +1,7 @@
 import BottomSheet, { BottomSheetFlatList } from '@expo/ui/community/bottom-sheet';
 import { Loader2, Search, X } from 'lucide-react-native';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Animated, Easing, Pressable, Text, View } from 'react-native';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import type { OnlineSearchResult } from '@/lib/online-search';
@@ -26,6 +27,7 @@ function Spinner({ color }: { color: string }) {
 }
 
 function ResultRow({ result, onSelect }: { result: OnlineSearchResult; onSelect: () => void }) {
+  const { t } = useTranslation();
   return (
     <View className="gap-3 rounded-2xl border border-border bg-card p-4">
       <View className="flex-row items-start justify-between gap-3">
@@ -43,7 +45,7 @@ function ResultRow({ result, onSelect }: { result: OnlineSearchResult; onSelect:
           </Text>
         </View>
         <Pressable onPress={onSelect} className="shrink-0 rounded-full bg-primary px-4 py-1.5">
-          <Text className="font-sora-bold text-xs text-primary-foreground">Usar</Text>
+          <Text className="font-sora-bold text-xs text-primary-foreground">{t('common.use')}</Text>
         </Pressable>
       </View>
       <View className="rounded-xl border border-border/80 bg-muted/40 p-3">
@@ -81,12 +83,16 @@ export function SongSearchResultsModal({
   onClose: () => void;
 }) {
   const colors = useThemeColors();
-  const nextStageLabel = nextStage === 2 ? 'Buscar más en iTunes / lyrics.ovh' : 'Buscar más fuentes';
+  const { t } = useTranslation();
+  const nextStageLabel =
+    nextStage === 2 ? t('songSearchResultsModal.searchMoreItunes') : t('songSearchResultsModal.searchMoreGeneric');
 
   return (
     <BottomSheet index={visible ? 0 : -1} snapPoints={['85%']} enablePanDownToClose onClose={onClose}>
       <View className="flex-row items-center justify-between border-b border-border px-5 pb-3">
-        <Text className="font-sora-bold text-lg text-foreground">Resultados ({results.length})</Text>
+        <Text className="font-sora-bold text-lg text-foreground">
+          {t('songSearchResultsModal.resultsCountTitle', { count: results.length })}
+        </Text>
         <Pressable onPress={onClose} className="h-8 w-8 items-center justify-center rounded-full bg-muted">
           <X size={16} color={colors.mutedForeground} strokeWidth={2} />
         </Pressable>
@@ -95,7 +101,7 @@ export function SongSearchResultsModal({
       {loading ? (
         <View className="items-center gap-2 px-5 py-10">
           <Spinner color={colors.primary} />
-          <Text className="font-sora text-xs text-muted-foreground">Buscando la letra…</Text>
+          <Text className="font-sora text-xs text-muted-foreground">{t('songSearchResultsModal.searchingLyrics')}</Text>
         </View>
       ) : (
         <BottomSheetFlatList
@@ -106,10 +112,10 @@ export function SongSearchResultsModal({
           ListEmptyComponent={
             <View className="items-center rounded-2xl border border-dashed border-border p-6">
               <Text className="text-center font-sora-semibold text-sm text-foreground">
-                No se encontraron letras en esta fuente.
+                {t('songSearchResultsModal.emptyTitle')}
               </Text>
               <Text className="mt-1 text-center font-sora text-xs text-muted-foreground">
-                Toca el botón de abajo para buscar en la siguiente fuente.
+                {t('songSearchResultsModal.emptyDescription')}
               </Text>
             </View>
           }
@@ -127,7 +133,7 @@ export function SongSearchResultsModal({
             {searchingMore ? (
               <>
                 <Spinner color={colors.primary} />
-                <Text className="font-sora-bold text-xs text-foreground">Buscando en la siguiente fuente…</Text>
+                <Text className="font-sora-bold text-xs text-foreground">{t('songSearchResultsModal.searchingMore')}</Text>
               </>
             ) : (
               <>
@@ -138,7 +144,7 @@ export function SongSearchResultsModal({
           </Pressable>
         ) : (
           <Text className="text-center font-sora text-xs italic text-muted-foreground">
-            Se han consultado todas las fuentes disponibles.
+            {t('songSearchResultsModal.allSourcesChecked')}
           </Text>
         )}
       </View>

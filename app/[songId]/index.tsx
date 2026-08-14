@@ -8,6 +8,7 @@ import SegmentedControl from '@expo/ui/community/segmented-control';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, ScrollView, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { ChordProPreview } from '@/components/chord-pro-preview';
@@ -20,6 +21,7 @@ import { deleteSong, songByIdQuery } from '@/db/songs-repository';
 export default function SongDetailsScreen() {
   const { songId: songIdParam } = useLocalSearchParams<{ songId: string }>();
   const router = useRouter();
+  const { t } = useTranslation();
   const songId = Number(songIdParam);
   const [tab, setTab] = useState<'lyrics' | 'chords'>('lyrics');
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -44,7 +46,7 @@ export default function SongDetailsScreen() {
     return (
       <View className="flex-1 items-center justify-center bg-background">
         <AmbientGlow />
-        <Text className="font-sora text-sm text-muted-foreground">Canción no encontrada.</Text>
+        <Text className="font-sora text-sm text-muted-foreground">{t('songDetails.notFound')}</Text>
       </View>
     );
   }
@@ -67,25 +69,27 @@ export default function SongDetailsScreen() {
       </Stack.Title>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Menu icon={Platform.OS === 'ios' ? 'ellipsis' : MoreVertIcon}>
-          <Stack.Toolbar.MenuAction icon={Platform.OS === 'ios' ? 'printer' : PrintIcon}>Print</Stack.Toolbar.MenuAction>
+          <Stack.Toolbar.MenuAction icon={Platform.OS === 'ios' ? 'printer' : PrintIcon}>
+            {t('songDetails.menuPrint')}
+          </Stack.Toolbar.MenuAction>
           <Stack.Toolbar.MenuAction
             icon={Platform.OS === 'ios' ? 'character.bubble' : TranslateIcon}
             onPress={() => router.push(`/${song.id}/translate`)}
           >
-            Traducir
+            {t('songDetails.menuTranslate')}
           </Stack.Toolbar.MenuAction>
           <Stack.Toolbar.MenuAction
             icon={Platform.OS === 'ios' ? 'pencil' : EditIcon}
             onPress={() => router.push(`/${song.id}/edit`)}
           >
-            Editar
+            {t('songDetails.menuEdit')}
           </Stack.Toolbar.MenuAction>
           <Stack.Toolbar.MenuAction
             icon={Platform.OS === 'ios' ? 'trash' : DeleteIcon}
             destructive
             onPress={() => setConfirmingDelete(true)}
           >
-            Eliminar
+            {t('songDetails.menuDelete')}
           </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
       </Stack.Toolbar>
@@ -93,7 +97,7 @@ export default function SongDetailsScreen() {
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="pb-10">
         <View className="mx-5 my-5">
           <SegmentedControl
-            values={['Letra', 'Acordes']}
+            values={[t('songDetails.tabLyrics'), t('songDetails.tabChords')]}
             selectedIndex={tab === 'lyrics' ? 0 : 1}
             onChange={(event) => setTab(event.nativeEvent.selectedSegmentIndex === 0 ? 'lyrics' : 'chords')}
           />
@@ -101,7 +105,9 @@ export default function SongDetailsScreen() {
 
         <View className="px-6">
           {tab === 'lyrics' ? (
-            <Text className="font-sora-bold text-[17px] leading-7 text-foreground">{song.lyrics || 'Sin letra todavía.'}</Text>
+            <Text className="font-sora-bold text-[17px] leading-7 text-foreground">
+              {song.lyrics || t('songDetails.noLyrics')}
+            </Text>
           ) : (
             <View className="rounded-xl border border-border bg-card p-6">
               <ChordProPreview chordPro={song.chords} />

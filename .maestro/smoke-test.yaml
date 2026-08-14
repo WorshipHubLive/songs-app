@@ -5,7 +5,7 @@ appId: com.fercho34.songs-app
 ---
 - launchApp
 - assertVisible: "Songs"
-- assertVisible: "Buscar canciones..."
+- assertVisible: "Search songs..."
 
 - tapOn: "Service"
 - assertVisible: "Service"
@@ -14,4 +14,4 @@ appId: com.fercho34.songs-app
 - assertVisible: "Settings"
 
 - tapOn: "Songs"
-- assertVisible: "Buscar canciones..."
+- assertVisible: "Search songs..."

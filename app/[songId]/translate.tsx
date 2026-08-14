@@ -4,6 +4,7 @@ import { Picker } from '@expo/ui/community/picker';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Fragment, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Platform, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LANGUAGES, languageFlagLabel } from '@/constants/languages';
@@ -23,6 +24,7 @@ import { saveTranslation, translationQuery, translationsForSongQuery } from '@/d
 export default function TranslateSongScreen() {
   const { songId: songIdParam } = useLocalSearchParams<{ songId: string }>();
   const router = useRouter();
+  const { t } = useTranslation();
   const songId = Number(songIdParam);
   const { bottom } = useSafeAreaInsets();
 
@@ -60,7 +62,7 @@ export default function TranslateSongScreen() {
       await saveTranslation({ songId: song.id, language, lyrics });
       close();
     } catch (error) {
-      Alert.alert('No se pudo guardar', String(error instanceof Error ? error.message : error));
+      Alert.alert(t('songForm.saveFailedTitle'), String(error instanceof Error ? error.message : error));
     } finally {
       setSaving(false);
     }
@@ -71,12 +73,16 @@ export default function TranslateSongScreen() {
   return (
     <Fragment>
       <Stack.Toolbar placement="left">
-        <Stack.Toolbar.Button icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon} onPress={close} />
+        <Stack.Toolbar.Button
+          icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon}
+          onPress={close}
+          accessibilityLabel={t('common.back')}
+        />
       </Stack.Toolbar>
 
       <Stack.Title asChild>
         <Text className="font-sora-semibold text-base text-foreground" numberOfLines={1}>
-          Traducir {song ? `"${song.title}"` : ''}
+          {song ? t('translateSong.titlePrefix', { title: song.title }) : t('translateSong.titleGeneric')}
         </Text>
       </Stack.Title>
 
@@ -85,13 +91,14 @@ export default function TranslateSongScreen() {
           icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon}
           onPress={handleSave}
           disabled={saving || !language}
+          accessibilityLabel={t('common.save')}
         />
       </Stack.Toolbar>
 
       {Platform.OS === 'ios' && (
         <Stack.Toolbar placement="bottom">
           <Stack.Toolbar.Spacer />
-          <Stack.Toolbar.Menu title={language ? menuLabel(language) : 'Idioma'}>
+          <Stack.Toolbar.Menu title={language ? menuLabel(language) : t('translateSong.languageMenuPlaceholder')}>
             {availableLanguages.map((l) => (
               <Stack.Toolbar.MenuAction key={l.value} isOn={language === l.value} onPress={() => setLanguage(l.value)}>
                 {menuLabel(l.value)}
@@ -111,7 +118,7 @@ export default function TranslateSongScreen() {
               <TextInput
                 value={lyrics}
                 onChangeText={setLyrics}
-                placeholder="Escribe la traducción de la letra aquí..."
+                placeholder={t('translateSong.lyricsPlaceholder')}
                 placeholderTextColorClassName="accent-muted-foreground"
                 multiline
                 textAlignVertical="top"

@@ -5,6 +5,7 @@ import { Picker } from '@expo/ui/community/picker';
 import SegmentedControl from '@expo/ui/community/segmented-control';
 import { Stack, useRouter } from 'expo-router';
 import { Fragment, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Platform, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AmbientGlow } from '@/components/ambient-glow';
@@ -26,6 +27,7 @@ import { type OnlineSearchResult, type StageSearchResult, searchByStage, searchO
 // screen is lyrics-only until that's built.
 export default function NewSongScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { bottom } = useSafeAreaInsets();
   const { settings } = useAppSettings();
   const tavilyApiKey = settings.search.tavilyApiKey;
@@ -49,7 +51,7 @@ export default function NewSongScreen() {
 
   const handleSearch = async () => {
     if (!title.trim()) {
-      Alert.alert('Falta el título', 'Escribe al menos el título de la canción para buscarla.');
+      Alert.alert(t('songForm.missingTitleTitle'), t('songForm.missingTitleToSearch'));
       return;
     }
     setSearchVisible(true);
@@ -82,7 +84,7 @@ export default function NewSongScreen() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      Alert.alert('Falta el título', 'Escribe al menos el título de la canción para guardarla.');
+      Alert.alert(t('songForm.missingTitleTitle'), t('songForm.missingTitleToSave'));
       return;
     }
     setSaving(true);
@@ -90,7 +92,7 @@ export default function NewSongScreen() {
       await saveSong({ title: title.trim(), artist: artist.trim(), lyrics, chords: '', language: lang });
       close();
     } catch (error) {
-      Alert.alert('No se pudo guardar', String(error instanceof Error ? error.message : error));
+      Alert.alert(t('songForm.saveFailedTitle'), String(error instanceof Error ? error.message : error));
     } finally {
       setSaving(false);
     }
@@ -102,7 +104,7 @@ export default function NewSongScreen() {
         <Stack.Toolbar.Button
           icon={Platform.OS === 'ios' ? 'chevron.backward' : ArrowBackIcon}
           onPress={close}
-          accessibilityLabel="Volver"
+          accessibilityLabel={t('common.back')}
         />
       </Stack.Toolbar>
 
@@ -111,14 +113,14 @@ export default function NewSongScreen() {
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Título de la canción"
+            placeholder={t('songForm.titlePlaceholder')}
             placeholderTextColorClassName="accent-muted-foreground"
             className="font-sora-semibold text-base text-foreground"
           />
           <TextInput
             value={artist}
             onChangeText={setArtist}
-            placeholder="Artista"
+            placeholder={t('songForm.artistPlaceholder')}
             placeholderTextColorClassName="accent-muted-foreground"
             className="mt-0.5 font-sora text-xs italic text-muted-foreground"
           />
@@ -130,13 +132,13 @@ export default function NewSongScreen() {
           icon={Platform.OS === 'ios' ? 'magnifyingglass' : SearchIcon}
           onPress={handleSearch}
           disabled={searching}
-          accessibilityLabel="Buscar en línea"
+          accessibilityLabel={t('songForm.searchOnline')}
         />
         <Stack.Toolbar.Button
           icon={Platform.OS === 'ios' ? 'checkmark.circle' : SaveIcon}
           onPress={handleSave}
           disabled={saving}
-          accessibilityLabel="Guardar"
+          accessibilityLabel={t('common.save')}
         />
       </Stack.Toolbar>
 
@@ -165,7 +167,7 @@ export default function NewSongScreen() {
           <AmbientGlow />
           <View className="flex-1 gap-y-4 px-4">
             <SegmentedControl
-              values={['Editar', 'Vista previa']}
+              values={[t('songForm.modeEdit'), t('songForm.modePreview')]}
               selectedIndex={mode === 'edit' ? 0 : 1}
               onChange={(event) => setMode(event.nativeEvent.selectedSegmentIndex === 0 ? 'edit' : 'preview')}
               style={{ width: '100%' }}

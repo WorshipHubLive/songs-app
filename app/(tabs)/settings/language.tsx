@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { useThemeColors } from '@/hooks/use-theme-colors';
@@ -22,13 +23,14 @@ const LANGUAGES = [
 
 export default function LanguageScreen() {
   const colors = useThemeColors();
+  const { t } = useTranslation();
   const [selected, setSelected] = useState('es');
 
   return (
     <View className="flex-1 bg-background">
       <AmbientGlow />
       <Stack.Title asChild>
-        <Text className="font-sora-bold text-xl text-foreground">Idioma</Text>
+        <Text className="font-sora-bold text-xl text-foreground">{t('languageScreen.title')}</Text>
       </Stack.Title>
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-2 p-4">
         {LANGUAGES.map((lang) => {

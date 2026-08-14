@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { ExternalLink } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { useAppSettings } from '@/hooks/use-app-settings';
@@ -12,6 +13,7 @@ import { useThemeColors } from '@/hooks/use-theme-colors';
 // songs those two miss.
 export default function SearchSettingsScreen() {
   const colors = useThemeColors();
+  const { t } = useTranslation();
   const { settings, updateSearch } = useAppSettings();
   const [key, setKey] = useState(settings.search.tavilyApiKey);
 
@@ -19,19 +21,15 @@ export default function SearchSettingsScreen() {
     <View className="flex-1 bg-background">
       <AmbientGlow />
       <Stack.Title asChild>
-        <Text className="font-sora-bold text-xl text-foreground">Búsqueda en línea</Text>
+        <Text className="font-sora-bold text-xl text-foreground">{t('searchSettingsScreen.title')}</Text>
       </Stack.Title>
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 p-4">
-        <Text className="font-sora text-xs leading-5 text-muted-foreground">
-          El botón de buscar en "Agregar canción" combina automáticamente LRCLIB e iTunes/lyrics.ovh para encontrar letras gratis.
-          Si una canción no aparece ahí, puedes agregar una clave de Tavily como respaldo — el plan gratuito incluye 1000
-          búsquedas al mes.
-        </Text>
+        <Text className="font-sora text-xs leading-5 text-muted-foreground">{t('searchSettingsScreen.description')}</Text>
 
         <View className="gap-1.5 rounded-md border border-border bg-card p-4">
           <Text className="font-sora-semibold text-xs uppercase tracking-wider text-muted-foreground">
-            Clave de API de Tavily
+            {t('searchSettingsScreen.apiKeyLabel')}
           </Text>
           <TextInput
             value={key}
@@ -47,7 +45,7 @@ export default function SearchSettingsScreen() {
         </View>
 
         <Pressable onPress={() => Linking.openURL('https://app.tavily.com')} className="flex-row items-center gap-1.5 self-start">
-          <Text className="font-sora-bold text-sm text-primary">Consigue tu clave gratis en Tavily</Text>
+          <Text className="font-sora-bold text-sm text-primary">{t('searchSettingsScreen.getKeyFree')}</Text>
           <ExternalLink size={14} color={colors.primary} />
         </Pressable>
       </ScrollView>

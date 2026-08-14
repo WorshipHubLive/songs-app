@@ -2,6 +2,7 @@ import ShareIcon from '@expo/material-symbols/ios_share.xml';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { DeleteSongModal } from '@/components/delete-song-modal';
@@ -22,6 +23,7 @@ import { allSongsQuery, deleteSong, setInService } from '@/db/songs-repository';
 // (tabs)/service/index.tsx.
 export default function LibraryScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Song | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -74,10 +76,10 @@ export default function LibraryScreen() {
       <AmbientGlow />
 
       <Stack.Title asChild>
-        <Text className="font-sora-bold text-xl text-foreground">Songs</Text>
+        <Text className="font-sora-bold text-xl text-foreground">{t('songs.title')}</Text>
       </Stack.Title>
       <Stack.SearchBar
-        placeholder="Buscar canciones..."
+        placeholder={t('songs.searchPlaceholder')}
         onChangeText={(e) => setSearch(e.nativeEvent.text)}
         onCancelButtonPress={() => setSearch('')}
         obscureBackground={false}

@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { parseChordPro } from '@/lib/chord-pro';
 
 export function ChordProPreview({ chordPro }: { chordPro: string }) {
+  const { t } = useTranslation();
   if (!chordPro.trim()) {
-    return <Text className="font-sora text-sm italic text-muted-foreground">No hay acordes registrados aún.</Text>;
+    return <Text className="font-sora text-sm italic text-muted-foreground">{t('chordProPreview.empty')}</Text>;
   }
 
   const lines = parseChordPro(chordPro);

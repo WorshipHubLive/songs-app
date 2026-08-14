@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { QrCode } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { QrScannerModal } from '@/components/qr-scanner-modal';
@@ -16,6 +17,7 @@ import { useThemeColors } from '@/hooks/use-theme-colors';
 // another already-configured device's QR code.
 export default function CloudSyncScreen() {
   const colors = useThemeColors();
+  const { t } = useTranslation();
   const { settings, updateCloud } = useAppSettings();
   const [url, setUrl] = useState(settings.cloud.url);
   const [anonKey, setAnonKey] = useState(settings.cloud.anonKey);
@@ -30,7 +32,7 @@ export default function CloudSyncScreen() {
       setAnonKey(parsed.anonKey);
       updateCloud({ url: parsed.url, anonKey: parsed.anonKey });
     } catch {
-      Alert.alert('Código no reconocido', 'Este código QR no contiene credenciales de nube válidas.');
+      Alert.alert(t('cloudSyncScreen.qrInvalidTitle'), t('cloudSyncScreen.qrInvalidMessage'));
     }
   };
 
@@ -38,32 +40,31 @@ export default function CloudSyncScreen() {
     <View className="flex-1 bg-background">
       <AmbientGlow />
       <Stack.Title asChild>
-        <Text className="font-sora-bold text-xl text-foreground">Sincronización en la nube</Text>
+        <Text className="font-sora-bold text-xl text-foreground">{t('cloudSyncScreen.title')}</Text>
       </Stack.Title>
 
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerClassName="gap-4 p-4">
-        <Text className="font-sora text-xs leading-5 text-muted-foreground">
-          Conecta un proyecto de Supabase para mantener tu biblioteca sincronizada entre todos tus dispositivos, sin depender de
-          estar en la misma red.
-        </Text>
+        <Text className="font-sora text-xs leading-5 text-muted-foreground">{t('cloudSyncScreen.description')}</Text>
 
         <Pressable
           onPress={() => setScannerVisible(true)}
           className="flex-row items-center justify-center gap-1.5 rounded-md bg-secondary py-2.5"
         >
           <QrCode size={14} color={colors.secondaryForeground} />
-          <Text className="font-sora-bold text-xs text-secondary-foreground">Escanear código QR</Text>
+          <Text className="font-sora-bold text-xs text-secondary-foreground">{t('common.scanQrCode')}</Text>
         </Pressable>
 
         <View className="flex-row items-center gap-2">
           <View className="h-px flex-1 bg-border" />
-          <Text className="font-sora text-[10px] text-muted-foreground">o escribe manualmente</Text>
+          <Text className="font-sora text-[10px] text-muted-foreground">{t('cloudSyncScreen.orTypeManually')}</Text>
           <View className="h-px flex-1 bg-border" />
         </View>
 
         <View className="gap-3 rounded-md border border-border bg-card p-4">
           <View className="gap-1.5">
-            <Text className="font-sora-semibold text-xs uppercase tracking-wider text-muted-foreground">Project URL</Text>
+            <Text className="font-sora-semibold text-xs uppercase tracking-wider text-muted-foreground">
+              {t('cloudSyncScreen.projectUrlLabel')}
+            </Text>
             <TextInput
               value={url}
               onChangeText={setUrl}
@@ -76,7 +77,9 @@ export default function CloudSyncScreen() {
             />
           </View>
           <View className="gap-1.5 border-t border-border pt-3">
-            <Text className="font-sora-semibold text-xs uppercase tracking-wider text-muted-foreground">Anon Key</Text>
+            <Text className="font-sora-semibold text-xs uppercase tracking-wider text-muted-foreground">
+              {t('cloudSyncScreen.anonKeyLabel')}
+            </Text>
             <TextInput
               value={anonKey}
               onChangeText={setAnonKey}
@@ -93,7 +96,7 @@ export default function CloudSyncScreen() {
 
         {settings.cloud.lastSyncedAt ? (
           <Text className="text-center font-sora text-[11px] text-muted-foreground">
-            Última sincronización: {settings.cloud.lastSyncedAt}
+            {t('cloudSyncScreen.lastSynced', { date: settings.cloud.lastSyncedAt })}
           </Text>
         ) : null}
       </ScrollView>
@@ -102,7 +105,7 @@ export default function CloudSyncScreen() {
         visible={scannerVisible}
         onResult={handleScanResult}
         onClose={() => setScannerVisible(false)}
-        hint="Escanea el código de Nube y Sincronización de otro dispositivo ya configurado."
+        hint={t('cloudSyncScreen.scanHint')}
       />
     </View>
   );

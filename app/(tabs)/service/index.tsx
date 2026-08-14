@@ -3,6 +3,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useRouter } from 'expo-router';
 import { CalendarCheck } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { DeleteSongModal } from '@/components/delete-song-modal';
@@ -24,6 +25,7 @@ import { useThemeColors } from '@/hooks/use-theme-colors';
 export default function ServiceScreen() {
   const colors = useThemeColors();
   const router = useRouter();
+  const { t } = useTranslation();
   const [deleteTarget, setDeleteTarget] = useState<Song | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [sendVisible, setSendVisible] = useState(false);
@@ -47,7 +49,7 @@ export default function ServiceScreen() {
       <AmbientGlow />
 
       <Stack.Title asChild>
-        <Text className="font-sora-bold text-xl text-foreground">Service</Text>
+        <Text className="font-sora-bold text-xl text-foreground">{t('service.title')}</Text>
       </Stack.Title>
       <Stack.Toolbar placement="right">
         <Stack.Toolbar.Button
@@ -62,10 +64,8 @@ export default function ServiceScreen() {
       {songs.length === 0 ? (
         <View className="flex-1 items-center justify-center gap-2 px-10">
           <CalendarCheck size={40} color={colors.mutedForeground} strokeWidth={1.5} />
-          <Text className="mt-2 font-sora-semibold text-base text-foreground">No hay canciones en el servicio</Text>
-          <Text className="text-center font-sora text-xs text-muted-foreground">
-            Agrega canciones desde tu biblioteca para armar el orden del servicio.
-          </Text>
+          <Text className="mt-2 font-sora-semibold text-base text-foreground">{t('service.emptyTitle')}</Text>
+          <Text className="text-center font-sora text-xs text-muted-foreground">{t('service.emptyDescription')}</Text>
         </View>
       ) : (
         <SongList
