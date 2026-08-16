@@ -1,0 +1,62 @@
+# Publishes an EAS Update to the "production" channel on every push to
+# main — this is what makes an already-installed production build pick
+# up a JS/asset change over the air, without going through app-store
+# review again. Gated on the same lint/typecheck/test suite as ci.yml so
+# a broken commit on main never reaches a real device.
+#
+# Deliberately does NOT use `eas update --auto` here: --auto infers the
+# EAS branch name from the current git branch, which only lines up with
+# the "production" channel if a branch literally named "production" is
+# what that channel points at. Publishing to an explicit `--branch
+# production` is correct regardless of what the git branch is called.
+#
+# One-time setup required before this can publish anything — see
+# docs/RELEASING.md:
+#   eas channel:create production
+#
+# Setup: https://docs.expo.dev/eas-update/github-actions/
+name: eas-update-production
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun run lint
+      - run: bun run typecheck
+      - run: bun run test
+
+  update:
+    name: Publish EAS Update
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for EXPO_TOKEN
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "Missing the EXPO_TOKEN repo secret — see docs/RELEASING.md."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Publish update
+        run: eas update --branch production --message "${{ github.event.head_commit.message }}" --non-interactive

@@ -12,7 +12,12 @@
       "supportsTablet": true,
       "bundleIdentifier": "live.worshiphub.songs",
       "infoPlist": {
-        "NSBonjourServices": ["_worshiphub._tcp.", "_whsongs._tcp."],
+        "NSBonjourServices": [
+          "_worshiphub._tcp.",
+          "_whsongs._tcp.",
+          "_worshiphub._tcp.",
+          "_whsongs._tcp."
+        ],
         "NSLocalNetworkUsageDescription": "WorshipHub Songs necesita acceso a la red local para encontrar automáticamente WorshipHub y otras copias de la app en tu red."
       }
     },
@@ -20,12 +25,14 @@
       "adaptiveIcon": {
         "backgroundColor": "#06080f",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.fercho34.songsapp",
       "permissions": [
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.CHANGE_WIFI_MULTICAST_STATE",
         "android.permission.ACCESS_NETWORK_STATE",
         "android.permission.ACCESS_WIFI_STATE",
         "android.permission.CHANGE_WIFI_MULTICAST_STATE"
@@ -73,14 +80,14 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "eb43a9bc-4398-472b-95ca-ebf93c153936"
+        "projectId": "b1f571aa-f157-4ed0-80ed-ac7869062f57"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/eb43a9bc-4398-472b-95ca-ebf93c153936"
+      "url": "https://u.expo.dev/b1f571aa-f157-4ed0-80ed-ac7869062f57"
     }
   }
 }

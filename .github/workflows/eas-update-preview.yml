@@ -1,0 +1,45 @@
+# Publishes an EAS Update preview for every pull request and comments the
+# PR with a QR code / link to open it in a development build — lets a
+# reviewer try the actual change on-device without a new native build.
+# Requires nothing beyond the OTA-updatable JS/assets to have changed;
+# a native code change (new native module, app.json native config) still
+# needs a real build (see .eas/workflows/build.yml) to be testable.
+#
+# Setup: https://docs.expo.dev/eas-update/github-actions/
+name: eas-update-preview
+on: pull_request
+
+jobs:
+  update:
+    name: EAS Update preview
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check for EXPO_TOKEN
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "Missing the EXPO_TOKEN repo secret — see docs/RELEASING.md."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Create preview
+        uses: expo/expo-github-action/preview@v8
+        with:
+          command: eas update --auto --non-interactive

@@ -3,7 +3,10 @@
 #   maestro test .maestro/add-song.yaml
 #
 # Assertions are in Spanish — see smoke-test.yaml's header comment.
-appId: live.worshiphub.songs
+# appId override for Android — see smoke-test.yaml's header comment.
+appId: ${MAESTRO_APP_ID}
+env:
+  MAESTRO_APP_ID: live.worshiphub.songs
 ---
 - launchApp
 # expo-dev-client's tutorial/dev-menu overlay — see smoke-test.yaml's

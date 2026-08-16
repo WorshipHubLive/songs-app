@@ -1,12 +1,25 @@
 
 # Create development builds
 #
-# Builds Android and iOS development builds for devices and simulators.
+# Builds an Android development build for devices and simulators, on
+# every pull request into main. iOS is intentionally not built here —
+# add it back (platform: ios, a matching profile in eas.json) once iOS
+# is actually needed.
+#
+# Requires this EAS project to have a linked GitHub repository (EAS
+# dashboard → Project Settings → GitHub) — without that link, this
+# trigger is defined but never fires. See docs/RELEASING.md.
 # Learn more: https://docs.expo.dev/develop/development-builds/introduction/
+# Trigger syntax: https://docs.expo.dev/eas/workflows/syntax/
 #
 # Created by EAS CLI v21.8.0
 
 name: Create development builds
+on:
+  pull_request:
+    branches:
+      - main
+
 jobs:
   android_development_build:
     name: Build Android
@@ -14,15 +27,3 @@ jobs:
     params:
       platform: android
       profile: development
-  # ios_device_development_build:
-  #   name: Build iOS device
-  #   type: build
-  #   params:
-  #     platform: ios
-  #     profile: development
-  # ios_simulator_development_build:
-  #   name: Build iOS simulator
-  #   type: build
-  #   params:
-  #     platform: ios
-  #     profile: development-ios-simulator
