@@ -1,10 +1,10 @@
 import { Stack, useRouter } from 'expo-router';
-import { Cloud, Languages, Laptop, Palette, RadioTower, Search, Smartphone, User } from 'lucide-react-native';
+import { Languages, Laptop, Palette, RadioTower, Search, Smartphone, User } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Image, ScrollView, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { BentoSection } from '@/components/settings/bento-section';
-import { SettingsRow, SettingsTile } from '@/components/settings/settings-row';
+import { SettingsRow } from '@/components/settings/settings-row';
 import { Card } from '@/components/ui/card';
 import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
@@ -63,18 +63,7 @@ export default function SettingsHubScreen() {
             }
             onPress={() => router.push('/settings/worshiphub')}
           />
-          <View className="flex-row gap-2">
-            <SettingsTile
-              icon={Laptop}
-              title={t('settingsHub.rowLocalSync')}
-              onPress={() => router.push('/settings/local-sync')}
-            />
-            <SettingsTile
-              icon={Cloud}
-              title={t('settingsHub.rowCloudSync')}
-              onPress={() => router.push('/settings/cloud-sync')}
-            />
-          </View>
+          <SettingsRow icon={Laptop} title={t('settingsHub.rowLocalSync')} onPress={() => router.push('/settings/local-sync')} />
         </BentoSection>
 
         <BentoSection icon={Search} label={t('settingsHub.sectionPreferences')} accent="accent">

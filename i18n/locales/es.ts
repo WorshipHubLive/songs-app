@@ -144,7 +144,6 @@ const es: Translation = {
       rowWorshiphubLinked: 'Vinculado',
       rowWorshiphubNotLinked: 'No vinculado',
       rowLocalSync: 'Sincronización Local',
-      rowCloudSync: 'Sincronización en la Nube',
       rowSearch: 'Búsqueda',
       rowSearchAdvancedActive: 'Búsqueda avanzada activa',
       rowSearchOnlineLyrics: 'Búsqueda de letras en línea',
@@ -174,18 +173,6 @@ const es: Translation = {
         'El botón de búsqueda en "Añadir canción" combina automáticamente LRCLIB e iTunes/lyrics.ovh para encontrar letras gratuitas. Si una canción no aparece allí, puedes añadir una clave de Tavily como alternativa — el plan gratuito incluye 1000 búsquedas al mes.',
       apiKeyLabel: 'Clave de API de Tavily',
       getKeyFree: 'Obtén tu clave gratuita en Tavily',
-    },
-    cloudSyncScreen: {
-      title: 'Sincronización en la Nube',
-      description:
-        'Conecta un proyecto de Supabase para mantener tu biblioteca sincronizada en todos tus dispositivos, sin necesidad de estar en la misma red.',
-      orTypeManually: 'o escribe manualmente',
-      projectUrlLabel: 'URL del proyecto',
-      anonKeyLabel: 'Clave Anónima (Anon Key)',
-      lastSynced: 'Última sincronización: {{date}}',
-      qrInvalidTitle: 'Código no reconocido',
-      qrInvalidMessage: 'Este código QR no contiene credenciales válidas de la nube.',
-      scanHint: 'Escanea el código de Sincronización en la Nube desde otro dispositivo ya configurado.',
     },
     worshiphubScreen: {
       title: 'WorshipHub',

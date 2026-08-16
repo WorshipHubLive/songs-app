@@ -144,7 +144,6 @@ const ht: Translation = {
       rowWorshiphubLinked: 'Konekte',
       rowWorshiphubNotLinked: 'Pa konekte',
       rowLocalSync: 'Senkronizasyon Lokal',
-      rowCloudSync: 'Senkronizasyon Nwaj',
       rowSearch: 'Chèche',
       rowSearchAdvancedActive: 'Rechèch avanse aktif',
       rowSearchOnlineLyrics: 'Chèche pawòl sou entènèt',
@@ -174,18 +173,6 @@ const ht: Translation = {
         'Bouton rechèch ki nan "Ajoute chante" otomatikman konbine LRCLIB ak iTunes/lyrics.ovh pou jwenn pawòl gratis. Si yon chante pa parèt la, ou ka ajoute yon kle Tavily kòm altènatif — plan gratis la gen 1000 rechèch pa mwa.',
       apiKeyLabel: 'Tavily API kle',
       getKeyFree: 'Jwenn kle gratis ou sou Tavily',
-    },
-    cloudSyncScreen: {
-      title: 'Senkronizasyon Nwaj',
-      description:
-        'Konekte yon pwojè Supabase pou kenbe bibliyotèk ou senkronize sou tout aparèy ou yo, san ou pa bezwen sou menm rezo a.',
-      orTypeManually: 'oswa tape manyèlman',
-      projectUrlLabel: 'Pwojè URL',
-      anonKeyLabel: 'Anon Kle',
-      lastSynced: 'Dènye fwa senkronize: {{date}}',
-      qrInvalidTitle: 'Kòd pa rekonèt',
-      qrInvalidMessage: 'Kòd QR sa a pa gen kalifikasyon nwaj valab.',
-      scanHint: 'Eskane kòd Senkronizasyon Nwaj nan yon lòt aparèy ki deja konfigire.',
     },
     worshiphubScreen: {
       title: 'WorshipHub',

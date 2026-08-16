@@ -144,7 +144,6 @@ const ru: Translation = {
       rowWorshiphubLinked: 'Связан',
       rowWorshiphubNotLinked: 'Не связан',
       rowLocalSync: 'Локальная синхронизация',
-      rowCloudSync: 'Облачная синхронизация',
       rowSearch: 'Поиск',
       rowSearchAdvancedActive: 'Расширенный поиск активен',
       rowSearchOnlineLyrics: 'Онлайн-поиск текста',
@@ -174,18 +173,6 @@ const ru: Translation = {
         'Кнопка поиска в "Добавить песню" автоматически объединяет LRCLIB и iTunes/lyrics.ovh для поиска бесплатных текстов. Если песня там не появляется, вы можете добавить ключ Tavily в качестве альтернативы — бесплатный план включает 1000 поисков в месяц.',
       apiKeyLabel: 'API-ключ Tavily',
       getKeyFree: 'Получить бесплатный ключ на Tavily',
-    },
-    cloudSyncScreen: {
-      title: 'Облачная синхронизация',
-      description:
-        'Подключите проект Supabase, чтобы поддерживать синхронизацию библиотеки на всех ваших устройствах без необходимости находиться в одной сети.',
-      orTypeManually: 'или введите вручную',
-      projectUrlLabel: 'URL проекта',
-      anonKeyLabel: 'Anon Key',
-      lastSynced: 'Последняя синхронизация: {{date}}',
-      qrInvalidTitle: 'Код не распознан',
-      qrInvalidMessage: 'Этот QR-код не содержит действительных облачных учетных данных.',
-      scanHint: 'Отсканируйте код облачной синхронизации с другого уже настроенного устройства.',
     },
     worshiphubScreen: {
       title: 'WorshipHub',

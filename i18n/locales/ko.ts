@@ -143,7 +143,6 @@ const ko: Translation = {
       rowWorshiphubLinked: '연결됨',
       rowWorshiphubNotLinked: '연결되지 않음',
       rowLocalSync: '로컬 동기화',
-      rowCloudSync: '클라우드 동기화',
       rowSearch: '검색',
       rowSearchAdvancedActive: '고급 검색 활성',
       rowSearchOnlineLyrics: '온라인 가사 검색',
@@ -173,18 +172,6 @@ const ko: Translation = {
         '"노래 추가"의 검색 버튼은 자동으로 LRCLIB와 iTunes/lyrics.ovh를 결합하여 무료 가사를 찾습니다. 거기에 노래가 표시되지 않으면 Tavily 키를 대안으로 추가할 수 있습니다 — 무료 플랜에는 매달 1000건의 검색이 포함됩니다.',
       apiKeyLabel: 'Tavily API 키',
       getKeyFree: 'Tavily에서 무료 키 받기',
-    },
-    cloudSyncScreen: {
-      title: '클라우드 동기화',
-      description:
-        '동일한 네트워크에 있지 않아도 Supabase 프로젝트를 연결하여 모든 기기에서 라이브러리를 동기화 상태로 유지하세요.',
-      orTypeManually: '또는 수동으로 입력',
-      projectUrlLabel: '프로젝트 URL',
-      anonKeyLabel: 'Anon 키',
-      lastSynced: '마지막 동기화: {{date}}',
-      qrInvalidTitle: '인식되지 않는 코드',
-      qrInvalidMessage: '이 QR 코드에는 유효한 클라우드 자격 증명이 포함되어 있지 않습니다.',
-      scanHint: '이미 구성된 다른 기기에서 클라우드 동기화 코드를 스캔하세요.',
     },
     worshiphubScreen: {
       title: 'WorshipHub',

@@ -25,7 +25,6 @@ export default function SettingsLayout() {
       <Stack.Screen name="search" />
       <Stack.Screen name="worshiphub" />
       <Stack.Screen name="local-sync" />
-      <Stack.Screen name="cloud-sync" />
     </Stack>
   );
 }

@@ -20,18 +20,12 @@ export interface AppSettings {
     // every send; see lib/worshiphub-client.ts.
     token: string | null;
   };
-  cloud: {
-    url: string;
-    anonKey: string;
-    lastSyncedAt: string;
-  };
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   profile: { name: '', avatarUri: '' },
   search: { tavilyApiKey: '' },
   worshiphub: { linked: false, baseUrl: null, name: '', token: null },
-  cloud: { url: '', anonKey: '', lastSyncedAt: '' },
 };
 
 const STORAGE_KEY = 'app-settings';
@@ -42,7 +36,6 @@ interface AppSettingsContextValue {
   updateProfile: (patch: Partial<AppSettings['profile']>) => void;
   updateSearch: (patch: Partial<AppSettings['search']>) => void;
   updateWorshipHub: (patch: Partial<AppSettings['worshiphub']>) => void;
-  updateCloud: (patch: Partial<AppSettings['cloud']>) => void;
 }
 
 const AppSettingsContext = createContext<AppSettingsContextValue | null>(null);
@@ -63,7 +56,6 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
               profile: { ...DEFAULT_SETTINGS.profile, ...parsed.profile },
               search: { ...DEFAULT_SETTINGS.search, ...parsed.search },
               worshiphub: { ...DEFAULT_SETTINGS.worshiphub, ...parsed.worshiphub },
-              cloud: { ...DEFAULT_SETTINGS.cloud, ...parsed.cloud },
             });
           } catch {
             // corrupted blob — fall back to defaults
@@ -88,10 +80,9 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     persist({ ...settings, search: { ...settings.search, ...patch } });
   const updateWorshipHub = (patch: Partial<AppSettings['worshiphub']>) =>
     persist({ ...settings, worshiphub: { ...settings.worshiphub, ...patch } });
-  const updateCloud = (patch: Partial<AppSettings['cloud']>) => persist({ ...settings, cloud: { ...settings.cloud, ...patch } });
 
   return (
-    <AppSettingsContext.Provider value={{ settings, loaded, updateProfile, updateSearch, updateWorshipHub, updateCloud }}>
+    <AppSettingsContext.Provider value={{ settings, loaded, updateProfile, updateSearch, updateWorshipHub }}>
       {children}
     </AppSettingsContext.Provider>
   );
