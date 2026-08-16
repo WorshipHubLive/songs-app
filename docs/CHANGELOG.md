@@ -47,6 +47,18 @@ against.
   (`hooks/`) so a sync target stays reachable without a screen open.
 - QR-code pairing (`react-native-qrcode-svg`) as an alternative to
   manual address entry.
+- The peer picker no longer lists this same device as a discoverable
+  target — this app's own Local Sync server advertises itself over
+  mDNS the same way the desktop app's does (so the desktop can find
+  it), which meant browsing for peers always found yourself too; now
+  filtered out by matching ip+port against this device's own, the same
+  way the desktop app already filters its own advertisement out of its
+  peer list.
+- Peer names are now per-device (`Device.modelName`/`deviceName` via
+  `expo-device`, e.g. "iPhone 15 Pro" or a Android device's own
+  assigned name) instead of the literal string "Songs Mobile (iOS)" /
+  "Songs Mobile (Android)" every install showed, which made two phones
+  on the same network indistinguishable in the picker.
 
 ### 💻 Cross-platform (iOS + Android)
 - Native Expo/React Native app, iOS and Android from one codebase.
