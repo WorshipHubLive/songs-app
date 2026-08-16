@@ -10,5 +10,12 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - run: bun run lint
+      # expo-env.d.ts is gitignored by convention (Expo regenerates it
+      # itself on `expo start`/`expo prebuild`) — CI never runs either,
+      # so without this the `/// <reference types="expo/types" />` line
+      # is missing and `tsc` can't resolve the `*.css` side-effect
+      # import in app/_layout.tsx. Content is Expo's own fixed template
+      # (see @expo/cli's type-generation/expo-env.js).
+      - run: printf '/// <reference types="expo/types" />\n' > expo-env.d.ts
       - run: bun run typecheck
       - run: bun run test

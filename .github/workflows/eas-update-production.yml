@@ -28,6 +28,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install
       - run: bun run lint
+      # See ci.yml's matching step for why this is needed here.
+      - run: printf '/// <reference types="expo/types" />\n' > expo-env.d.ts
       - run: bun run typecheck
       - run: bun run test
 
