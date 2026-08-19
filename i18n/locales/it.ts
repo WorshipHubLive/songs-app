@@ -77,6 +77,8 @@ const it: Translation = {
       title: 'Servizio',
       emptyTitle: 'Nessuna canzone nel servizio',
       emptyDescription: "Aggiungi canzoni dalla tua libreria per costruire l'ordine del servizio.",
+      songLanguage: 'Lingua della canzone',
+      noSlides: 'Questa canzone non ha ancora testo.',
     },
     sendToLocalPeerSheet: {
       title: 'Sincronizzazione Locale',

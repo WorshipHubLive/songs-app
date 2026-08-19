@@ -74,7 +74,7 @@ export function SendToWorshipHubSheet({
       updateWorshipHub({ linked: true, name: target.label, baseUrl: target.baseUrl, token });
 
       setPhase('sending');
-      const songs = await getSongsForExport(songIds);
+      const songs = await getSongsForExport(songIds, settings.service.languages, settings.service.slideOverrides);
       const received = await sendSongsToWorshipHub(target.baseUrl, token, songs, settings.profile.name, avatarDataUrl);
       setSentCount(received);
       setPhase('done');

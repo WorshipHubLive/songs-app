@@ -75,6 +75,8 @@ const en = {
       title: 'Service',
       emptyTitle: 'No songs in the service',
       emptyDescription: 'Add songs from your library to build the service order.',
+      songLanguage: 'Song language',
+      noSlides: 'This song has no lyrics yet.',
     },
     sendToLocalPeerSheet: {
       title: 'Local Sync',

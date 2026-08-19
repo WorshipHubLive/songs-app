@@ -22,6 +22,7 @@ export function SongCard({
   selectable = false,
   selected = false,
   onToggleSelect,
+  toggleServiceClassName = '',
 }: {
   song: Song;
   onPress?: () => void;
@@ -29,6 +30,10 @@ export function SongCard({
   selectable?: boolean;
   selected?: boolean;
   onToggleSelect?: () => void;
+  /** Extra classes merged onto the add/remove-from-service button — the
+   * Service screen nudges it closer to the true right edge with this
+   * (see service-song-list.tsx/.ios.tsx). */
+  toggleServiceClassName?: string;
 }) {
   const colors = useThemeColors();
   const accent = accentClasses(song.id);
@@ -82,7 +87,7 @@ export function SongCard({
           <Pressable
             testID="song-card-toggle-service"
             onPress={onToggleService}
-            className={`h-10 w-10 items-center justify-center rounded-full ${song.inService ? 'bg-primary/15' : 'bg-muted'}`}
+            className={`h-10 w-10 items-center justify-center rounded-full ${song.inService ? 'bg-primary/15' : 'bg-muted'} ${toggleServiceClassName}`}
           >
             {song.inService ? (
               <CalendarCheck size={20} color={colors.primary} strokeWidth={2} />

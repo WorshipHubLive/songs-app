@@ -77,6 +77,8 @@ const fr: Translation = {
       title: 'Service',
       emptyTitle: 'Aucun chant dans le service',
       emptyDescription: 'Ajoutez des chants de votre bibliothèque pour construire le déroulement du service.',
+      songLanguage: 'Langue du chant',
+      noSlides: "Ce chant n'a pas encore de paroles.",
     },
     sendToLocalPeerSheet: {
       title: 'Synchronisation Locale',

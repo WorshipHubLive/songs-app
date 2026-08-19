@@ -9,6 +9,7 @@ export const songs = sqliteTable('songs', {
   chords: text('chords').notNull().default(''),
   language: text('language').notNull().default('es'),
   inService: integer('in_service', { mode: 'boolean' }).notNull().default(false),
+  serviceOrder: integer('service_order').notNull().default(0),
   createdAt: text('created_at').notNull().default(sql`(current_timestamp)`),
 });
 

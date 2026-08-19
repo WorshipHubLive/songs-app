@@ -77,6 +77,8 @@ const zh: Translation = {
       title: '服侍',
       emptyTitle: '服侍列表中没有歌曲',
       emptyDescription: '从您的媒体库添加歌曲以建立服侍顺序。',
+      songLanguage: '歌曲语言',
+      noSlides: '这首歌还没有歌词。',
     },
     sendToLocalPeerSheet: {
       title: '本地同步',

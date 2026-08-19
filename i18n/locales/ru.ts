@@ -77,6 +77,8 @@ const ru: Translation = {
       title: 'Служение',
       emptyTitle: 'Нет песен в служении',
       emptyDescription: 'Добавьте песни из вашей библиотеки, чтобы составить порядок служения.',
+      songLanguage: 'Язык песни',
+      noSlides: 'У этой песни пока нет текста.',
     },
     sendToLocalPeerSheet: {
       title: 'Локальная синхронизация',

@@ -22,6 +22,7 @@ expoDb.execSync(`
     chords TEXT NOT NULL DEFAULT '',
     language TEXT NOT NULL DEFAULT 'es',
     in_service INTEGER NOT NULL DEFAULT 0,
+    service_order INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (current_timestamp)
   );
   CREATE TABLE IF NOT EXISTS translations (
@@ -40,6 +41,7 @@ expoDb.execSync(`
 for (const alter of [
   `ALTER TABLE songs ADD COLUMN chords TEXT NOT NULL DEFAULT '';`,
   `ALTER TABLE songs ADD COLUMN in_service INTEGER NOT NULL DEFAULT 0;`,
+  `ALTER TABLE songs ADD COLUMN service_order INTEGER NOT NULL DEFAULT 0;`,
 ]) {
   try {
     expoDb.execSync(alter);

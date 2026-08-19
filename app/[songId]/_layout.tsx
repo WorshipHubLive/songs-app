@@ -17,6 +17,7 @@ export default function SongLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="edit" />
       <Stack.Screen name="translate" />
+      <Stack.Screen name="slides" />
     </Stack>
   );
 }

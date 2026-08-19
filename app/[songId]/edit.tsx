@@ -1,6 +1,6 @@
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import SaveIcon from '@expo/material-symbols/save.xml';
-import { Picker } from '@expo/ui/community/picker';
+import { Host, Picker } from '@expo/ui';
 import SegmentedControl from '@expo/ui/community/segmented-control';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -145,11 +145,13 @@ export default function EditSongScreen() {
             style={{ paddingBottom: bottom + 12 }}
           >
             <View className="w-40">
-              <Picker selectedValue={lang} onValueChange={setLang}>
-                {LANGUAGES.map((language) => (
-                  <Picker.Item key={language.value} label={`${language.flag} ${language.label}`} value={language.value} />
-                ))}
-              </Picker>
+              <Host matchContents={{ vertical: true }}>
+                <Picker selectedValue={lang} onValueChange={setLang}>
+                  {LANGUAGES.map((language) => (
+                    <Picker.Item key={language.value} label={`${language.flag} ${language.label}`} value={language.value} />
+                  ))}
+                </Picker>
+              </Host>
             </View>
           </View>
         )}

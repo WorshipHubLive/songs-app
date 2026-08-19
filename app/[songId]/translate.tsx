@@ -1,6 +1,6 @@
 import ArrowBackIcon from '@expo/material-symbols/arrow_back.xml';
 import SaveIcon from '@expo/material-symbols/save.xml';
-import { Picker } from '@expo/ui/community/picker';
+import { Host, Picker } from '@expo/ui';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Fragment, useEffect, useState } from 'react';
@@ -134,11 +134,13 @@ export default function TranslateSongScreen() {
             style={{ paddingBottom: bottom + 12 }}
           >
             <View className="w-48">
-              <Picker selectedValue={language} onValueChange={setLanguage}>
-                {availableLanguages.map((l) => (
-                  <Picker.Item key={l.value} label={menuLabel(l.value)} value={l.value} />
-                ))}
-              </Picker>
+              <Host matchContents={{ vertical: true }}>
+                <Picker selectedValue={language} onValueChange={setLanguage}>
+                  {availableLanguages.map((l) => (
+                    <Picker.Item key={l.value} label={menuLabel(l.value)} value={l.value} />
+                  ))}
+                </Picker>
+              </Host>
             </View>
           </View>
         )}

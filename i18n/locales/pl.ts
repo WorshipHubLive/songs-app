@@ -77,6 +77,8 @@ const pl: Translation = {
       title: 'Nabożeństwo',
       emptyTitle: 'Brak pieśni w nabożeństwie',
       emptyDescription: 'Dodaj pieśni ze swojej biblioteki, aby zbudować porządek nabożeństwa.',
+      songLanguage: 'Język pieśni',
+      noSlides: 'Ta pieśń nie ma jeszcze tekstu.',
     },
     sendToLocalPeerSheet: {
       title: 'Lokalna Synchronizacja',

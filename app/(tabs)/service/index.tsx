@@ -8,9 +8,10 @@ import { Platform, Text, View } from 'react-native';
 import { AmbientGlow } from '@/components/ambient-glow';
 import { DeleteSongModal } from '@/components/delete-song-modal';
 import { SendToWorshipHubSheet } from '@/components/send-to-worshiphub-sheet';
-import { SongList } from '@/components/song-list';
+import { ServiceSongList } from '@/components/service-song-list';
 import type { Song } from '@/db/schema';
-import { deleteSong, serviceSongsQuery, setInService } from '@/db/songs-repository';
+import { deleteSong, reorderService, serviceSongsQuery, setInService } from '@/db/songs-repository';
+import { useAppSettings } from '@/hooks/use-app-settings';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 
 // Mirrors Service.tsx — native Stack.Title + a native Stack.Toolbar "Send
@@ -26,9 +27,11 @@ export default function ServiceScreen() {
   const colors = useThemeColors();
   const router = useRouter();
   const { t } = useTranslation();
+  const { clearServiceSongSettings } = useAppSettings();
   const [deleteTarget, setDeleteTarget] = useState<Song | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [sendVisible, setSendVisible] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   const { data } = useLiveQuery(serviceSongsQuery());
   const songs = data ?? [];
@@ -52,6 +55,16 @@ export default function ServiceScreen() {
         <Text className="font-sora-bold text-xl text-foreground">{t('service.title')}</Text>
       </Stack.Title>
       <Stack.Toolbar placement="right">
+        {/* Android/web can always drag (long-press the grip handle), so
+            this toggle — which only drives SwiftUI's editMode — is
+            iOS-only; showing it elsewhere would just be a button that
+            does nothing. */}
+        {Platform.OS === 'ios' && songs.length > 1 && (
+          <Stack.Toolbar.Button
+            icon={reordering ? 'checkmark' : 'arrow.up.arrow.down'}
+            onPress={() => setReordering((v) => !v)}
+          />
+        )}
         <Stack.Toolbar.Button
           icon={Platform.OS === 'ios' ? 'icloud.and.arrow.up' : CloudUploadIcon}
           onPress={() => setSendVisible(true)}
@@ -68,13 +81,18 @@ export default function ServiceScreen() {
           <Text className="text-center font-sora text-xs text-muted-foreground">{t('service.emptyDescription')}</Text>
         </View>
       ) : (
-        <SongList
+        <ServiceSongList
           songs={songs}
-          onPressSong={(song) => router.push(`/${song.id}`)}
-          onToggleService={(song) => setInService(song.id, !song.inService)}
+          reordering={reordering}
+          onPressSong={(song) => router.push(`/${song.id}/slides`)}
+          onToggleService={(song) => {
+            setInService(song.id, !song.inService);
+            if (song.inService) clearServiceSongSettings(song.id);
+          }}
           onTranslate={(song) => router.push(`/${song.id}/translate`)}
           onEdit={(song) => router.push(`/${song.id}/edit`)}
           onDelete={(song) => setDeleteTarget(song)}
+          onReorder={reorderService}
         />
       )}
 
@@ -86,8 +104,12 @@ export default function ServiceScreen() {
         onClose={() => setSendVisible(false)}
         onSent={() => {
           // A sent service is done being that service — same as the web
-          // app clearing its queue after a successful send.
-          for (const song of songs) void setInService(song.id, false);
+          // app clearing its queue (and every song's language/slide
+          // choices) after a successful send.
+          for (const song of songs) {
+            void setInService(song.id, false);
+            clearServiceSongSettings(song.id);
+          }
         }}
       />
     </View>

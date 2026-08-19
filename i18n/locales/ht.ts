@@ -77,6 +77,8 @@ const ht: Translation = {
       title: 'Sèvis',
       emptyTitle: 'Pa gen chante nan sèvis la',
       emptyDescription: 'Ajoute chante nan bibliyotèk ou pou konstwi lòd sèvis la.',
+      songLanguage: 'Lang chante a',
+      noSlides: 'Chante sa a pa gen pawòl ankò.',
     },
     sendToLocalPeerSheet: {
       title: 'Senkronizasyon Lokal',

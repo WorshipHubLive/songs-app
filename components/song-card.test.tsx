@@ -26,6 +26,7 @@ const baseSong: Song = {
   chords: '',
   language: 'en',
   inService: false,
+  serviceOrder: 0,
   createdAt: '',
 };
 

@@ -77,6 +77,8 @@ const ko: Translation = {
       title: '예배',
       emptyTitle: '예배에 노래가 없습니다',
       emptyDescription: '라이브러리에서 노래를 추가하여 예배 순서를 만드세요.',
+      songLanguage: '노래 언어',
+      noSlides: '이 노래에는 아직 가사가 없습니다.',
     },
     sendToLocalPeerSheet: {
       title: '로컬 동기화',
